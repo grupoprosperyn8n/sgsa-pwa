@@ -290,6 +290,17 @@ async function openConversation(cv){selectedConversation=cv;
   document.getElementById("chatHeaderTitle").textContent=cv.display_name||"Chat";
   document.getElementById("chatHeaderTitle").onclick=cv.is_dm?null:()=>showGroupInfo(cv.group_id);
   await loadMessages(cv.group_id);renderConversations()}
+async function showGroupInfo(gid){
+  document.getElementById("groupInfoTitle").textContent="Cargando...";
+  document.getElementById("groupInfoBody").innerHTML='<div class="empty-state"><p>Cargando...</p></div>';
+  openModal("groupInfoModal");
+  const d=await G("/api/chat/groups/"+gid);
+  if(!d?.ok){document.getElementById("groupInfoBody").innerHTML='<div class="empty-state"><p>Error</p></div>';return}
+  document.getElementById("groupInfoTitle").textContent=d.group?.nombre||"Grupo";
+  document.getElementById("groupInfoBody").innerHTML=(d.group?.descripcion?`<div style="font-size:13px;color:var(--fg2);line-height:1.6;padding:4px 0 8px">${esc(d.group.descripcion)}</div>`:"")+
+    `<h3 style="font-size:12px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.5px;padding:4px 0">${d.member_count||0} miembros</h3>`+
+    (d.members||[]).map(m=>`<div class="item-row" style="cursor:default"><div class="item-avatar">${m.avatar_url?`<img src="${m.avatar_url}">`:(m.nombre||"?")[0].toUpperCase()}</div><div class="item-info"><div class="item-name">${esc(m.nombre||m.id||"—")}</div>${m.es_admin?'<div class="item-sub">Admin</div>':""}</div></div>`).join("");
+}
 document.getElementById("chatBackBtn").addEventListener("click",()=>{selectedConversation=null;
   document.getElementById("chatMainEmpty").style.display="flex";
   document.getElementById("message-view").style.display="none";
