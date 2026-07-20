@@ -166,6 +166,27 @@ document.getElementById("exportCSVBtn").addEventListener("click",()=>{
   const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);
   const a=document.createElement("a");a.href=url;a.download="alertas-sgsa-"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(url);toast("CSV exportado","success");
 });
+
+// Global delegated click handler for alert cards (expand + action buttons)
+(function(){
+  const c=document.getElementById("alerts-list");if(!c)return;
+  c.addEventListener("click",async e=>{
+    const btn=e.target.closest(".act-btn");
+    if(btn){
+      e.stopPropagation();e.preventDefault();
+      const card=btn.closest(".alert-card"),id=card?.dataset.id;if(!id)return;
+      if(btn.classList.contains("ack"))await doAck(id);
+      else if(btn.classList.contains("progreso"))await doStatus(id,"EN_PROGRESO");
+      else if(btn.classList.contains("confirmar"))await doStatus(id,"TURNO_CONFIRMADO");
+      else if(btn.classList.contains("concluido"))await doStatus(id,"CONCLUIDA");
+      else if(btn.classList.contains("anular"))await doStatus(id,"ANULADA");
+      loadAlerts();if(alertsSound)Sound.alert();
+      return;
+    }
+    if(e.target.closest(".d-link,.d-open"))return;
+    const card=e.target.closest(".alert-card");if(card)card.classList.toggle("expanded");
+  });
+})();
 // Alert detail modal
 function showAlertDetail(a){
   const p=a.prioridad||"";let urg=0,urgLabel="Info",urgClass="urg-1";if(p.includes("🔴")){urg=3;urgLabel="Urgente";urgClass="urg-3"}else if(p.includes("🟠")){urg=2;urgLabel="Alta";urgClass="urg-2"}else if(p.includes("🟡")){urg=1;urgLabel="Media"}
