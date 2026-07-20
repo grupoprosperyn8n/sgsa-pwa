@@ -2,166 +2,241 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>SGSA — Alertas y Chat</title>
-  <link rel="stylesheet" href="pwa.css">
-  <link rel="manifest" href="manifest.webmanifest">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0f172a">
+  <title>SGSA — Alertas y Chat</title>
+  <meta name="theme-color" content="#09090b">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&display=swap">
+  <link rel="stylesheet" href="pwa.css">
 </head>
 <body>
-  <div id="app">
-    <!-- ====== LOGIN SCREEN ====== -->
-    <div id="login-screen" class="screen">
-      <div class="login-box">
-        <div class="login-logo">💬 SGSA</div>
-        <div class="login-subtitle">Chat Interno</div>
-        <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="email" />
-        <input type="password" id="loginPassword" placeholder="PIN (0000 por defecto)" autocomplete="current-password" />
-        <button id="loginBtn" class="primary-btn">Ingresar</button>
-        <div id="loginError" class="login-error"></div>
-        <div id="loginLoading" class="login-loading" style="display:none">🔄 Ingresando...</div>
-        <div class="login-hint">Primer ingreso: usá tu PIN por defecto "0000"</div>
+  <!-- LOGIN OVERLAY -->
+  <div id="login-overlay">
+    <div class="login-box">
+      <div class="login-brand">
+        <span class="material-symbols-outlined login-icon">shield_person</span>
+        <h1>SGSA</h1>
+        <p>Sistema de Gestión de Seguros Agenticos</p>
       </div>
+      <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="email">
+      <input type="password" id="loginPassword" placeholder="PIN" autocomplete="current-password">
+      <button id="loginBtn">Ingresar</button>
+      <div id="loginError"></div>
+    </div>
+  </div>
+
+  <!-- APP -->
+  <div id="app" style="display:none">
+    <!-- HEADER -->
+    <header class="app-header">
+      <div class="tabs">
+        <button class="tab active" data-tab="alerts">
+          <span class="material-symbols-outlined">notifications</span>
+          Alertas
+          <span class="badge" id="alerts-badge">0</span>
+        </button>
+        <button class="tab" data-tab="chat">
+          <span class="material-symbols-outlined">chat</span>
+          Chat
+          <span class="badge" id="chat-badge">0</span>
+        </button>
+      </div>
+      <button class="icon-btn" id="settingsBtn" title="Configuración">
+        <span class="material-symbols-outlined">settings</span>
+      </button>
+    </header>
+
+    <!-- ALERTS TAB -->
+    <div id="alerts-tab" class="tab-content active">
+      <div class="employee-bar">
+        <button class="select-btn" id="changeEmployeeBtn">
+          <span class="material-symbols-outlined">person</span>
+          <span id="employee-label">Seleccionar empleado</span>
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+      <div id="alerts-list">
+        <div class="empty" id="empty">Sin alertas pendientes</div>
+      </div>
+      <footer class="alerts-footer">
+        <button id="refreshBtn" class="icon-btn" title="Actualizar">
+          <span class="material-symbols-outlined">refresh</span>
+        </button>
+        <button id="ackAllBtn" class="btn-secondary">Marcar todas leídas</button>
+      </footer>
     </div>
 
-    <!-- ====== MAIN APP ====== -->
-    <div id="main-app" class="screen" style="display:none">
-      <!-- ====== TABS ====== -->
-      <div id="tab-bar">
-        <button class="tab-btn active" data-tab="alerts">🔔 Alertas <span class="tab-badge" id="alerts-badge">0</span></button>
-        <button class="tab-btn" data-tab="chat">💬 Chat <span class="tab-badge" id="chat-badge">0</span></button>
+    <!-- CHAT TAB -->
+    <div id="chat-tab" class="tab-content">
+      <div id="chat-header" class="chat-topbar">
+        <button id="chatBackBtn" class="icon-btn" style="display:none">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <span id="chatHeaderTitle">Conversaciones</span>
+        <button class="icon-btn" id="newGroupBtn" title="Nuevo grupo">
+          <span class="material-symbols-outlined">group_add</span>
+        </button>
+        <button class="icon-btn" id="peopleBtn" title="Empleados">
+          <span class="material-symbols-outlined">people</span>
+        </button>
       </div>
 
-      <!-- ====== ALERTS TAB ====== -->
-      <div id="alerts-tab" class="tab-content active">
-        <div class="employee-bar">
-          <span id="employee-label">👤 Sin seleccionar</span>
-          <button id="changeEmployeeBtn">Cambiar</button>
+      <div id="inbox-view" class="chat-view">
+        <div class="chat-search-box">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input type="text" id="conversationSearch" placeholder="Buscar conversaciones...">
         </div>
-        <div id="alerts-list">
-          <div class="empty" id="empty">✅ Sin alertas pendientes</div>
-        </div>
-        <footer>
-          <button id="alertsMuteBtn" class="mute-btn" title="Silenciar notificaciones de alertas">🔔</button>
-          <button id="refreshBtn">🔄 Actualizar</button>
-          <button id="ackAllBtn">✓ Marcar todas leídas</button>
-        </footer>
+        <div id="conversationList"></div>
+        <div class="empty" id="inboxEmpty">Sin conversaciones — usá el directorio para chatear</div>
       </div>
 
-      <!-- ====== CHAT TAB ====== -->
-      <div id="chat-tab" class="tab-content">
-        <div id="chat-header" class="chat-header">
-          <button id="chatBackBtn" class="chat-back-btn" style="display:none">←</button>
-          <span id="chatHeaderTitle">💬 Conversaciones</span>
-          <button id="muteBtn" class="chat-header-btn" title="Silenciar notificaciones de chat">🔔</button>
-          <button id="newGroupBtn" class="chat-header-btn" title="Nuevo grupo">➕</button>
-          <button id="peopleBtn" class="chat-header-btn" title="Empleados">👥</button>
-          <button id="chatLogoutBtn" class="chat-header-btn" title="Cerrar sesión">❌</button>
+      <div id="message-view" class="chat-view" style="display:none">
+        <div id="messageList" class="message-list"></div>
+        <div id="messageEmpty" class="empty" style="display:none">Sin mensajes todavía</div>
+        <div class="chat-input-area">
+          <button id="attachBtn" class="icon-btn" title="Adjuntar archivo">
+            <span class="material-symbols-outlined">attach_file</span>
+          </button>
+          <input type="text" id="chatInput" placeholder="Escribí un mensaje...">
+          <button id="sendBtn" class="send-btn" title="Enviar">
+            <span class="material-symbols-outlined">send</span>
+          </button>
         </div>
+      </div>
 
-        <div id="inbox-view" class="chat-view">
-          <div class="chat-search-box">
-            <input type="text" id="conversationSearch" placeholder="Buscá conversaciones..." />
-          </div>
-          <div id="conversationList"></div>
-          <div class="empty" id="inboxEmpty">Sin conversaciones todavía — usá 👥 para chatear con alguien</div>
+      <input type="file" id="fileInput" style="display:none">
+    </div>
+  </div>
+
+  <!-- SETTINGS PANEL -->
+  <div id="settings-overlay" class="overlay" style="display:none"></div>
+  <div id="settings-panel" class="settings-panel" style="display:none">
+    <div class="settings-header">
+      <h2>Configuración</h2>
+      <button class="icon-btn" id="closeSettingsBtn">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-user" id="settingsUser">
+        <span class="material-symbols-outlined settings-avatar">account_circle</span>
+        <div>
+          <div class="settings-name" id="settingsName">—</div>
+          <div class="settings-email" id="settingsEmail">—</div>
         </div>
+      </div>
 
-        <div id="message-view" class="chat-view" style="display:none">
-          <div id="messageList" class="message-list"></div>
-          <div id="messageEmpty" class="empty" style="display:none">Sin mensajes. ¡Empezá la conversación!</div>
-          <div id="chatInputArea" class="chat-input-area">
-            <button id="attachBtn" class="attach-btn" title="Adjuntar archivo">📎</button>
-            <input type="text" id="chatInput" placeholder="Escribí un mensaje..." />
-            <button id="sendBtn" class="send-btn" title="Enviar">➤</button>
-          </div>
+      <div class="settings-section">
+        <div class="settings-label">Alertas</div>
+        <button class="settings-item" id="settingsChangeEmployee">
+          <span class="material-symbols-outlined">person</span>
+          Cambiar empleado
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+        <button class="settings-item" id="settingsChangeOffice">
+          <span class="material-symbols-outlined">apartment</span>
+          Seleccionar sucursal
+          <span class="material-symbols-outlined">chevron_right</span>
+        </button>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">Notificaciones</div>
+        <div class="settings-item toggle-item">
+          <span class="material-symbols-outlined">chat</span>
+          Sonido de chat
+          <label class="toggle">
+            <input type="checkbox" id="toggleChatMute">
+            <span class="toggle-slider"></span>
+          </label>
         </div>
+        <div class="settings-item toggle-item">
+          <span class="material-symbols-outlined">notifications</span>
+          Sonido de alertas
+          <label class="toggle">
+            <input type="checkbox" id="toggleAlertsMute">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
 
-        <input type="file" id="fileInput" style="display:none" />
+      <div class="settings-section">
+        <button class="settings-item danger" id="settingsLogout">
+          <span class="material-symbols-outlined">logout</span>
+          Cerrar sesión
+        </button>
       </div>
     </div>
+  </div>
 
-    <!-- ====== EMPLOYEE MODAL (for alerts) ====== -->
-    <div id="employee-modal" class="modal" style="display:none">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button class="back-btn" id="modalBackBtn" style="display:none">←</button>
-          <h2 id="modalTitle">Seleccioná tu empleado</h2>
-          <button class="close-btn" id="closeModalBtn">✕</button>
-        </div>
-        <div class="modal-body">
-          <input type="text" id="modalSearch" placeholder="Buscá por nombre..." autofocus>
-          <div id="modalList" class="employee-list"></div>
-        </div>
+  <!-- MODALS -->
+  <div id="employee-modal" class="modal" style="display:none">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Seleccionar empleado</h2>
+        <button class="icon-btn close-modal" data-modal="employee-modal">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="modalSearch" placeholder="Buscar por nombre..." autofocus>
+        <div id="modalList" class="employee-list"></div>
       </div>
     </div>
+  </div>
 
-    <!-- ====== OFFICE MODAL (second step after employee) ====== -->
-    <div id="office-modal" class="modal" style="display:none">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button class="back-btn" id="officeBackBtn">←</button>
-          <h2>Seleccioná tu sucursal</h2>
-          <button class="close-btn" id="closeOfficeModalBtn">✕</button>
-        </div>
-        <div class="modal-body">
-          <input type="text" id="officeSearch" placeholder="Buscá por nombre..." autofocus>
-          <div id="officeList" class="employee-list"></div>
-        </div>
+  <div id="office-modal" class="modal" style="display:none">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button class="icon-btn" id="officeBackBtn">
+          <span class="material-symbols-outlined">arrow_back</span>
+        </button>
+        <h2>Seleccionar sucursal</h2>
+        <button class="icon-btn close-modal" data-modal="office-modal">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="officeSearch" placeholder="Buscar por nombre..." autofocus>
+        <div id="officeList" class="employee-list"></div>
       </div>
     </div>
+  </div>
 
-    <!-- ====== PEOPLE / DM MODAL ====== -->
-    <div id="peopleModal" class="modal" style="display:none">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Empleados</h2>
-          <button class="close-btn" id="closePeopleModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <input type="text" id="peopleSearch" placeholder="Buscá empleados..." autofocus>
-          <div id="peopleList" class="employee-list"></div>
-        </div>
+  <div id="peopleModal" class="modal" style="display:none">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Directorio</h2>
+        <button class="icon-btn close-modal" data-modal="peopleModal">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="peopleSearch" placeholder="Buscar empleados..." autofocus>
+        <div id="peopleList" class="employee-list"></div>
       </div>
     </div>
+  </div>
 
-    <!-- ====== NEW GROUP MODAL ====== -->
-    <div id="newGroupModal" class="modal" style="display:none">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h2>Nuevo grupo</h2>
-          <button class="close-btn" id="closeNewGroupModal">✕</button>
-        </div>
-        <div class="modal-body">
-          <input type="text" id="newGroupName" placeholder="Nombre del grupo" />
-          <input type="text" id="newGroupDesc" placeholder="Descripción (opcional)" />
-          <div class="modal-section-label">Miembros</div>
-          <input type="text" id="memberSearch" placeholder="Buscá empleados para agregar..." />
-          <div id="memberSearchResults" class="employee-list"></div>
-          <div id="selectedMembers" class="selected-members"></div>
-          <button id="createGroupBtn" class="primary-btn">Crear grupo</button>
-        </div>
+  <div id="newGroupModal" class="modal" style="display:none">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Nuevo grupo</h2>
+        <button class="icon-btn close-modal" data-modal="newGroupModal">
+          <span class="material-symbols-outlined">close</span>
+        </button>
       </div>
-    </div>
-
-    <!-- ====== AUDIO MODAL ====== -->
-    <div id="audioModal" class="modal" style="display:none">
-      <div class="modal-content" style="max-width: 360px;">
-        <div class="modal-header">
-          <h2>🎤 Grabación</h2>
-          <button class="close-btn" id="closeAudioModal">✕</button>
-        </div>
-        <div class="modal-body" style="text-align:center">
-          <div id="audioTimer" style="font-size:32px;font-weight:700;margin:16px 0;color:#e2e8f0">00:00</div>
-          <div style="display:flex;gap:8px;justify-content:center;margin:12px 0">
-            <button id="startRecordBtn" style="background:#16a34a;color:white;border:none;border-radius:50%;width:48px;height:48px;font-size:20px;cursor:pointer">🎤</button>
-            <button id="stopRecordBtn" style="display:none;background:#dc2626;color:white;border:none;border-radius:50%;width:48px;height:48px;font-size:20px;cursor:pointer">⏹</button>
-          </div>
-          <button id="sendAudioBtn" style="display:none;width:100%;padding:10px;background:#3b82f6;color:white;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer">Enviar audio</button>
-        </div>
+      <div class="modal-body">
+        <input type="text" id="newGroupName" placeholder="Nombre del grupo">
+        <input type="text" id="newGroupDesc" placeholder="Descripción (opcional)">
+        <div class="modal-section-label">Miembros</div>
+        <input type="text" id="memberSearch" placeholder="Buscar empleados...">
+        <div id="memberSearchResults" class="employee-list"></div>
+        <div id="selectedMembers" class="selected-members"></div>
+        <button id="createGroupBtn" class="btn-primary">Crear grupo</button>
       </div>
     </div>
   </div>
