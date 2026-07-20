@@ -82,7 +82,9 @@ function enterApp(){
   const e=currentUser?.email||S.get("sgsa_lastUser"),p=getProfile(e);
   selectedOffice=p?.office||"";if(selectedOffice&&p?.officeName){document.getElementById("office-label").innerHTML=`<span class="material-symbols-outlined">apartment</span>${esc(p.officeName)}`;document.getElementById("selectOfficeBtn").classList.add("filled")}
   chatSound=p?.chatSound!==false;alertsSound=p?.alertsSound!==false;document.getElementById("toggleChatSound").checked=chatSound;document.getElementById("toggleAlertsSound").checked=alertsSound;
-  updateSettingsUI();initChat();initAlerts();flushOfflineQueue();
+  updateSettingsUI();
+  // Lazy load: only init alerts on startup, chat loads on tab click
+  initAlerts();flushOfflineQueue();
   if(!selectedOffice){openModal("office-modal");loadOfficeModal()}
   updateBadgeFromAlerts();
 }
