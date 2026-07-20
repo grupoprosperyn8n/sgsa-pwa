@@ -117,7 +117,7 @@ function updateStats(){document.getElementById("statAlertsToday").textContent=st
 
 // ====== OFFICE ======
 async function loadOfficeModal(){if(offices.length){renderOfficeList(offices);return}try{const r=await fetch(API+"/api/oficinas");const d=await r.json();if(d.ok)offices=d.oficinas;renderOfficeList(offices)}catch{}}
-function renderOfficeList(list){const q=(document.getElementById("officeSearch")?.value||"").toLowerCase(),f=q?list.filter(o=>o.nombre?.toLowerCase().includes(q)||o.localidad?.toLowerCase().includes(q)):list,c=document.getElementById("officeList");if(!f.length){c.innerHTML='<div class="empty-state"><span class="material-symbols-outlined empty-icon">apartment</span><p>Sin resultados</p></div>';return}c.innerHTML=f.map(o=>`<div class="item-row" data-name="${esc(o.nombre)}"><div class="item-avatar"><span class="material-symbols-outlined">apartment</span></div><div class="item-info"><div class="item-name">${esc(o.nombre)}</div>${o.localidad?`<div class="item-sub">${esc(o.localidad)}</div>`:""}</div></div>`).join("");c.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",()=>{selectedOffice=el.dataset.name;document.getElementById("office-label").innerHTML=`<span class="material-symbols-outlined">apartment</span>${esc(selectedOffice)}`;document.getElementById("selectOfficeBtn").classList.add("filled");const e=currentUser?.email;if(e)saveProfile(e,{office:selectedOffice,officeName:selectedOffice});closeModal("office-modal");loadAlerts()}))}
+function renderOfficeList(list){const q=(document.getElementById("officeSearch")?.value||"").toLowerCase(),f=q?list.filter(o=>o.nombre?.toLowerCase().includes(q)||o.localidad?.toLowerCase().includes(q)):list,c=document.getElementById("officeList");if(!f.length){c.innerHTML='<div class="empty-state"><span class="material-symbols-outlined empty-icon">apartment</span><p>Sin resultados</p></div>';return}c.innerHTML=f.map(o=>`<div class="item-row" data-name="${esc(o.nombre)}"><div class="item-avatar"><span class="material-symbols-outlined">apartment</span></div><div class="item-info"><div class="item-name">${esc(o.nombre)}</div>${o.localidad?`<div class="item-sub">${esc(o.localidad)}</div>`:""}</div></div>`).join("");c.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",()=>{selectedOffice=el.dataset.name;document.getElementById("office-label").innerHTML=`<span class="material-symbols-outlined">apartment</span>${esc(selectedOffice)}`;document.getElementById("selectOfficeBtn").classList.add("filled");const e=currentUser?.email;if(e)saveProfile(e,{office:selectedOffice,officeName:selectedOffice});closeModal("office-modal");loadAlerts(showHistory)}))}
 document.getElementById("officeSearch").addEventListener("input",()=>renderOfficeList(offices));
 document.getElementById("selectOfficeBtn").addEventListener("click",()=>{openModal("office-modal");loadOfficeModal()});
 
@@ -231,9 +231,9 @@ function showAlertDetail(a){
   openModal("alert-detail-modal");
 }
 
-function initAlerts(){if(!currentUser?.airtable_id)return;if(selectedOffice)loadAlerts()}
+function initAlerts(){if(!currentUser?.airtable_id)return;if(selectedOffice)loadAlerts(showHistory)}
 document.getElementById("refreshBtn").addEventListener("click",loadAlerts);
-document.getElementById("ackAllBtn").addEventListener("click",async()=>{for(const card of document.querySelectorAll(".alert-card")){const id=card.dataset.id;if(id)await doAck(id)}loadAlerts()});
+document.getElementById("ackAllBtn").addEventListener("click",async()=>{for(const card of document.querySelectorAll(".alert-card")){const id=card.dataset.id;if(id)await doAck(id)}loadAlerts(showHistory)});
 
 // ====== CHAT ======
 let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null;
