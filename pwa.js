@@ -124,8 +124,8 @@ document.getElementById("selectOfficeBtn").addEventListener("click",()=>{openMod
 // ====== ALERTS ======
 let alerts=[],alertTimer=null,alertFilterUrg="";
 async function loadAlerts(){const aid=currentUser?.airtable_id;if(!aid)return;setLoading(true);try{const r=await fetch(API+"/api/alerts?leidas=false",{headers:authToken?{Authorization:"Bearer "+authToken}:{}});const d=await r.json();alerts=(d.alerts||[]).filter(a=>!a.leida);stats.alertsToday=alerts.length;renderAlerts()}catch(e){console.error(e)}setLoading(false);updateBadgeFromAlerts()}
-async function doAck(id){try{await fetch(API+"/api/alerts/"+id+"/ack",{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{}});stats.alertsDone++}catch{}}
-async function doStatus(id,estado){try{await fetch(API+"/api/alerts/"+id+"/status",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({estado})});stats.alertsDone++}catch{}}
+async function doAck(id){try{await fetch(API+"/api/alerts/"+id+"/ack?empleado_que_marco_leido="+encodeURIComponent(currentUser?.airtable_id||"")+"&sucursal_id="+encodeURIComponent(selectedOffice||""),{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{}});stats.alertsDone++}catch{}}
+async function doStatus(id,estado){try{await fetch(API+"/api/alerts/"+id+"/status",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({estado,empleado_id:currentUser?.airtable_id||"",sucursal_id:selectedOffice||""})});stats.alertsDone++}catch{}}
 
 function setLoading(v){document.getElementById("alertsSkeleton").style.display=v?"flex":"none"}
 
