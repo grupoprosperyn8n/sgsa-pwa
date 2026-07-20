@@ -6,9 +6,22 @@ const REFRESH_INTERVAL = 30000;
 
 // ─── Storage wrapper (localStorage instead of chrome.storage) ─────────────
 const storage = {
-  get(keys, cb) { try { const result = {}; for (const k of keys) result[k] = JSON.parse(localStorage.getItem(k)); cb(result); } catch { cb({}); } },
-  set(obj, cb) { try { for (const [k, v] of Object.entries(obj)) localStorage.setItem(k, JSON.stringify(v)); if (cb) cb(); } catch {} },
-  remove(keys, cb) { try { for (const k of keys) localStorage.removeItem(k); if (cb) cb(); } catch {} },
+  get(keys, cb) {
+    const result = {};
+    try { for (const k of keys) { const v = localStorage.getItem(k); if (v !== null) result[k] = JSON.parse(v); } } catch {}
+    if (cb) { cb(result); return; }
+    return Promise.resolve(result);
+  },
+  set(obj, cb) {
+    try { for (const [k, v] of Object.entries(obj)) localStorage.setItem(k, JSON.stringify(v)); } catch {}
+    if (cb) { cb(); return; }
+    return Promise.resolve();
+  },
+  remove(keys, cb) {
+    try { for (const k of keys) localStorage.removeItem(k); } catch {}
+    if (cb) { cb(); return; }
+    return Promise.resolve();
+  },
 };
 
 // ─── Auth ──────────────────────────────────────────────────────────────────────
