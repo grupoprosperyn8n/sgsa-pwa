@@ -302,7 +302,29 @@ function stopPing(){if(_pingTimer){clearInterval(_pingTimer);_pingTimer=null}}
 // ─── Directory ────────────────────────────────────────────────────────────
 document.getElementById("peopleBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}openModal("peopleModal");loadPeopleList()});
 async function loadPeopleList(){const d=await G("/api/chat/employees");if(d?.ok){allEmployees=(d.employees||[]).filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id));renderPeopleList(allEmployees)}else if(allEmployees.length)renderPeopleList(allEmployees)}
-function renderPeopleList(list){const q=(document.getElementById("peopleSearch")?.value||"").toLowerCase(),f=q?list.filter(e=>e.nombre?.toLowerCase().includes(q)):list,c=document.getElementById("peopleList");if(!f.length){c.innerHTML='<div class="empty-state"><p>Sin resultados</p></div>';return}c.innerHTML=f.map(e=>`<div class="item-row" data-empleado-id="${e.id}" data-empleado-nombre="${esc(e.nombre)}"><div class="item-avatar">${e.avatar_url?`<img src="${e.avatar_url}">`:(e.nombre||"?")[0].toUpperCase()}<span class="online-dot ${e.online?"online":"offline"}"></span></div><div class="item-info"><div class="item-name">${esc(e.nombre)}</div>${e.oficina_nombre?`<div class="item-sub">${esc(e.oficina_nombre)}</div>`:""}<div class="item-sub">${e.online?"En línea":"Desconectado"}</div></div><span class="item-action">${window._shareMsg?'<span class="material-symbols-outlined" style="font-size:16px">share</span> Compartir':'<span class="material-symbols-outlined" style="font-size:16px">chat</span> DM'}</span></div>`).join("");c.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",async()=>{if(!authToken){showLogin();return}if(window._shareMsg){const r=await P("/api/chat/dm",{target_empleado_id:el.dataset.empleadoId});if(r?.ok){closeModal("peopleModal");const txt=window._shareMsg;window._shareMsg=null;openConversation({group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:null,avatar_url:null});await P("/api/chat/send",{grupo_id:r.group_id,empleado_id:currentUser?.airtable_id,contenido:txt});loadMessages(r.group_id);refreshConversations();toast("Compartido","success")}return}const r=await P("/api/chat/dm",{target_empleado_id:el.dataset.empleadoId});if(r?.ok){closeModal("peopleModal");openConversation({group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:null,avatar_url:null});refreshConversations()}else alert("Error al iniciar DM")}))}
+function renderPeopleList(list){const q=(document.getElementById("peopleSearch")?.value||"").toLowerCase(),f=q?list.filter(e=>e.nombre?.toLowerCase().includes(q)):list,c=document.getElementById("peopleList");if(!f.length){c.innerHTML='<div class="empty-state"><p>Sin resultados</p></div>';return}c.innerHTML=f.map(e=>`<div class="item-row" data-empleado-id="${e.id}" data-empleado-nombre="${esc(e.nombre)}"><div class="item-avatar">${e.avatar_url?`<img src="${e.avatar_url}">`:(e.nombre||"?")[0].toUpperCase()}<span class="online-dot ${e.online?"online":"offline"}"></span></div><div class="item-info"><div class="item-name">${esc(e.nombre)}</div>${e.oficina_nombre?`<div class="item-sub">${esc(e.oficina_nombre)}</div>`:""}<div class="item-sub">${e.online?"En línea":"Desconectado"}</div></div><span class="item-action">${window._shareMsg?'<span class="material-symbols-outlined" style="font-size:16px">share</span> Compartir':'<span class="material-symbols-outlined" style="font-size:16px">chat</span> DM'}</span></div>`).join("");c.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",async()=>{if(!authToken){showLogin();return}
+  // Sharing mode
+  if(window._shareMsg){
+    const txt=window._shareMsg;window._shareMsg=null;
+    const r=await P("/api/chat/dm",{target_empleado_id:el.dataset.empleadoId});
+    if(!r?.ok){alert("Error al compartir");return}
+    closeModal("peopleModal");
+    // Send the shared message FIRST, then open conversation
+    const sendR=await P("/api/chat/send",{grupo_id:r.group_id,empleado_id:currentUser?.airtable_id,contenido:txt});
+    if(sendR?.ok){
+      // Switch to chat tab, open the conversation
+      switchTab("chat");
+      selectedConversation={group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:null,avatar_url:null};
+      document.getElementById("inbox-view").style.display="none";
+      document.getElementById("message-view").style.display="";
+      document.getElementById("chatBackBtn").style.display="";
+      document.getElementById("chatHeaderTitle").textContent=el.dataset.empleadoNombre||"DM";
+      await loadMessages(r.group_id);refreshConversations();toast("Compartido","success");
+    }else{toast("Error al enviar","error")}
+    return;
+  }
+  // Normal DM
+  const r=await P("/api/chat/dm",{target_empleado_id:el.dataset.empleadoId});if(r?.ok){closeModal("peopleModal");openConversation({group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:null,avatar_url:null});refreshConversations()}else alert("Error al iniciar DM")}))}
 document.getElementById("peopleSearch").addEventListener("input",()=>renderPeopleList(allEmployees));
 
 // ─── New group ────────────────────────────────────────────────────────────
