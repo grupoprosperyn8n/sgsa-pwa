@@ -286,8 +286,9 @@ function timeAgo(iso){if(!iso)return"";const d=Date.now()-new Date(iso).getTime(
 async function openConversation(cv){selectedConversation=cv;
   document.getElementById("chatMainEmpty").style.display="none";
   document.getElementById("message-view").style.display="";
-  document.getElementById("chatBackBtn").style.display="none"; // show on mobile only
+  document.getElementById("chatBackBtn").style.display="none";
   document.getElementById("chatHeaderTitle").textContent=cv.display_name||"Chat";
+  document.getElementById("chatHeaderTitle").onclick=cv.is_dm?null:()=>showGroupInfo(cv.group_id);
   await loadMessages(cv.group_id);renderConversations()}
 document.getElementById("chatBackBtn").addEventListener("click",()=>{selectedConversation=null;
   document.getElementById("chatMainEmpty").style.display="flex";
