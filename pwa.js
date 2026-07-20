@@ -99,7 +99,7 @@ document.addEventListener("keydown",e=>{
 });
 
 // ====== TABS ======
-function switchTab(tab){if(tab==="chat"&&!authToken){showLogin();return}document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));document.querySelector(`.tab[data-tab="${tab}"]`)?.classList.add("active");document.getElementById(tab+"-tab")?.classList.add("active");if(tab==="chat")refreshConversations()}
+function switchTab(tab){if(tab==="chat"&&!authToken){showLogin();return}document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));document.querySelector(`.tab[data-tab="${tab}"]`)?.classList.add("active");document.getElementById(tab+"-tab")?.classList.add("active");if(tab==="chat"&&!_chatStarted){initChat();_chatStarted=1}else if(tab==="chat")refreshConversations()}
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
 
 // ====== SETTINGS ======
