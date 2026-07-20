@@ -152,6 +152,47 @@ function renderAlerts(){
 // Alert search & filters
 document.getElementById("alertSearch").addEventListener("input",renderAlerts);
 document.getElementById("filterChips").addEventListener("click",e=>{const chip=e.target.closest(".chip");if(!chip)return;document.querySelectorAll("#filterChips .chip").forEach(c=>c.classList.remove("active"));chip.classList.add("active");alertFilterUrg=chip.dataset.urg;renderAlerts()});
+
+// ====== SETUP: global delegated handlers (run once) ======
+(function setupGlobalHandlers(){
+  const c=document.getElementById("alerts-list");
+  if(!c)return;
+  // Delegated click: card expand + action buttons
+  c.addEventListener("click",async e=>{
+    const btn=e.target.closest(".act-btn");
+    if(btn){
+      e.stopPropagation();e.preventDefault();
+      const card=btn.closest(".alert-card"),id=card?.dataset.id;
+      if(!id)return;
+      if(btn.classList.contains("ack"))await doAck(id);
+      else if(btn.classList.contains("progreso"))await doStatus(id,"EN_PROGRESO");
+      else if(btn.classList.contains("confirmar"))await doStatus(id,"TURNO_CONFIRMADO");
+      else if(btn.classList.contains("concluido"))await doStatus(id,"CONCLUIDA");
+      else if(btn.classList.contains("anular"))await doStatus(id,"ANULADA");
+      loadAlerts();if(alertsSound)Sound.alert();
+      return;
+    }
+    if(e.target.closest(".d-link,.d-open"))return;
+    const card=e.target.closest(".alert-card");
+    if(card)card.classList.toggle("expanded");
+  });
+
+  // Alert search
+  const as=document.getElementById("alertSearch");
+  if(as)as.addEventListener("input",renderAlerts);
+
+  // Filter chips
+  const fc=document.getElementById("filterChips");
+  if(fc)fc.addEventListener("click",e=>{
+    const chip=e.target.closest(".chip");if(!chip)return;
+    document.querySelectorAll("#filterChips .chip").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");alertFilterUrg=chip.dataset.urg;renderAlerts();
+  });
+
+  // CSV export
+  const ex=document.getElementById("exportCSVBtn");
+  if(ex)ex.addEventListener("click",()=>{...exportCSVLogic...});
+})();
 // Export CSV
 document.getElementById("exportCSVBtn").addEventListener("click",()=>{const q=(document.getElementById("alertSearch")?.value||"").toLowerCase();let f=alerts;if(alertFilterUrg)f=f.filter(a=>{const p=a.prioridad||"";if(alertFilterUrg==="3")return p.includes("🔴");if(alertFilterUrg==="2")return p.includes("🟠");if(alertFilterUrg==="1")return p.includes("🟡");return true});if(q)f=f.filter(a=>(a.titulo||"").toLowerCase().includes(q)||(a.cuerpo||"").toLowerCase().includes(q));const csv="Título,Tipo,Prioridad,Fecha,Cuerpo\n"+f.map(a=>`"${(a.titulo||"").replace(/"/g,'""')}","${(a.tipo_alerta||"")}","${(a.prioridad||"")}","${(a.fecha||a.created_at||"").slice(0,10)}","${(a.cuerpo||"").replace(/"/g,'""')}"`).join("\n");const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="alertas-sgsa-"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(url);toast("CSV exportado","success")});
 // Alert detail modal
