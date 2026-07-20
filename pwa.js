@@ -140,8 +140,8 @@ async function loadAlerts(hist){
   }catch(e){console.error(e)}
   setLoading(false);updateBadgeFromAlerts();
 }
-async function doAck(id){try{await fetch(API+"/api/alerts/"+id+"/ack?empleado_que_marco_leido="+encodeURIComponent(currentUser?.airtable_id||"")+"&sucursal_id="+encodeURIComponent(selectedOffice||""),{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{}});stats.alertsDone++}catch{}}
-async function doStatus(id,estado){try{await fetch(API+"/api/alerts/"+id+"/status",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({estado,empleado_id:currentUser?.airtable_id||"",sucursal_id:selectedOffice||""})});stats.alertsDone++}catch{}}
+async function doAck(id){try{await fetch(API+"/api/alerts/"+id+"/ack?empleado_que_marco_leido="+encodeURIComponent(currentUser?.airtable_id||"")+"&sucursal_id="+encodeURIComponent(selectedOffice||""),{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{}});S.del("sgsa_alertCache");S.del("sgsa_alertCacheHist");stats.alertsDone++}catch{}}
+async function doStatus(id,estado){try{await fetch(API+"/api/alerts/"+id+"/status",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({estado,empleado_id:currentUser?.airtable_id||"",sucursal_id:selectedOffice||""})});S.del("sgsa_alertCache");S.del("sgsa_alertCacheHist");stats.alertsDone++}catch{}}
 
 function setLoading(v){const sk=document.getElementById("alertsSkeleton");if(sk)sk.style.display=v?"flex":"none"}
 
