@@ -13,35 +13,48 @@
   <link rel="stylesheet" href="pwa.css">
 </head>
 <body>
-  <!-- LOGIN OVERLAY -->
-  <div id="login-overlay">
-    <div class="login-box">
+
+  <!-- ======================================================================= -->
+  <!-- LOGIN SCREEN -->
+  <!-- ======================================================================= -->
+  <div id="login-screen">
+    <div class="login-container">
       <div class="login-brand">
         <span class="material-symbols-outlined login-icon">shield_person</span>
         <h1>SGSA</h1>
-        <p>Sistema de Gestión de Seguros Agenticos</p>
+        <p>Sistema de Gestión de Seguros</p>
       </div>
-      <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="email">
-      <input type="password" id="loginPassword" placeholder="PIN" autocomplete="current-password">
-      <button id="loginBtn">Ingresar</button>
-      <div id="loginError"></div>
+
+      <!-- Saved profiles -->
+      <div id="savedProfiles" class="saved-profiles" style="display:none"></div>
+
+      <!-- Login form -->
+      <div id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="email">
+        <div style="position:relative">
+          <input type="password" id="loginPassword" placeholder="PIN" autocomplete="current-password">
+        </div>
+        <button id="loginBtn">Ingresar</button>
+        <div id="loginError"></div>
+      </div>
+
+      <button id="showOtherLogin" class="link-btn" style="display:none">Usar otra cuenta</button>
     </div>
   </div>
 
-  <!-- APP -->
+  <!-- ======================================================================= -->
+  <!-- MAIN APP -->
+  <!-- ======================================================================= -->
   <div id="app" style="display:none">
+
     <!-- HEADER -->
     <header class="app-header">
       <div class="tabs">
         <button class="tab active" data-tab="alerts">
-          <span class="material-symbols-outlined">notifications</span>
-          Alertas
-          <span class="badge" id="alerts-badge">0</span>
+          <span class="material-symbols-outlined">notifications</span>Alertas<span class="badge" id="alerts-badge">0</span>
         </button>
         <button class="tab" data-tab="chat">
-          <span class="material-symbols-outlined">chat</span>
-          Chat
-          <span class="badge" id="chat-badge">0</span>
+          <span class="material-symbols-outlined">chat</span>Chat<span class="badge" id="chat-badge">0</span>
         </button>
       </div>
       <button class="icon-btn" id="settingsBtn" title="Configuración">
@@ -49,18 +62,27 @@
       </button>
     </header>
 
-    <!-- ALERTS TAB -->
+    <!-- ============ ALERTS TAB ============ -->
     <div id="alerts-tab" class="tab-content active">
-      <div class="employee-bar">
-        <button class="select-btn" id="changeEmployeeBtn">
-          <span class="material-symbols-outlined">person</span>
-          <span id="employee-label">Seleccionar empleado</span>
+      <!-- Office selector -->
+      <div class="office-bar" id="office-bar">
+        <button class="select-btn" id="selectOfficeBtn">
+          <span class="material-symbols-outlined">apartment</span>
+          <span id="office-label">Seleccionar sucursal</span>
           <span class="material-symbols-outlined">chevron_right</span>
         </button>
       </div>
+
+      <!-- Alert list -->
       <div id="alerts-list">
-        <div class="empty" id="empty">Sin alertas pendientes</div>
+        <div class="empty-state" id="emptyAlerts">
+          <span class="material-symbols-outlined empty-icon">notifications_off</span>
+          <p>Sin alertas pendientes</p>
+          <span class="empty-hint">Las alertas operativas aparecerán acá</span>
+        </div>
       </div>
+
+      <!-- Footer -->
       <footer class="alerts-footer">
         <button id="refreshBtn" class="icon-btn" title="Actualizar">
           <span class="material-symbols-outlined">refresh</span>
@@ -69,7 +91,7 @@
       </footer>
     </div>
 
-    <!-- CHAT TAB -->
+    <!-- ============ CHAT TAB ============ -->
     <div id="chat-tab" class="tab-content">
       <div id="chat-header" class="chat-topbar">
         <button id="chatBackBtn" class="icon-btn" style="display:none">
@@ -79,7 +101,7 @@
         <button class="icon-btn" id="newGroupBtn" title="Nuevo grupo">
           <span class="material-symbols-outlined">group_add</span>
         </button>
-        <button class="icon-btn" id="peopleBtn" title="Empleados">
+        <button class="icon-btn" id="peopleBtn" title="Directorio">
           <span class="material-symbols-outlined">people</span>
         </button>
       </div>
@@ -90,14 +112,21 @@
           <input type="text" id="conversationSearch" placeholder="Buscar conversaciones...">
         </div>
         <div id="conversationList"></div>
-        <div class="empty" id="inboxEmpty">Sin conversaciones — usá el directorio para chatear</div>
+        <div class="empty-state" id="inboxEmpty">
+          <span class="material-symbols-outlined empty-icon">forum</span>
+          <p>Sin conversaciones</p>
+          <span class="empty-hint">Usá el directorio <span class="material-symbols-outlined" style="font-size:14px">people</span> para empezar a chatear</span>
+        </div>
       </div>
 
       <div id="message-view" class="chat-view" style="display:none">
         <div id="messageList" class="message-list"></div>
-        <div id="messageEmpty" class="empty" style="display:none">Sin mensajes todavía</div>
+        <div class="empty-state" id="messageEmpty" style="display:none">
+          <span class="material-symbols-outlined empty-icon">chat</span>
+          <p>Sin mensajes todavía</p>
+        </div>
         <div class="chat-input-area">
-          <button id="attachBtn" class="icon-btn" title="Adjuntar archivo">
+          <button id="attachBtn" class="icon-btn" title="Adjuntar">
             <span class="material-symbols-outlined">attach_file</span>
           </button>
           <input type="text" id="chatInput" placeholder="Escribí un mensaje...">
@@ -106,14 +135,15 @@
           </button>
         </div>
       </div>
-
       <input type="file" id="fileInput" style="display:none">
     </div>
   </div>
 
+  <!-- ======================================================================= -->
   <!-- SETTINGS PANEL -->
+  <!-- ======================================================================= -->
   <div id="settings-overlay" class="overlay" style="display:none"></div>
-  <div id="settings-panel" class="settings-panel" style="display:none">
+  <aside id="settings-panel" class="settings-panel" style="display:none">
     <div class="settings-header">
       <h2>Configuración</h2>
       <button class="icon-btn" id="closeSettingsBtn">
@@ -121,87 +151,55 @@
       </button>
     </div>
     <div class="settings-body">
-      <div class="settings-user" id="settingsUser">
+      <div class="settings-user">
         <span class="material-symbols-outlined settings-avatar">account_circle</span>
         <div>
           <div class="settings-name" id="settingsName">—</div>
           <div class="settings-email" id="settingsEmail">—</div>
         </div>
       </div>
-
       <div class="settings-section">
         <div class="settings-label">Alertas</div>
-        <button class="settings-item" id="settingsChangeEmployee">
-          <span class="material-symbols-outlined">person</span>
-          Cambiar empleado
-          <span class="material-symbols-outlined">chevron_right</span>
-        </button>
         <button class="settings-item" id="settingsChangeOffice">
-          <span class="material-symbols-outlined">apartment</span>
-          Seleccionar sucursal
-          <span class="material-symbols-outlined">chevron_right</span>
+          <span class="material-symbols-outlined">apartment</span>Seleccionar sucursal<span class="material-symbols-outlined">chevron_right</span>
         </button>
       </div>
-
       <div class="settings-section">
         <div class="settings-label">Notificaciones</div>
-        <div class="settings-item toggle-item">
-          <span class="material-symbols-outlined">chat</span>
-          Sonido de chat
-          <label class="toggle">
-            <input type="checkbox" id="toggleChatMute">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-        <div class="settings-item toggle-item">
-          <span class="material-symbols-outlined">notifications</span>
-          Sonido de alertas
-          <label class="toggle">
-            <input type="checkbox" id="toggleAlertsMute">
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
+        <label class="settings-item toggle-item">
+          <span class="material-symbols-outlined">chat</span>Sonido de chat
+          <span class="toggle"><input type="checkbox" id="toggleChatMute"><span class="toggle-slider"></span></span>
+        </label>
+        <label class="settings-item toggle-item">
+          <span class="material-symbols-outlined">notifications</span>Sonido de alertas
+          <span class="toggle"><input type="checkbox" id="toggleAlertsMute"><span class="toggle-slider"></span></span>
+        </label>
       </div>
-
       <div class="settings-section">
+        <button class="settings-item" id="settingsSwitchUser">
+          <span class="material-symbols-outlined">switch_account</span>Cambiar de usuario
+        </button>
         <button class="settings-item danger" id="settingsLogout">
-          <span class="material-symbols-outlined">logout</span>
-          Cerrar sesión
+          <span class="material-symbols-outlined">logout</span>Cerrar sesión
         </button>
       </div>
     </div>
-  </div>
+  </aside>
 
+  <!-- ======================================================================= -->
   <!-- MODALS -->
-  <div id="employee-modal" class="modal" style="display:none">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Seleccionar empleado</h2>
-        <button class="icon-btn close-modal" data-modal="employee-modal">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <input type="text" id="modalSearch" placeholder="Buscar por nombre..." autofocus>
-        <div id="modalList" class="employee-list"></div>
-      </div>
-    </div>
-  </div>
-
+  <!-- ======================================================================= -->
   <div id="office-modal" class="modal" style="display:none">
     <div class="modal-content">
       <div class="modal-header">
-        <button class="icon-btn" id="officeBackBtn">
-          <span class="material-symbols-outlined">arrow_back</span>
-        </button>
         <h2>Seleccionar sucursal</h2>
         <button class="icon-btn close-modal" data-modal="office-modal">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
       <div class="modal-body">
-        <input type="text" id="officeSearch" placeholder="Buscar por nombre..." autofocus>
-        <div id="officeList" class="employee-list"></div>
+        <input type="text" id="officeSearch" placeholder="Buscar sucursal..." autofocus>
+        <div id="officeList" class="select-list"></div>
       </div>
     </div>
   </div>
@@ -216,7 +214,7 @@
       </div>
       <div class="modal-body">
         <input type="text" id="peopleSearch" placeholder="Buscar empleados..." autofocus>
-        <div id="peopleList" class="employee-list"></div>
+        <div id="peopleList" class="select-list"></div>
       </div>
     </div>
   </div>
@@ -234,7 +232,7 @@
         <input type="text" id="newGroupDesc" placeholder="Descripción (opcional)">
         <div class="modal-section-label">Miembros</div>
         <input type="text" id="memberSearch" placeholder="Buscar empleados...">
-        <div id="memberSearchResults" class="employee-list"></div>
+        <div id="memberSearchResults" class="select-list"></div>
         <div id="selectedMembers" class="selected-members"></div>
         <button id="createGroupBtn" class="btn-primary">Crear grupo</button>
       </div>
