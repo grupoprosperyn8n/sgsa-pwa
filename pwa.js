@@ -122,12 +122,25 @@ document.getElementById("officeSearch").addEventListener("input",()=>renderOffic
 document.getElementById("selectOfficeBtn").addEventListener("click",()=>{openModal("office-modal");loadOfficeModal()});
 
 // ====== ALERTS ======
-let alerts=[],alertTimer=null,alertFilterUrg="";
-async function loadAlerts(){const aid=currentUser?.airtable_id;if(!aid)return;setLoading(true);try{const r=await fetch(API+"/api/alerts?leidas=false",{headers:authToken?{Authorization:"Bearer "+authToken}:{}});const d=await r.json();alerts=(d.alerts||[]).filter(a=>!a.leida);stats.alertsToday=alerts.length;renderAlerts()}catch(e){console.error(e)}setLoading(false);updateBadgeFromAlerts()}
+let alerts=[],alertTimer=null,alertFilterUrg="",showHistory=false;
+
+async function loadAlerts(hist){
+  const aid=currentUser?.airtable_id;if(!aid)return;
+  setLoading(true);
+  try{
+    const leidas=hist?"true":"false";
+    const r=await fetch(API+"/api/alerts?leidas="+leidas,{headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+    const d=await r.json();alerts=d.alerts||[];if(!hist)alerts=alerts.filter(a=>!a.leida);
+    stats.alertsToday=d.alerts?.length||0;renderAlerts();
+  }catch(e){console.error(e)}
+  setLoading(false);updateBadgeFromAlerts();
+}
 async function doAck(id){try{await fetch(API+"/api/alerts/"+id+"/ack?empleado_que_marco_leido="+encodeURIComponent(currentUser?.airtable_id||"")+"&sucursal_id="+encodeURIComponent(selectedOffice||""),{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{}});stats.alertsDone++}catch{}}
 async function doStatus(id,estado){try{await fetch(API+"/api/alerts/"+id+"/status",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({estado,empleado_id:currentUser?.airtable_id||"",sucursal_id:selectedOffice||""})});stats.alertsDone++}catch{}}
 
-function setLoading(v){document.getElementById("alertsSkeleton").style.display=v?"flex":"none"}
+function setLoading(v){const sk=document.getElementById("alertsSkeleton");if(sk)sk.style.display=v?"flex":"none"}
+
+function autoRefreshAlerts(){loadAlerts(showHistory)}
 
 function updateBadgeFromAlerts(){const n=alerts.filter(a=>!a.leida).length;updateBadge(n);document.getElementById("alerts-badge").textContent=n}
 
