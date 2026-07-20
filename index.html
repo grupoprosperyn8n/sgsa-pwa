@@ -78,26 +78,39 @@
     </footer>
   </div>
 
-  <!-- ====== CHAT TAB ====== -->
+  <!-- ====== CHAT TAB (Telegram-style) ====== -->
   <div id="chat-tab" class="tab-content">
-    <div id="chat-header" class="chat-topbar">
-      <button id="chatBackBtn" class="icon-btn" style="display:none"><span class="material-symbols-outlined">arrow_back</span></button>
-      <span id="chatHeaderTitle">Conversaciones</span>
-      <button class="icon-btn" id="newGroupBtn" title="Nuevo grupo (Ctrl+N)"><span class="material-symbols-outlined">group_add</span></button>
-      <button class="icon-btn" id="peopleBtn" title="Directorio"><span class="material-symbols-outlined">people</span></button>
-    </div>
-    <div id="inbox-view" class="chat-view">
-      <div class="chat-search-box"><span class="material-symbols-outlined search-icon">search</span><input type="text" id="conversationSearch" placeholder="Buscar conversaciones... (Ctrl+K)"></div>
-      <div id="conversationList"></div>
-      <div class="empty-state" id="inboxEmpty"><span class="material-symbols-outlined empty-icon">forum</span><p>Sin conversaciones</p><span class="empty-hint">Usá el directorio para empezar</span></div>
-    </div>
-    <div id="message-view" class="chat-view" style="display:none">
-      <div id="messageList" class="message-list"></div>
-      <div class="empty-state" id="messageEmpty" style="display:none"><span class="material-symbols-outlined empty-icon">chat</span><p>Sin mensajes</p></div>
-      <div class="chat-input-area">
-        <button id="attachBtn" class="icon-btn" title="Adjuntar"><span class="material-symbols-outlined">attach_file</span></button>
-        <input type="text" id="chatInput" placeholder="Escribí un mensaje...">
-        <button id="sendBtn" class="send-btn" title="Enviar"><span class="material-symbols-outlined">send</span></button>
+    <div class="chat-layout">
+      <!-- Left panel: conversation list -->
+      <div class="chat-sidebar" id="chatSidebar">
+        <div class="sidebar-header">
+          <span>Chats</span>
+          <button class="icon-btn" id="newGroupBtn" title="Nuevo grupo"><span class="material-symbols-outlined">group_add</span></button>
+          <button class="icon-btn" id="peopleBtn" title="Directorio"><span class="material-symbols-outlined">person_add</span></button>
+        </div>
+        <div class="chat-search-box"><span class="material-symbols-outlined search-icon">search</span><input type="text" id="conversationSearch" placeholder="Buscar..."></div>
+        <div id="conversationList"></div>
+        <div class="empty-state" id="inboxEmpty"><span class="material-symbols-outlined empty-icon">forum</span><p>Sin chats</p></div>
+      </div>
+      <!-- Right panel: active chat -->
+      <div class="chat-main" id="chatMain">
+        <div class="chat-main-empty" id="chatMainEmpty">
+          <span class="material-symbols-outlined" style="font-size:64px;opacity:.15;margin-bottom:16px">chat</span>
+          <p>Seleccioná un chat</p>
+        </div>
+        <div id="message-view" class="chat-view" style="display:none">
+          <div class="chat-topbar-compact">
+            <button id="chatBackBtn" class="icon-btn" style="display:none"><span class="material-symbols-outlined">arrow_back</span></button>
+            <span id="chatHeaderTitle">Chat</span>
+          </div>
+          <div id="messageList" class="message-list"></div>
+          <div class="empty-state" id="messageEmpty" style="display:none"><span class="material-symbols-outlined empty-icon">chat</span><p>Sin mensajes</p></div>
+          <div class="chat-input-area">
+            <button id="attachBtn" class="icon-btn"><span class="material-symbols-outlined">attach_file</span></button>
+            <input type="text" id="chatInput" placeholder="Mensaje...">
+            <button id="sendBtn" class="send-btn"><span class="material-symbols-outlined">send</span></button>
+          </div>
+        </div>
       </div>
     </div>
     <input type="file" id="fileInput" style="display:none">
