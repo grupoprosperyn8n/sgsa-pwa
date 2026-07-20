@@ -227,10 +227,12 @@ function showAlertDetail(a){
   openModal("alert-detail-modal");
 }
 
-// Share alert via chat
+// Share alert via chat — opens people modal, then sends alert as message
 function shareAlert(a){
-  const msg=`📋 *${a.titulo||"Alerta"}*\nTipo: ${a.tipo_alerta||"—"}\nPrioridad: ${a.prioridad||"—"}\n${(a.fecha||a.created_at||"").slice(0,10)}\n${a.cuerpo?esc(a.cuerpo):""}${a.detalle?"\n\n"+a.detalle.split("\n").slice(0,5).map(l=>esc(l)).join("\n"):""}`;
-  openModal("peopleModal");loadPeopleList();window._shareMsg=msg;
+  const msg=`📋 *${a.titulo||"Alerta"}*\nTipo: ${a.tipo_alerta||"—"} | Prioridad: ${a.prioridad||"—"} | ${(a.fecha||a.created_at||"").slice(0,10)}\n${a.cuerpo?esc(a.cuerpo)+"\n":""}${a.detalle?a.detalle.split("\n").slice(0,8).map(l=>esc(l)).join("\n"):""}`;
+  window._shareMsg=msg;
+  switchTab("chat"); // ensure chat tab is active so openConversation works
+  openModal("peopleModal");loadPeopleList();
   toast("Seleccioná a quién compartir","");
 }
 
