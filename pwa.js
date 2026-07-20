@@ -205,7 +205,7 @@ document.getElementById("historyBtn").addEventListener("click",function(){
       if(alertsSound)Sound.alert();
       return;
     }
-    if(e.target.closest(".d-link,.d-open"))return;
+    if(e.target.closest(".d-link,.d-open,.d-share"))return;
     const card=e.target.closest(".alert-card");if(card)card.classList.toggle("expanded");
   });
 })();
