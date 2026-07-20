@@ -24,6 +24,11 @@ const storage = {
   },
 };
 
+// Register PWA service worker
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js").catch(() => {});
+}
+
 // ─── Auth ──────────────────────────────────────────────────────────────────────
 let authToken = null;
 let currentUser = null;
