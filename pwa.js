@@ -180,10 +180,13 @@ document.getElementById("exportCSVBtn").addEventListener("click",()=>{
   const a=document.createElement("a");a.href=url;a.download="alertas-sgsa-"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(url);toast("CSV exportado","success");
 });
 
-// History button
+// History button — works with search/filter too
 document.getElementById("historyBtn").addEventListener("click",function(){
   showHistory=!showHistory;this.classList.toggle("active",showHistory);
   this.style.color=showHistory?"var(--accent)":"";
+  document.getElementById("alertSearch").value="";alertFilterUrg="";
+  document.querySelectorAll("#filterChips .chip").forEach(c=>c.classList.remove("active"));
+  document.querySelector("#filterChips .chip[data-urg='']")?.classList.add("active");
   loadAlerts(showHistory);
 });
 
