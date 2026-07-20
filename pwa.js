@@ -278,8 +278,9 @@ function renderConversations(){
     <button class="pin-btn ${pins.includes(cv.group_id)?"pinned":""}" data-gid="${cv.group_id}" title="Fijar"><span class="material-symbols-outlined">push_pin</span></button>
     <button class="delete-chat-btn" data-gid="${cv.group_id}" title="Eliminar chat"><span class="material-symbols-outlined">delete</span></button>
   </div>`).join("");
-  c.querySelectorAll(".group-card").forEach(card=>card.addEventListener("click",e=>{if(e.target.closest(".pin-btn"))return;const gid=card.dataset.gid,cv=conversations.find(x=>x.group_id==gid);if(cv)openConversation(cv)}));
+  c.querySelectorAll(".group-card").forEach(card=>card.addEventListener("click",e=>{if(e.target.closest(".pin-btn,.delete-chat-btn"))return;const gid=card.dataset.gid,cv=conversations.find(x=>x.group_id==gid);if(cv)openConversation(cv)}));
   c.querySelectorAll(".pin-btn").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const gid=b.dataset.gid;togglePin(gid);renderConversations()}));
+  c.querySelectorAll(".delete-chat-btn").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();const gid=b.dataset.gid;if(confirm("¿Eliminar este chat?")){await P("/api/chat/groups/"+gid+"/leave",{});refreshConversations()}}));
 }
 document.getElementById("conversationSearch")?.addEventListener("input",renderConversations);
 function timeAgo(iso){if(!iso)return"";const d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<1)return"ahora";if(m<60)return m+"m";const h=Math.floor(m/60);if(h<24)return h+"h";return Math.floor(h/24)+"d"}
