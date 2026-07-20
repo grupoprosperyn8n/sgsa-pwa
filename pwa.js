@@ -234,28 +234,6 @@ function shareAlert(a){
   toast("Seleccioná a quién compartir","");
 }
 
-// Override DM clicks when sharing
-const origRenderPeople=renderPeopleList;
-renderPeopleList=function(list){
-  const q=(document.getElementById("peopleSearch")?.value||"").toLowerCase(),f=q?list.filter(e=>e.nombre?.toLowerCase().includes(q)):list,c=document.getElementById("peopleList");
-  if(!f.length){c.innerHTML='<div class="empty-state"><p>Sin resultados</p></div>';return}
-  c.innerHTML=f.map(e=>`<div class="item-row" data-empleado-id="${e.id}" data-empleado-nombre="${esc(e.nombre)}"><div class="item-avatar">${e.avatar_url?`<img src="${e.avatar_url}">`:(e.nombre||"?")[0].toUpperCase()}<span class="online-dot ${e.online?"online":"offline"}"></span></div><div class="item-info"><div class="item-name">${esc(e.nombre)}</div>${e.oficina_nombre?`<div class="item-sub">${esc(e.oficina_nombre)}</div>`:""}<div class="item-sub">${e.online?"En línea":"Desconectado"}</div></div><span class="item-action">${window._shareMsg?'<span class="material-symbols-outlined" style="font-size:16px">share</span> Compartir':'<span class="material-symbols-outlined" style="font-size:16px">chat</span> DM'}</span></div>`).join("");
-  c.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",async()=>{
-    if(!authToken){showLogin();return}
-    if(window._shareMsg){
-      const r=await P("/api/chat/dm",{target_empleado_id:el.dataset.empleadoId});
-      if(r?.ok){closeModal("peopleModal");window._shareMsg=null;openConversation({group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:null,avatar_url:null});
-        // Send the shared message
-        await P("/api/chat/send",{grupo_id:r.group_id,empleado_id:currentUser?.airtable_id,contenido:window._shareMsg||""});
-        loadMessages(r.group_id);refreshConversations();toast("Compartido","success");
-      }
-      return;
-    }
-    const r=await P("/api/chat/dm",{target_empleado_id:el.dataset.empleadoId});
-    if(r?.ok){closeModal("peopleModal");openConversation({group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:null,avatar_url:null});refreshConversations()}else alert("Error al iniciar DM")
-  }));
-}
-
 function initAlerts(){if(!currentUser?.airtable_id)return;if(selectedOffice)loadAlerts(showHistory)}
 document.getElementById("refreshBtn").addEventListener("click",()=>loadAlerts(showHistory));
 document.getElementById("ackAllBtn").addEventListener("click",async()=>{for(const card of document.querySelectorAll(".alert-card")){const id=card.dataset.id;if(id)await doAck(id)}loadAlerts(showHistory)});
