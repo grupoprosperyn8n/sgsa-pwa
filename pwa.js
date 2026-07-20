@@ -244,7 +244,7 @@ document.getElementById("refreshBtn").addEventListener("click",()=>loadAlerts(sh
 document.getElementById("ackAllBtn").addEventListener("click",async()=>{for(const card of document.querySelectorAll(".alert-card")){const id=card.dataset.id;if(id)await doAck(id)}loadAlerts(showHistory)});
 
 // ====== CHAT ======
-let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null;
+let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null,_chatStarted=0;
 
 function initChat(){if(!authToken)return;
   const cached=S.get("sgsa_convCache");if(cached?.length){conversations=cached;renderConversations()}
