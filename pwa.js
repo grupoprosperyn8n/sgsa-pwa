@@ -170,15 +170,6 @@ document.getElementById("filterChips").addEventListener("click",e=>{
   document.querySelectorAll("#filterChips .chip").forEach(c=>c.classList.remove("active"));
   chip.classList.add("active");alertFilterUrg=chip.dataset.urg;renderAlerts();
 });
-// Export CSV
-document.getElementById("exportCSVBtn").addEventListener("click",()=>{
-  const q=(document.getElementById("alertSearch")?.value||"").toLowerCase();
-  let f=alerts;if(alertFilterUrg)f=f.filter(a=>{const p=a.prioridad||"";if(alertFilterUrg==="3")return p.includes("🔴");if(alertFilterUrg==="2")return p.includes("🟠");if(alertFilterUrg==="1")return p.includes("🟡");return true});
-  if(q)f=f.filter(a=>(a.titulo||"").toLowerCase().includes(q)||(a.cuerpo||"").toLowerCase().includes(q));
-  const csv="Título,Tipo,Prioridad,Fecha,Cuerpo\n"+f.map(a=>`"${(a.titulo||"").replace(/"/g,'""')}","${(a.tipo_alerta||"")}","${(a.prioridad||"")}","${(a.fecha||a.created_at||"").slice(0,10)}","${(a.cuerpo||"").replace(/"/g,'""')}"`).join("\n");
-  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8"});const url=URL.createObjectURL(blob);
-  const a=document.createElement("a");a.href=url;a.download="alertas-sgsa-"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(url);toast("CSV exportado","success");
-});
 
 // History button — works with search/filter too
 document.getElementById("historyBtn").addEventListener("click",function(){
