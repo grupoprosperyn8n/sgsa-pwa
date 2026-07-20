@@ -212,7 +212,10 @@ document.getElementById("ackAllBtn").addEventListener("click",async()=>{for(cons
 // ====== CHAT ======
 let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null;
 
-function initChat(){if(!authToken)return;refreshConversations();startPing();if(_ct)clearInterval(_ct);_ct=setInterval(refreshConversations,R)}
+function initChat(){if(!authToken)return;
+  // Load cached conversations immediately
+  const cached=S.get("sgsa_convCache");if(cached?.length){conversations=cached;renderConversations()}
+  refreshConversations();startPing();if(_ct)clearInterval(_ct);_ct=setInterval(refreshConversations,R)}
 async function refreshConversations(){
   if(!authToken)return;
   const d=await G("/api/chat/conversations");
