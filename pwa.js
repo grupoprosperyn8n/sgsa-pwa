@@ -249,14 +249,16 @@ function initChat(){if(!authToken)return;
   refreshConversations();startPing();if(_ct)clearInterval(_ct);_ct=setInterval(refreshConversations,R)}
 async function refreshConversations(){
   if(!authToken)return;
+  // Show cached conversations immediately while fetching
+  const cached=S.get("sgsa_convCache");if(cached?.length&&!conversations.length){conversations=cached;renderConversations()}
   const d=await G("/api/chat/conversations");
   if(d?.ok){conversations=d.conversations;S.set("sgsa_convCache",conversations);renderConversations();
     const newUnread=conversations.reduce((s,c)=>s+(c.unread||0),0);
-    if(newUnread>0){updateBadge(newUnread);if(chatSound)Sound.chat();if("Notification"in window&&Notification.permission==="granted"){new Notification("SGSA Chat",{body:"Nuevo mensaje",icon:"icons/icon128.png"})}}
+    if(newUnread>0){updateBadge(newUnread);if(chatSound)Sound.chat()}
     document.getElementById("chat-badge").textContent=newUnread||"";
-  } else if(!conversations.length){
-    // Fallback to cached conversations if offline
-    const cached=S.get("sgsa_convCache");if(cached?.length){conversations=cached;renderConversations()}
+  } else {
+    // API failed — show cached data if available
+    if(!conversations.length){conversations=cached||[];renderConversations()}
   }
 }
 
