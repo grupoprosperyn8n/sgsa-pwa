@@ -188,12 +188,18 @@ document.getElementById("exportCSVBtn").addEventListener("click",()=>{
     if(btn){
       e.stopPropagation();e.preventDefault();
       const card=btn.closest(".alert-card"),id=card?.dataset.id;if(!id)return;
+      // Remove card from DOM instantly
+      card.style.opacity="0";card.style.transform="translateX(20px)";card.style.transition="all .2s";
+      setTimeout(()=>card.remove(),200);
+      // Call API in background
       if(btn.classList.contains("ack"))await doAck(id);
       else if(btn.classList.contains("progreso"))await doStatus(id,"EN_PROGRESO");
       else if(btn.classList.contains("confirmar"))await doStatus(id,"TURNO_CONFIRMADO");
       else if(btn.classList.contains("concluido"))await doStatus(id,"CONCLUIDA");
       else if(btn.classList.contains("anular"))await doStatus(id,"ANULADA");
-      loadAlerts();if(alertsSound)Sound.alert();
+      // Refresh in background
+      setTimeout(()=>loadAlerts(showHistory),500);
+      if(alertsSound)Sound.alert();
       return;
     }
     if(e.target.closest(".d-link,.d-open"))return;
