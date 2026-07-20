@@ -146,12 +146,13 @@ function updateBadgeFromAlerts(){const n=alerts.filter(a=>!a.leida).length;updat
 
 function renderAlerts(){
   const c=document.getElementById("alerts-list"),empty=document.getElementById("emptyAlerts"),sk=document.getElementById("alertsSkeleton");
+  if(!c)return;
   const q=(document.getElementById("alertSearch")?.value||"").toLowerCase();
   let f=alerts;
   if(alertFilterUrg)f=f.filter(a=>{const p=a.prioridad||"";if(alertFilterUrg==="3")return p.includes("🔴");if(alertFilterUrg==="2")return p.includes("🟠");if(alertFilterUrg==="1")return p.includes("🟡");return true});
   if(q)f=f.filter(a=>(a.titulo||"").toLowerCase().includes(q)||(a.cuerpo||"").toLowerCase().includes(q)||(a.tipo_alerta||"").toLowerCase().includes(q));
-  sk.style.display="none";const pending=f.filter(a=>!a.leida);document.getElementById("alerts-badge").textContent=pending.length;
-  if(!f.length){empty.style.display="flex";c.innerHTML="";return}empty.style.display="none";
+  if(sk)sk.style.display="none";const pending=f.filter(a=>!a.leida);document.getElementById("alerts-badge").textContent=pending.length;
+  if(!f.length){if(empty)empty.style.display="flex";c.innerHTML="";return}if(empty)empty.style.display="none";
 
   c.innerHTML=f.map((a,i)=>{const p=a.prioridad||"";let urg=0,urgLabel="Info",urgClass="urg-1";if(p.includes("🔴")){urg=3;urgLabel="Urgente";urgClass="urg-3"}else if(p.includes("🟠")){urg=2;urgLabel="Alta";urgClass="urg-2"}else if(p.includes("🟡")){urg=1;urgLabel="Media"}
     let rows="";if(a.detalle)for(const line of a.detalle.split("\n")){const ci=line.indexOf(":");if(ci>0){const k=line.slice(0,ci).trim(),v=line.slice(ci+1).trim();rows+=k&&v?`<div class="d-row"><span class="d-label">${esc(k)}</span><span class="d-value">${esc(v)}</span></div>`:""}else rows+=`<div>${esc(line)}</div>`}
