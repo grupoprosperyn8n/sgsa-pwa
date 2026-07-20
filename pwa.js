@@ -324,7 +324,7 @@ function renderPeopleList(list){const q=(document.getElementById("peopleSearch")
     if(sendR?.ok){
       // Open the conversation in chat tab
       selectedConversation={group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:null,avatar_url:null};
-      document.getElementById("inbox-view").style.display="none";
+      document.getElementById("chatMainEmpty").style.display="none";
       document.getElementById("message-view").style.display="";
       document.getElementById("chatBackBtn").style.display="";
       document.getElementById("chatHeaderTitle").textContent=el.dataset.empleadoNombre||"DM";
