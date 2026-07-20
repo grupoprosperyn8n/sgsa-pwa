@@ -1,8 +1,15 @@
 // =============================================================================
-// SGSA Chrome Extension — Chat + Alertas con Auth
+// SGSA PWA — Chat + Alertas con Auth (Standalone Web App)
 // =============================================================================
 const API_BASE = "https://web-production-2584d.up.railway.app";
 const REFRESH_INTERVAL = 30000;
+
+// ─── Storage wrapper (localStorage instead of chrome.storage) ─────────────
+const storage = {
+  get(keys, cb) { try { const result = {}; for (const k of keys) result[k] = JSON.parse(localStorage.getItem(k)); cb(result); } catch { cb({}); } },
+  set(obj, cb) { try { for (const [k, v] of Object.entries(obj)) localStorage.setItem(k, JSON.stringify(v)); if (cb) cb(); } catch {} },
+  remove(keys, cb) { try { for (const k of keys) localStorage.removeItem(k); if (cb) cb(); } catch {} },
+};
 
 // ─── Auth ──────────────────────────────────────────────────────────────────────
 let authToken = null;
