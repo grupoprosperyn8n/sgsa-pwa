@@ -314,7 +314,13 @@ function stopPing(){if(_pingTimer){clearInterval(_pingTimer);_pingTimer=null}}
 
 // ─── Directory ────────────────────────────────────────────────────────────
 document.getElementById("peopleBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}openModal("peopleModal");loadPeopleList()});
-async function loadPeopleList(){const d=await G("/api/chat/employees");if(d?.ok){allEmployees=(d.employees||[]).filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id));renderPeopleList(allEmployees)}else if(allEmployees.length)renderPeopleList(allEmployees)}
+async function loadPeopleList(){
+  // Use cached employees if available
+  const cached=S.get("sgsa_empCache");
+  if(cached?.length){allEmployees=cached.filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id));renderPeopleList(allEmployees)}
+  // Fetch fresh in background
+  const d=await G("/api/chat/employees");
+  if(d?.ok){S.set("sgsa_empCache",d.employees);allEmployees=(d.employees||[]).filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id));renderPeopleList(allEmployees)}else if(!cached&&allEmployees.length)renderPeopleList(allEmployees)}
 function renderPeopleList(list){const q=(document.getElementById("peopleSearch")?.value||"").toLowerCase(),f=q?list.filter(e=>e.nombre?.toLowerCase().includes(q)):list,c=document.getElementById("peopleList");if(!f.length){c.innerHTML='<div class="empty-state"><p>Sin resultados</p></div>';return}c.innerHTML=f.map(e=>`<div class="item-row" data-empleado-id="${e.id}" data-empleado-nombre="${esc(e.nombre)}"><div class="item-avatar">${e.avatar_url?`<img src="${e.avatar_url}">`:(e.nombre||"?")[0].toUpperCase()}<span class="online-dot ${e.online?"online":"offline"}"></span></div><div class="item-info"><div class="item-name">${esc(e.nombre)}</div>${e.oficina_nombre?`<div class="item-sub">${esc(e.oficina_nombre)}</div>`:""}<div class="item-sub">${e.online?"En línea":"Desconectado"}</div></div><span class="item-action">${window._shareMsg?'<span class="material-symbols-outlined" style="font-size:16px">share</span> Compartir':'<span class="material-symbols-outlined" style="font-size:16px">chat</span> DM'}</span></div>`).join("");c.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",async()=>{if(!authToken){showLogin();return}
   // Sharing mode
   if(window._shareMsg){
