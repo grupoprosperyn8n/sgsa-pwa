@@ -199,6 +199,9 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .group-card:hover .pin-btn{opacity:1}
 .pin-btn:hover{color:var(--warn);background:var(--bg4)}
 .pin-btn.pinned{opacity:1;color:var(--warn)}
+.delete-chat-btn{background:none;border:none;color:var(--fg3);cursor:pointer;padding:4px;border-radius:4px;transition:all var(--t);opacity:0}
+.group-card:hover .delete-chat-btn{opacity:1}
+.delete-chat-btn:hover{color:var(--danger);background:var(--bg4)}
 .online-dot{position:absolute;bottom:-1px;right:-1px;width:10px;height:10px;border-radius:50%;border:2px solid var(--bg)}
 .online-dot.online{background:var(--success)}
 .online-dot.offline{background:var(--danger)}
