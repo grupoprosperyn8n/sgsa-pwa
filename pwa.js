@@ -180,6 +180,13 @@ document.getElementById("exportCSVBtn").addEventListener("click",()=>{
   const a=document.createElement("a");a.href=url;a.download="alertas-sgsa-"+new Date().toISOString().slice(0,10)+".csv";a.click();URL.revokeObjectURL(url);toast("CSV exportado","success");
 });
 
+// History button
+document.getElementById("historyBtn").addEventListener("click",function(){
+  showHistory=!showHistory;this.classList.toggle("active",showHistory);
+  this.style.color=showHistory?"var(--accent)":"";
+  loadAlerts(showHistory);
+});
+
 // Global delegated click handler for alert cards (expand + action buttons)
 (function(){
   const c=document.getElementById("alerts-list");if(!c)return;
