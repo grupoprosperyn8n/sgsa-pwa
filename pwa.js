@@ -25,17 +25,17 @@ let recordTimer = null;
 let recordSeconds = 0;
 
 function saveSession(token, user) {
-  storageSet({ sgsa_token: token, sgsa_user: user });
+  storage.set({ sgsa_token: token, sgsa_user: user });
 }
 
 function clearSession() {
-  storageRemove(["sgsa_token", "sgsa_user"]);
+  storage.remove(["sgsa_token", "sgsa_user"]);
   authToken = null;
   currentUser = null;
 }
 
 async function restoreSession() {
-  const data = await storageGet(["sgsa_token", "sgsa_user"]);
+  const data = await storage.get(["sgsa_token", "sgsa_user"]);
   if (data.sgsa_token && data.sgsa_user) {
     authToken = data.sgsa_token;
     currentUser = data.sgsa_user;
@@ -225,7 +225,7 @@ function selectEmployee(airtableId, name) {
   selectedAirtableId = airtableId;
   selectedEmployeeName = name;
   document.getElementById("employee-label").textContent = "👤 " + name;
-  storageSet({ sgsa_selected_employee: airtableId, sgsa_employee_name: name });
+  storage.set({ sgsa_selected_employee: airtableId, sgsa_employee_name: name });
   closeModal("employee-modal");
   // Immediately open office selection modal
   openModal("office-modal");
@@ -271,7 +271,7 @@ function renderOfficeList(list) {
   container.querySelectorAll(".emp-item").forEach((el) => {
     el.addEventListener("click", () => {
       selectedOffice = el.dataset.name;
-      storageSet({ sgsa_selected_office: selectedOffice });
+      storage.set({ sgsa_selected_office: selectedOffice });
       document.getElementById("employee-label").textContent =
         "👤 " + selectedEmployeeName + " 🏢 " + selectedOffice;
       closeModal("office-modal");
@@ -470,7 +470,7 @@ function renderAlerts() {
 }
 
 function initAlerts() {
-  storageGet(["sgsa_selected_employee", "sgsa_employee_name", "sgsa_selected_office"], (data) => {
+  storage.get(["sgsa_selected_employee", "sgsa_employee_name", "sgsa_selected_office"], (data) => {
     if (data.sgsa_selected_employee) {
       selectedAirtableId = data.sgsa_selected_employee;
       selectedEmployeeName = data.sgsa_employee_name || "Seleccionado";
@@ -699,20 +699,20 @@ let alertsMuted = false;
 
 document.getElementById("muteBtn")?.addEventListener("click", async () => {
   chatMuted = !chatMuted;
-  await storageSet({ sgsa_chat_muted: chatMuted });
+  await storage.set({ sgsa_chat_muted: chatMuted });
   document.getElementById("muteBtn").textContent = chatMuted ? "🔇" : "🔔";
   document.getElementById("muteBtn").title = chatMuted ? "Notificaciones de chat silenciadas" : "Silenciar notificaciones de chat";
 });
 
 document.getElementById("alertsMuteBtn")?.addEventListener("click", async () => {
   alertsMuted = !alertsMuted;
-  await storageSet({ sgsa_alerts_muted: alertsMuted });
+  await storage.set({ sgsa_alerts_muted: alertsMuted });
   document.getElementById("alertsMuteBtn").textContent = alertsMuted ? "🔇" : "🔔";
   document.getElementById("alertsMuteBtn").title = alertsMuted ? "Notificaciones de alertas silenciadas" : "Silenciar notificaciones de alertas";
 });
 
 async function loadMutePref() {
-  const data = await storageGet(["sgsa_chat_muted", "sgsa_alerts_muted"]);
+  const data = await storage.get(["sgsa_chat_muted", "sgsa_alerts_muted"]);
   chatMuted = data.sgsa_chat_muted === true;
   alertsMuted = data.sgsa_alerts_muted === true;
   const chatBtn = document.getElementById("muteBtn");
