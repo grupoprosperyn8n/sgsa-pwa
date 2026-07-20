@@ -314,8 +314,7 @@ function renderPeopleList(list){const q=(document.getElementById("peopleSearch")
     // Send the shared message FIRST, then open conversation
     const sendR=await P("/api/chat/send",{grupo_id:r.group_id,empleado_id:currentUser?.airtable_id,contenido:txt});
     if(sendR?.ok){
-      // Switch to chat tab, open the conversation
-      switchTab("chat");
+      // Open the conversation in chat tab
       selectedConversation={group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:null,avatar_url:null};
       document.getElementById("inbox-view").style.display="none";
       document.getElementById("message-view").style.display="";
