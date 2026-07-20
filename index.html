@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,236 +9,145 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20,400,0,0&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
   <link rel="stylesheet" href="pwa.css">
 </head>
 <body>
 
-  <!-- ======================================================================= -->
-  <!-- LOGIN SCREEN -->
-  <!-- ======================================================================= -->
-  <div id="login-screen">
-    <div class="login-container">
-      <div class="login-brand">
-        <span class="material-symbols-outlined login-icon">shield_person</span>
-        <h1>SGSA</h1>
-        <p>Sistema de Gestión de Seguros</p>
-      </div>
-
-      <!-- Saved profiles -->
-      <div id="savedProfiles" class="saved-profiles" style="display:none"></div>
-
-      <!-- Login form -->
-      <div id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="email">
-        <div style="position:relative">
-          <input type="password" id="loginPassword" placeholder="PIN" autocomplete="current-password">
-        </div>
-        <button id="loginBtn">Ingresar</button>
-        <div id="loginError"></div>
-      </div>
-
-      <button id="showOtherLogin" class="link-btn" style="display:none">Usar otra cuenta</button>
+<!-- ====== LOGIN ====== -->
+<div id="login-screen">
+  <div class="login-container">
+    <div class="login-brand">
+      <span class="material-symbols-outlined login-icon">shield_person</span>
+      <h1>SGSA</h1><p>Sistema de Gestión de Seguros</p>
     </div>
+    <div id="savedProfiles" class="saved-profiles" style="display:none"></div>
+    <div id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="email">
+      <input type="password" id="loginPassword" placeholder="PIN" autocomplete="current-password">
+      <button id="loginBtn">Ingresar</button>
+      <div id="loginError"></div>
+    </div>
+    <button id="showOtherLogin" class="link-btn" style="display:none">Usar otra cuenta</button>
+  </div>
+</div>
+
+<!-- ====== APP ====== -->
+<div id="app" style="display:none">
+
+  <header class="app-header">
+    <div class="tabs">
+      <button class="tab active" data-tab="alerts"><span class="material-symbols-outlined">notifications</span>Alertas<span class="badge" id="alerts-badge">0</span></button>
+      <button class="tab" data-tab="chat"><span class="material-symbols-outlined">chat</span>Chat<span class="badge" id="chat-badge">0</span></button>
+    </div>
+    <button class="icon-btn" id="settingsBtn" title="Configuración"><span class="material-symbols-outlined">settings</span></button>
+  </header>
+
+  <!-- ====== ALERTS TAB ====== -->
+  <div id="alerts-tab" class="tab-content active">
+    <div class="office-bar">
+      <button class="select-btn" id="selectOfficeBtn"><span class="material-symbols-outlined">apartment</span><span id="office-label">Seleccionar sucursal</span><span class="material-symbols-outlined">chevron_right</span></button>
+    </div>
+    <div class="alert-toolbar">
+      <div class="search-box">
+        <span class="material-symbols-outlined">search</span>
+        <input type="text" id="alertSearch" placeholder="Buscar alertas...">
+      </div>
+      <div class="filter-chips" id="filterChips">
+        <button class="chip active" data-urg="">Todas</button>
+        <button class="chip" data-urg="3">Urgentes</button>
+        <button class="chip" data-urg="2">Altas</button>
+        <button class="chip" data-urg="1">Medias</button>
+      </div>
+      <button class="icon-btn" id="exportCSVBtn" title="Exportar CSV"><span class="material-symbols-outlined">download</span></button>
+    </div>
+    <div id="alerts-list">
+      <div class="skeleton-list" id="alertsSkeleton">
+        <div class="sk-item"><div class="sk-line w80"></div><div class="sk-line w60"></div><div class="sk-line w40"></div></div>
+        <div class="sk-item"><div class="sk-line w70"></div><div class="sk-line w50"></div><div class="sk-line w30"></div></div>
+        <div class="sk-item"><div class="sk-line w90"></div><div class="sk-line w40"></div></div>
+      </div>
+      <div class="empty-state" id="emptyAlerts" style="display:none">
+        <span class="material-symbols-outlined empty-icon">notifications_off</span>
+        <p>Sin alertas pendientes</p><span class="empty-hint">Las alertas operativas aparecerán acá</span>
+      </div>
+    </div>
+    <footer class="alerts-footer">
+      <button id="refreshBtn" class="icon-btn" title="Actualizar"><span class="material-symbols-outlined">refresh</span></button>
+      <button id="ackAllBtn" class="btn-secondary">Marcar todas leídas</button>
+    </footer>
   </div>
 
-  <!-- ======================================================================= -->
-  <!-- MAIN APP -->
-  <!-- ======================================================================= -->
-  <div id="app" style="display:none">
-
-    <!-- HEADER -->
-    <header class="app-header">
-      <div class="tabs">
-        <button class="tab active" data-tab="alerts">
-          <span class="material-symbols-outlined">notifications</span>Alertas<span class="badge" id="alerts-badge">0</span>
-        </button>
-        <button class="tab" data-tab="chat">
-          <span class="material-symbols-outlined">chat</span>Chat<span class="badge" id="chat-badge">0</span>
-        </button>
-      </div>
-      <button class="icon-btn" id="settingsBtn" title="Configuración">
-        <span class="material-symbols-outlined">settings</span>
-      </button>
-    </header>
-
-    <!-- ============ ALERTS TAB ============ -->
-    <div id="alerts-tab" class="tab-content active">
-      <!-- Office selector -->
-      <div class="office-bar" id="office-bar">
-        <button class="select-btn" id="selectOfficeBtn">
-          <span class="material-symbols-outlined">apartment</span>
-          <span id="office-label">Seleccionar sucursal</span>
-          <span class="material-symbols-outlined">chevron_right</span>
-        </button>
-      </div>
-
-      <!-- Alert list -->
-      <div id="alerts-list">
-        <div class="empty-state" id="emptyAlerts">
-          <span class="material-symbols-outlined empty-icon">notifications_off</span>
-          <p>Sin alertas pendientes</p>
-          <span class="empty-hint">Las alertas operativas aparecerán acá</span>
-        </div>
-      </div>
-
-      <!-- Footer -->
-      <footer class="alerts-footer">
-        <button id="refreshBtn" class="icon-btn" title="Actualizar">
-          <span class="material-symbols-outlined">refresh</span>
-        </button>
-        <button id="ackAllBtn" class="btn-secondary">Marcar todas leídas</button>
-      </footer>
+  <!-- ====== CHAT TAB ====== -->
+  <div id="chat-tab" class="tab-content">
+    <div id="chat-header" class="chat-topbar">
+      <button id="chatBackBtn" class="icon-btn" style="display:none"><span class="material-symbols-outlined">arrow_back</span></button>
+      <span id="chatHeaderTitle">Conversaciones</span>
+      <button class="icon-btn" id="newGroupBtn" title="Nuevo grupo (Ctrl+N)"><span class="material-symbols-outlined">group_add</span></button>
+      <button class="icon-btn" id="peopleBtn" title="Directorio"><span class="material-symbols-outlined">people</span></button>
     </div>
-
-    <!-- ============ CHAT TAB ============ -->
-    <div id="chat-tab" class="tab-content">
-      <div id="chat-header" class="chat-topbar">
-        <button id="chatBackBtn" class="icon-btn" style="display:none">
-          <span class="material-symbols-outlined">arrow_back</span>
-        </button>
-        <span id="chatHeaderTitle">Conversaciones</span>
-        <button class="icon-btn" id="newGroupBtn" title="Nuevo grupo">
-          <span class="material-symbols-outlined">group_add</span>
-        </button>
-        <button class="icon-btn" id="peopleBtn" title="Directorio">
-          <span class="material-symbols-outlined">people</span>
-        </button>
-      </div>
-
-      <div id="inbox-view" class="chat-view">
-        <div class="chat-search-box">
-          <span class="material-symbols-outlined search-icon">search</span>
-          <input type="text" id="conversationSearch" placeholder="Buscar conversaciones...">
-        </div>
-        <div id="conversationList"></div>
-        <div class="empty-state" id="inboxEmpty">
-          <span class="material-symbols-outlined empty-icon">forum</span>
-          <p>Sin conversaciones</p>
-          <span class="empty-hint">Usá el directorio <span class="material-symbols-outlined" style="font-size:14px">people</span> para empezar a chatear</span>
-        </div>
-      </div>
-
-      <div id="message-view" class="chat-view" style="display:none">
-        <div id="messageList" class="message-list"></div>
-        <div class="empty-state" id="messageEmpty" style="display:none">
-          <span class="material-symbols-outlined empty-icon">chat</span>
-          <p>Sin mensajes todavía</p>
-        </div>
-        <div class="chat-input-area">
-          <button id="attachBtn" class="icon-btn" title="Adjuntar">
-            <span class="material-symbols-outlined">attach_file</span>
-          </button>
-          <input type="text" id="chatInput" placeholder="Escribí un mensaje...">
-          <button id="sendBtn" class="send-btn" title="Enviar">
-            <span class="material-symbols-outlined">send</span>
-          </button>
-        </div>
-      </div>
-      <input type="file" id="fileInput" style="display:none">
+    <div id="inbox-view" class="chat-view">
+      <div class="chat-search-box"><span class="material-symbols-outlined search-icon">search</span><input type="text" id="conversationSearch" placeholder="Buscar conversaciones... (Ctrl+K)"></div>
+      <div id="conversationList"></div>
+      <div class="empty-state" id="inboxEmpty"><span class="material-symbols-outlined empty-icon">forum</span><p>Sin conversaciones</p><span class="empty-hint">Usá el directorio para empezar</span></div>
     </div>
+    <div id="message-view" class="chat-view" style="display:none">
+      <div id="messageList" class="message-list"></div>
+      <div class="empty-state" id="messageEmpty" style="display:none"><span class="material-symbols-outlined empty-icon">chat</span><p>Sin mensajes</p></div>
+      <div class="chat-input-area">
+        <button id="attachBtn" class="icon-btn" title="Adjuntar"><span class="material-symbols-outlined">attach_file</span></button>
+        <input type="text" id="chatInput" placeholder="Escribí un mensaje...">
+        <button id="sendBtn" class="send-btn" title="Enviar"><span class="material-symbols-outlined">send</span></button>
+      </div>
+    </div>
+    <input type="file" id="fileInput" style="display:none">
   </div>
+</div>
 
-  <!-- ======================================================================= -->
-  <!-- SETTINGS PANEL -->
-  <!-- ======================================================================= -->
-  <div id="settings-overlay" class="overlay" style="display:none"></div>
-  <aside id="settings-panel" class="settings-panel" style="display:none">
-    <div class="settings-header">
-      <h2>Configuración</h2>
-      <button class="icon-btn" id="closeSettingsBtn">
-        <span class="material-symbols-outlined">close</span>
-      </button>
+<!-- ====== SETTINGS ====== -->
+<div id="settings-overlay" class="overlay" style="display:none"></div>
+<aside id="settings-panel" class="settings-panel" style="display:none">
+  <div class="settings-header"><h2>Configuración</h2><button class="icon-btn" id="closeSettingsBtn"><span class="material-symbols-outlined">close</span></button></div>
+  <div class="settings-body">
+    <div class="settings-user"><span class="material-symbols-outlined settings-avatar">account_circle</span><div><div class="settings-name" id="settingsName">—</div><div class="settings-email" id="settingsEmail">—</div></div></div>
+    <div class="settings-section">
+      <div class="settings-label">Apariencia</div>
+      <label class="settings-item toggle-item"><span class="material-symbols-outlined">light_mode</span>Tema claro<span class="toggle"><input type="checkbox" id="toggleTheme"><span class="toggle-slider"></span></span></label>
     </div>
-    <div class="settings-body">
-      <div class="settings-user">
-        <span class="material-symbols-outlined settings-avatar">account_circle</span>
-        <div>
-          <div class="settings-name" id="settingsName">—</div>
-          <div class="settings-email" id="settingsEmail">—</div>
-        </div>
-      </div>
-      <div class="settings-section">
-        <div class="settings-label">Alertas</div>
-        <button class="settings-item" id="settingsChangeOffice">
-          <span class="material-symbols-outlined">apartment</span>Seleccionar sucursal<span class="material-symbols-outlined">chevron_right</span>
-        </button>
-      </div>
-      <div class="settings-section">
-        <div class="settings-label">Notificaciones</div>
-        <label class="settings-item toggle-item">
-          <span class="material-symbols-outlined">chat</span>Sonido de chat
-          <span class="toggle"><input type="checkbox" id="toggleChatMute"><span class="toggle-slider"></span></span>
-        </label>
-        <label class="settings-item toggle-item">
-          <span class="material-symbols-outlined">notifications</span>Sonido de alertas
-          <span class="toggle"><input type="checkbox" id="toggleAlertsMute"><span class="toggle-slider"></span></span>
-        </label>
-      </div>
-      <div class="settings-section">
-        <button class="settings-item" id="settingsSwitchUser">
-          <span class="material-symbols-outlined">switch_account</span>Cambiar de usuario
-        </button>
-        <button class="settings-item danger" id="settingsLogout">
-          <span class="material-symbols-outlined">logout</span>Cerrar sesión
-        </button>
+    <div class="settings-section">
+      <div class="settings-label">Alertas</div>
+      <button class="settings-item" id="settingsChangeOffice"><span class="material-symbols-outlined">apartment</span>Seleccionar sucursal<span class="material-symbols-outlined">chevron_right</span></button>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">Sonidos</div>
+      <label class="settings-item toggle-item"><span class="material-symbols-outlined">chat</span>Sonido de chat<span class="toggle"><input type="checkbox" id="toggleChatSound"><span class="toggle-slider"></span></span></label>
+      <label class="settings-item toggle-item"><span class="material-symbols-outlined">notifications</span>Sonido de alertas<span class="toggle"><input type="checkbox" id="toggleAlertsSound"><span class="toggle-slider"></span></span></label>
+    </div>
+    <div class="settings-section">
+      <div class="settings-label">Estadísticas</div>
+      <div class="settings-item" style="flex-direction:column;align-items:flex-start;gap:6px;padding:12px 16px">
+        <div style="font-size:12px;color:var(--fg2);width:100%;display:flex;justify-content:space-between"><span>Alertas hoy:</span><span id="statAlertsToday">—</span></div>
+        <div style="font-size:12px;color:var(--fg2);width:100%;display:flex;justify-content:space-between"><span>Gestionadas:</span><span id="statAlertsDone">—</span></div>
+        <div style="font-size:12px;color:var(--fg2);width:100%;display:flex;justify-content:space-between"><span>Mensajes enviados:</span><span id="statMsgsSent">—</span></div>
       </div>
     </div>
-  </aside>
-
-  <!-- ======================================================================= -->
-  <!-- MODALS -->
-  <!-- ======================================================================= -->
-  <div id="office-modal" class="modal" style="display:none">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Seleccionar sucursal</h2>
-        <button class="icon-btn close-modal" data-modal="office-modal">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <input type="text" id="officeSearch" placeholder="Buscar sucursal..." autofocus>
-        <div id="officeList" class="select-list"></div>
-      </div>
+    <div class="settings-section">
+      <button class="settings-item" id="settingsSwitchUser"><span class="material-symbols-outlined">switch_account</span>Cambiar de usuario</button>
+      <button class="settings-item danger" id="settingsLogout"><span class="material-symbols-outlined">logout</span>Cerrar sesión</button>
     </div>
+    <div class="settings-section"><div style="padding:8px 16px;font-size:10px;color:var(--fg3)">SGSA v3 · Atajos: Ctrl+K buscar, Esc cerrar, Ctrl+N grupo</div></div>
   </div>
+</aside>
 
-  <div id="peopleModal" class="modal" style="display:none">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Directorio</h2>
-        <button class="icon-btn close-modal" data-modal="peopleModal">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <input type="text" id="peopleSearch" placeholder="Buscar empleados..." autofocus>
-        <div id="peopleList" class="select-list"></div>
-      </div>
-    </div>
-  </div>
+<!-- ====== MODALS ====== -->
+<div id="office-modal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Seleccionar sucursal</h2><button class="icon-btn close-modal" data-modal="office-modal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><input type="text" id="officeSearch" placeholder="Buscar sucursal..." autofocus><div id="officeList" class="select-list"></div></div></div></div>
 
-  <div id="newGroupModal" class="modal" style="display:none">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h2>Nuevo grupo</h2>
-        <button class="icon-btn close-modal" data-modal="newGroupModal">
-          <span class="material-symbols-outlined">close</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <input type="text" id="newGroupName" placeholder="Nombre del grupo">
-        <input type="text" id="newGroupDesc" placeholder="Descripción (opcional)">
-        <div class="modal-section-label">Miembros</div>
-        <input type="text" id="memberSearch" placeholder="Buscar empleados...">
-        <div id="memberSearchResults" class="select-list"></div>
-        <div id="selectedMembers" class="selected-members"></div>
-        <button id="createGroupBtn" class="btn-primary">Crear grupo</button>
-      </div>
-    </div>
-  </div>
+<div id="alert-detail-modal" class="modal"><div class="modal-content" style="max-width:540px"><div class="modal-header"><h2 id="alertDetailTitle">Detalle</h2><button class="icon-btn close-modal" data-modal="alert-detail-modal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body" id="alertDetailBody" style="overflow-y:auto"></div></div></div>
 
-  <script src="pwa.js"></script>
+<div id="peopleModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Directorio</h2><button class="icon-btn close-modal" data-modal="peopleModal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><input type="text" id="peopleSearch" placeholder="Buscar empleados..." autofocus><div id="peopleList" class="select-list"></div></div></div></div>
+
+<div id="newGroupModal" class="modal"><div class="modal-content"><div class="modal-header"><h2>Nuevo grupo</h2><button class="icon-btn close-modal" data-modal="newGroupModal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><input type="text" id="newGroupName" placeholder="Nombre del grupo"><input type="text" id="newGroupDesc" placeholder="Descripción (opcional)"><div class="modal-section-label">Miembros</div><input type="text" id="memberSearch" placeholder="Buscar empleados..."><div id="memberSearchResults" class="select-list"></div><div id="selectedMembers" class="selected-members"></div><button id="createGroupBtn" class="btn-primary">Crear grupo</button></div></div></div>
+
+<script src="pwa.js"></script>
 </body>
 </html>
