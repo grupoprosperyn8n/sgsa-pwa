@@ -272,10 +272,11 @@ function renderConversations(){
   if(!f.length){c.innerHTML="";e.style.display="flex";return}e.style.display="none";
   const sorted=[...f].sort((a,b)=>(pins.includes(a.group_id)?-1:0)-(pins.includes(b.group_id)?-1:0));
   c.innerHTML=sorted.map(cv=>`<div class="group-card ${selectedConversation?.group_id===cv.group_id?"selected":""}" data-gid="${cv.group_id}">
-    <div class="group-avatar">${cv.is_dm?(cv.avatar_url?`<img src="${cv.avatar_url}" class="group-avatar-img">`:`<span class="material-symbols-outlined">person</span>`):`<span class="material-symbols-outlined">groups</span>`}${cv.is_dm?`<span class="online-dot ${cv.online?"online":"offline"}"></span>`:""}</div>
+    <div class="group-avatar">${cv.is_dm?(cv.avatar_url?`<img src="${cv.avatar_url}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="material-symbols-outlined" style="display:none">person</span>`:`<span class="material-symbols-outlined">person</span>`):`<span class="material-symbols-outlined">groups</span>`}${cv.is_dm?`<span class="online-dot ${cv.online?"online":"offline"}"></span>`:""}</div>
     <div class="group-info"><div class="group-name">${esc(cv.display_name||"Chat")}</div><div class="group-last-msg">${cv.last_message||"Sin mensajes"}</div></div>
     <div class="group-meta"><div class="group-time">${cv.last_message_time?timeAgo(cv.last_message_time):""}</div>${cv.unread>0?`<div class="group-unread">${cv.unread>99?"99+":cv.unread}</div>`:""}</div>
     <button class="pin-btn ${pins.includes(cv.group_id)?"pinned":""}" data-gid="${cv.group_id}" title="Fijar"><span class="material-symbols-outlined">push_pin</span></button>
+    <button class="delete-chat-btn" data-gid="${cv.group_id}" title="Eliminar chat"><span class="material-symbols-outlined">delete</span></button>
   </div>`).join("");
   c.querySelectorAll(".group-card").forEach(card=>card.addEventListener("click",e=>{if(e.target.closest(".pin-btn"))return;const gid=card.dataset.gid,cv=conversations.find(x=>x.group_id==gid);if(cv)openConversation(cv)}));
   c.querySelectorAll(".pin-btn").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const gid=b.dataset.gid;togglePin(gid);renderConversations()}));
