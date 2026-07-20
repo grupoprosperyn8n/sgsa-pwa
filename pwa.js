@@ -277,8 +277,16 @@ function renderConversations(){
 document.getElementById("conversationSearch")?.addEventListener("input",renderConversations);
 function timeAgo(iso){if(!iso)return"";const d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<1)return"ahora";if(m<60)return m+"m";const h=Math.floor(m/60);if(h<24)return h+"h";return Math.floor(h/24)+"d"}
 
-async function openConversation(cv){selectedConversation=cv;document.getElementById("inbox-view").style.display="none";document.getElementById("message-view").style.display="";document.getElementById("chatBackBtn").style.display="";document.getElementById("chatHeaderTitle").textContent=cv.display_name||"Chat";await loadMessages(cv.group_id);renderConversations()}
-document.getElementById("chatBackBtn").addEventListener("click",()=>{selectedConversation=null;document.getElementById("inbox-view").style.display="";document.getElementById("message-view").style.display="none";document.getElementById("chatBackBtn").style.display="none";document.getElementById("chatHeaderTitle").textContent="Conversaciones";refreshConversations()});
+async function openConversation(cv){selectedConversation=cv;
+  document.getElementById("chatMainEmpty").style.display="none";
+  document.getElementById("message-view").style.display="";
+  document.getElementById("chatBackBtn").style.display="none"; // show on mobile only
+  document.getElementById("chatHeaderTitle").textContent=cv.display_name||"Chat";
+  await loadMessages(cv.group_id);renderConversations()}
+document.getElementById("chatBackBtn").addEventListener("click",()=>{selectedConversation=null;
+  document.getElementById("chatMainEmpty").style.display="flex";
+  document.getElementById("message-view").style.display="none";
+  document.getElementById("chatHeaderTitle").textContent="Chat";refreshConversations()});
 
 async function loadMessages(gid){const d=await G("/api/chat/mensajes/"+gid),c=document.getElementById("messageList"),e=document.getElementById("messageEmpty");
   if(!d?.ok){const cached=S.get("sgsa_msgCache_"+gid);if(cached?.length){renderMsgList(c,e,gid,cached);return}c.innerHTML='<div class="empty-state"><span class="material-symbols-outlined empty-icon">cloud_off</span><p>Sin conexión</p><span class="empty-hint">No se pudieron cargar los mensajes</span></div>';return}
