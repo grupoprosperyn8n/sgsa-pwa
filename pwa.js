@@ -310,17 +310,32 @@ function renderAlerts(){
       </div></div>`;
   }).join("");
 
-  // Expand/collapse
-  c.querySelectorAll(".alert-card").forEach(card=>card.addEventListener("click",e=>{
-    if(e.target.closest(".act-btn,.d-link"))return;
-    card.classList.toggle("expanded");
-  }));
-  // Actions
-  c.querySelectorAll(".act-btn.ack").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();await doAck(b.closest(".alert-card").dataset.id);loadAlerts();}));
-  c.querySelectorAll(".act-btn.progreso").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();await doStatus(b.closest(".alert-card").dataset.id,"EN_PROGRESO");loadAlerts();}));
-  c.querySelectorAll(".act-btn.confirmar").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();await doStatus(b.closest(".alert-card").dataset.id,"TURNO_CONFIRMADO");loadAlerts();}));
-  c.querySelectorAll(".act-btn.concluido").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();await doStatus(b.closest(".alert-card").dataset.id,"CONCLUIDA");loadAlerts();}));
-  c.querySelectorAll(".act-btn.anular").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();await doStatus(b.closest(".alert-card").dataset.id,"ANULADA");loadAlerts();}));
+  // Delegated click handler on alerts-list (single listener for all cards + buttons)
+  if (!c._delegated) {
+    c._delegated = true;
+    c.addEventListener("click", async (e) => {
+      // Button clicks
+      const btn = e.target.closest(".act-btn");
+      if (btn) {
+        e.stopPropagation();
+        const card = btn.closest(".alert-card");
+        const id = card?.dataset.id;
+        if (!id) return;
+        if (btn.classList.contains("ack")) { await doAck(id); }
+        else if (btn.classList.contains("progreso")) { await doStatus(id, "EN_PROGRESO"); }
+        else if (btn.classList.contains("confirmar")) { await doStatus(id, "TURNO_CONFIRMADO"); }
+        else if (btn.classList.contains("concluido")) { await doStatus(id, "CONCLUIDA"); }
+        else if (btn.classList.contains("anular")) { await doStatus(id, "ANULADA"); }
+        loadAlerts();
+        return;
+      }
+      // Link clicks in detail
+      if (e.target.closest(".d-link")) return;
+      // Card expand/collapse
+      const card = e.target.closest(".alert-card");
+      if (card) { card.classList.toggle("expanded"); }
+    });
+  }
 }
 
 function initAlerts(){
