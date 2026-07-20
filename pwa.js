@@ -1148,19 +1148,6 @@ document.querySelectorAll(".modal").forEach((m) => {
 // =============================================================================
 // INIT — alerts always accessible, chat requires login
 // =============================================================================
-// Track window resize → save dimensions for next session
-let _resizeTimer = null;
-window.addEventListener("resize", () => {
-  clearTimeout(_resizeTimer);
-  _resizeTimer = setTimeout(() => {
-    chrome.runtime.sendMessage({
-      type: "windowResized",
-      width: window.outerWidth,
-      height: window.outerHeight,
-    }).catch(() => {}); // svc worker might not be listening, ignore
-  }, 300);
-});
-
 (async function init() {
   // Silently restore session for Chat tab
   const loggedIn = await restoreSession();
