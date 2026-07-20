@@ -128,12 +128,15 @@ let alerts=[],alertTimer=null,alertFilterUrg="",showHistory=false;
 
 async function loadAlerts(hist){
   const aid=currentUser?.airtable_id;if(!aid)return;
+  // Show cached alerts immediately
+  const cacheKey=hist?"sgsa_alertCacheHist":"sgsa_alertCache";
+  const cached=S.get(cacheKey);if(cached?.length){alerts=cached;renderAlerts()}
   setLoading(true);
   try{
     const leidas=hist?"true":"false";
     const r=await fetch(API+"/api/alerts?leidas="+leidas,{headers:authToken?{Authorization:"Bearer "+authToken}:{}});
     const d=await r.json();alerts=d.alerts||[];if(!hist)alerts=alerts.filter(a=>!a.leida);
-    stats.alertsToday=d.alerts?.length||0;renderAlerts();
+    S.set(cacheKey,alerts);stats.alertsToday=d.alerts?.length||0;renderAlerts();
   }catch(e){console.error(e)}
   setLoading(false);updateBadgeFromAlerts();
 }
