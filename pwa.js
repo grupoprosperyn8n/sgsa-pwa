@@ -124,7 +124,7 @@ document.getElementById("officeSearch").addEventListener("input",()=>renderOffic
 document.getElementById("selectOfficeBtn").addEventListener("click",()=>{openModal("office-modal");loadOfficeModal()});
 
 // ====== ALERTS ======
-let alerts=[],alertTimer=null,alertFilterUrg="",showHistory=false;
+let alerts=[],alertTimer=null,alertFilterUrg="",showHistory=false,selectedOfficeId="";
 
 async function loadAlerts(hist){
   const aid=currentUser?.airtable_id;if(!aid)return;
