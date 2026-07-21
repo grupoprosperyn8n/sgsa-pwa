@@ -80,7 +80,7 @@ document.getElementById("loginPassword").addEventListener("keydown",e=>{if(e.key
 function enterApp(){
   document.getElementById("login-screen").style.display="none";document.getElementById("app").style.display="flex";
   const e=currentUser?.email||S.get("sgsa_lastUser"),p=getProfile(e);
-  selectedOffice=p?.office||"";if(selectedOffice&&p?.officeName){document.getElementById("office-label").innerHTML=`<span class="material-symbols-outlined">apartment</span>${esc(p.officeName)}`;document.getElementById("selectOfficeBtn").classList.add("filled")}
+  selectedOffice=p?.office||"";selectedOfficeId=p?.officeId||"";if(selectedOffice&&p?.officeName){document.getElementById("office-label").innerHTML=`<span class="material-symbols-outlined">apartment</span>${esc(p.officeName)}`;document.getElementById("selectOfficeBtn").classList.add("filled")}
   chatSound=p?.chatSound!==false;alertsSound=p?.alertsSound!==false;document.getElementById("toggleChatSound").checked=chatSound;document.getElementById("toggleAlertsSound").checked=alertsSound;
   updateSettingsUI();
   // Lazy load: only init alerts on startup, chat loads on tab click
