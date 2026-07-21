@@ -248,7 +248,7 @@ function shareAlert(a){
 
 function initAlerts(){if(!currentUser?.airtable_id)return;if(selectedOffice)loadAlerts(showHistory)}
 document.getElementById("refreshBtn").addEventListener("click",()=>loadAlerts(showHistory));
-document.getElementById("ackAllBtn").addEventListener("click",async()=>{for(const card of document.querySelectorAll(".alert-card")){const id=card.dataset.id;if(id)await doAck(id)}loadAlerts(showHistory)});
+document.getElementById("ackAllBtn").addEventListener("click",async()=>{for(const card of document.querySelectorAll(".alert-card")){const id=card.dataset.id;if(id)await doAck(id)}showHistory=false;loadAlerts(false)});
 
 // ====== CHAT ======
 let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null,_chatStarted=0;
