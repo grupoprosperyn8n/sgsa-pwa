@@ -210,8 +210,8 @@ document.getElementById("historyBtn").addEventListener("click",function(){
       else if(btn.classList.contains("confirmar"))await doStatus(id,"TURNO_CONFIRMADO");
       else if(btn.classList.contains("concluido"))await doStatus(id,"CONCLUIDA");
       else if(btn.classList.contains("anular"))await doStatus(id,"ANULADA");
-      // Refresh in background
-      setTimeout(()=>loadAlerts(showHistory),500);
+      // Refresh in background — always reload as pending (history is separate view)
+      setTimeout(()=>{showHistory=false;loadAlerts(false)},500);
       if(alertsSound)Sound.alert();
       return;
     }
