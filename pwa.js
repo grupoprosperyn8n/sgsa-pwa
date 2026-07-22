@@ -272,22 +272,35 @@ async function refreshConversations(){
 
 function renderConversations(){
   const q=(document.getElementById("conversationSearch")?.value||"").toLowerCase(),f=q?conversations.filter(c=>c.display_name?.toLowerCase().includes(q)):conversations;
-  const c=document.getElementById("conversationList"),e=document.getElementById("inboxEmpty"),pins=getPins();
+  const c=document.getElementById("conversationList"),e=document.getElementById("inboxEmpty");
   if(!f.length){c.innerHTML="";e.style.display="flex";return}e.style.display="none";
-  const sorted=[...f].sort((a,b)=>(pins.includes(a.group_id)?-1:0)-(pins.includes(b.group_id)?-1:0));
-  c.innerHTML=sorted.map(cv=>`<div class="group-card ${selectedConversation?.group_id===cv.group_id?"selected":""}" data-gid="${cv.group_id}">
-    <div class="group-avatar">${cv.is_dm?(cv.avatar_url?`<img src="${cv.avatar_url}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="material-symbols-outlined" style="display:none">person</span>`:`<span class="material-symbols-outlined">person</span>`):`<span class="material-symbols-outlined">groups</span>`}${cv.is_dm?`<span class="online-dot ${cv.online?"online":"offline"}"></span>`:""}</div>
-    <div class="group-info"><div class="group-name">${esc(cv.display_name||"Chat")}</div><div class="group-last-msg">${cv.last_message||"Sin mensajes"}</div></div>
+  // Server-side pinned sort (backend returns pinned field)
+  const sorted=[...f].sort((a,b)=>(b.pinned?-1:0)-(a.pinned?-1:0)||(b.unread||0)-(a.unread||0));
+  c.innerHTML=sorted.map(cv=>{
+    const initials=(cv.display_name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+    const avatarContent=cv.avatar_url
+      ?`<img src="${esc(cv.avatar_url)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="material-symbols-outlined avatar-fallback" style="display:none">${cv.is_dm?'person':'groups'}</span>`
+      :`<span class="material-symbols-outlined">${cv.is_dm?'person':'groups'}</span>`;
+    const onlineDot=cv.is_dm?`<span class="online-dot ${cv.online?"online":"offline"}"></span>`:"";
+    const subtitle=cv.is_dm?(cv.online?"En línea":"Offline"):(cv.member_count?cv.member_count+" miembros":"");
+    return`<div class="group-card ${selectedConversation?.group_id===cv.group_id?"selected":""}" data-gid="${cv.group_id}">
+    <div class="group-avatar">${avatarContent}${onlineDot}</div>
+    <div class="group-info"><div class="group-name">${esc(cv.display_name||"Chat")}</div><div class="group-last-msg">${subtitle?`<span class="conv-subtitle">${esc(subtitle)}</span> · `:""}${cv.last_message||"Sin mensajes"}</div></div>
     <div class="group-meta"><div class="group-time">${cv.last_message_time?timeAgo(cv.last_message_time):""}</div>${cv.unread>0?`<div class="group-unread">${cv.unread>99?"99+":cv.unread}</div>`:""}</div>
-    <button class="pin-btn ${pins.includes(cv.group_id)?"pinned":""}" data-gid="${cv.group_id}" title="Fijar"><span class="material-symbols-outlined">push_pin</span></button>
-    <button class="delete-chat-btn" data-gid="${cv.group_id}" title="Eliminar chat"><span class="material-symbols-outlined">delete</span></button>
-  </div>`).join("");
+    <button class="pin-btn ${cv.pinned?"pinned":""}" data-gid="${cv.group_id}" title="${cv.pinned?"Desfijar":"Fijar"}"><span class="material-symbols-outlined">push_pin</span></button>
+    <button class="delete-chat-btn" data-gid="${cv.group_id}" title="Archivar chat"><span class="material-symbols-outlined">archive</span></button>
+  </div>`}).join("");
   c.querySelectorAll(".group-card").forEach(card=>card.addEventListener("click",e=>{if(e.target.closest(".pin-btn,.delete-chat-btn"))return;const gid=card.dataset.gid,cv=conversations.find(x=>x.group_id==gid);if(cv)openConversation(cv)}));
-  c.querySelectorAll(".pin-btn").forEach(b=>b.addEventListener("click",e=>{e.stopPropagation();const gid=b.dataset.gid;togglePin(gid);renderConversations()}));
-  c.querySelectorAll(".delete-chat-btn").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();const gid=b.dataset.gid;if(!confirm("¿Eliminar este chat?"))return;
-    const r=await fetch(API+"/api/chat/groups/"+gid+"/leave",{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
-    if(r.status===401){clearCurrent();showLogin();return}
-    if(r.ok){conversations=conversations.filter(x=>x.group_id!=gid);renderConversations()}else{refreshConversations()}
+  c.querySelectorAll(".pin-btn").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();const gid=b.dataset.gid;
+    const r=await P("/api/chat/pin",{group_id:gid});
+    if(r?.ok){const cv=conversations.find(x=>x.group_id==gid);if(cv)cv.pinned=r.pinned;
+    }else{togglePin(gid);const cv=conversations.find(x=>x.group_id==gid);if(cv)cv.pinned=getPins().includes(gid)}
+    renderConversations()}));
+  c.querySelectorAll(".delete-chat-btn").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();const gid=b.dataset.gid;
+    if(!confirm("¿Archivar este chat? No aparecerá en tu bandeja."))return;
+    const r=await P("/api/chat/hide",{group_id:gid});
+    if(r?.ok){conversations=conversations.filter(x=>x.group_id!=gid);renderConversations();toast("Chat archivado","success")}
+    else{toast("Error al archivar","error")}
   }));
 }
 document.getElementById("conversationSearch")?.addEventListener("input",renderConversations);
@@ -297,8 +310,16 @@ async function openConversation(cv){selectedConversation=cv;
   document.getElementById("chatMainEmpty").style.display="none";
   document.getElementById("message-view").style.display="";
   document.getElementById("chatBackBtn").style.display="none";
-  document.getElementById("chatHeaderTitle").textContent=cv.display_name||"Chat";
-  document.getElementById("chatHeaderTitle").onclick=cv.is_dm?null:()=>showGroupInfo(cv.group_id);
+  // Header with name, online status, and member count
+  const headerTitle=document.getElementById("chatHeaderTitle");
+  let headerHtml=`<span class="chat-name">${esc(cv.display_name||"Chat")}</span>`;
+  if(cv.is_dm){
+    headerHtml+=`<span class="chat-status ${cv.online?"online":"offline"}">${cv.online?"En línea":"Offline"}</span>`;
+  }else if(cv.member_count){
+    headerHtml+=`<span class="chat-status">${cv.member_count} miembros</span>`;
+  }
+  headerTitle.innerHTML=headerHtml;
+  headerTitle.onclick=cv.is_dm?null:()=>showGroupInfo(cv.group_id);
   await loadMessages(cv.group_id);renderConversations()}
 async function showGroupInfo(gid){
   document.getElementById("groupInfoTitle").textContent="Cargando...";
@@ -307,9 +328,23 @@ async function showGroupInfo(gid){
   const d=await G("/api/chat/groups/"+gid);
   if(!d?.ok){document.getElementById("groupInfoBody").innerHTML='<div class="empty-state"><p>Error</p></div>';return}
   document.getElementById("groupInfoTitle").textContent=d.group?.nombre||"Grupo";
-  document.getElementById("groupInfoBody").innerHTML=(d.group?.descripcion?`<div style="font-size:13px;color:var(--fg2);line-height:1.6;padding:4px 0 8px">${esc(d.group.descripcion)}</div>`:"")+
-    `<h3 style="font-size:12px;font-weight:700;color:var(--fg3);text-transform:uppercase;letter-spacing:.5px;padding:4px 0">${d.member_count||0} miembros</h3>`+
-    (d.members||[]).map(m=>`<div class="item-row" style="cursor:default"><div class="item-avatar">${m.avatar_url?`<img src="${m.avatar_url}">`:(m.nombre||"?")[0].toUpperCase()}</div><div class="item-info"><div class="item-name">${esc(m.nombre||m.id||"—")}</div>${m.es_admin?'<div class="item-sub">Admin</div>':""}</div></div>`).join("");
+  const members=(d.members||[]).map(m=>{
+    const initials=(m.nombre||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+    const isOnline=m.online||false;
+    return`<div class="member-row">
+      <div class="member-avatar">${m.avatar_url?`<img src="${esc(m.avatar_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="material-symbols-outlined" style="display:none">${initials}</span>`:`<span class="member-initials">${initials}</span>`}
+        <span class="online-dot ${isOnline?"online":"offline"}"></span>
+      </div>
+      <div class="member-info">
+        <div class="member-name">${esc(m.nombre||m.id||"—")}</div>
+        <div class="member-role">${m.es_admin?'Admin':""}</div>
+      </div>
+      ${isOnline?'<span class="member-status online-text">En línea</span>':'<span class="member-status offline-text">Offline</span>'}
+    </div>`;
+  }).join("");
+  document.getElementById("groupInfoBody").innerHTML=(d.group?.descripcion?`<div class="group-desc">${esc(d.group.descripcion)}</div>`:"")+
+    `<div class="members-header"><span class="material-symbols-outlined" style="font-size:16px">group</span> ${d.member_count||0} miembros</div>`+
+    `<div class="members-list">${members}</div>`;
 }
 document.getElementById("chatBackBtn").addEventListener("click",()=>{selectedConversation=null;
   document.getElementById("chatMainEmpty").style.display="flex";
