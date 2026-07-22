@@ -24,9 +24,9 @@ function getProfile(email){return(getProfiles())[email]||null}
 function saveProfile(email,data){const p=getProfiles();p[email]={...p[email],...data};saveProfiles(p)}
 function removeProfile(email){const p=getProfiles();delete p[email];saveProfiles(p)}
 
-// ─── Pins ─────────────────────────────────────────────────────────────────
+// ─── Pins (server-side with localStorage fallback) ────────────────────────
 function getPins(){return S.get("sgsa_pins")||[]}
-function togglePin(gid){let p=getPins();if(p.includes(gid))p=p.filter(x=>x!==gid);else p.push(gid);S.set("sgsa_pins",p);return p}
+function togglePin(gid){let p=getPins();if(p.includes(gid))p=p.filter(x=>x!==gid);else p.push(gid);S.set("sgsa_pins",p);P("/api/chat/pin",{group_id:gid}).catch(()=>{});return p}
 
 // ─── Offline queue ────────────────────────────────────────────────────────
 function getOfflineQueue(){return S.get("sgsa_offline")||[]}
