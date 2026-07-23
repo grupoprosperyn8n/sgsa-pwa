@@ -339,12 +339,7 @@ function renderConversations(){
 document.getElementById("conversationSearch")?.addEventListener("input",renderConversations);
 function timeAgo(iso){if(!iso)return"";const d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<1)return"ahora";if(m<60)return m+"m";const h=Math.floor(m/60);if(h<24)return h+"h";return Math.floor(h/24)+"d"}
 
-async function openConversation(cv){selectedConversation=cv;
-  document.getElementById("chatMainEmpty").style.display="none";
-  document.getElementById("message-view").style.display="";
-  document.getElementById("chatBackBtn").style.display=window.innerWidth<=768?"":"none";
-  document.getElementById("chatMain").classList.add("open");
-  // Header with name, online status, and member count
+function updateChatHeader(cv){
   const headerTitle=document.getElementById("chatHeaderTitle");
   let headerHtml=`<span class="chat-name">${esc(cv.display_name||"Chat")}</span>`;
   if(cv.is_dm){
@@ -354,6 +349,13 @@ async function openConversation(cv){selectedConversation=cv;
   }
   headerTitle.innerHTML=headerHtml;
   headerTitle.onclick=cv.is_dm?null:()=>showGroupInfo(cv.group_id);
+}
+async function openConversation(cv){selectedConversation=cv;
+  document.getElementById("chatMainEmpty").style.display="none";
+  document.getElementById("message-view").style.display="";
+  document.getElementById("chatBackBtn").style.display=window.innerWidth<=768?"":"none";
+  document.getElementById("chatMain").classList.add("open");
+  updateChatHeader(cv);
   await loadMessages(cv.group_id);renderConversations()}
 async function showGroupInfo(gid){
   document.getElementById("groupInfoTitle").textContent="Cargando...";
