@@ -1,5 +1,5 @@
 // =============================================================================
-// SGSA PWA v4 — Full-featured: sounds, search, pins, offline, export, etc.
+// SGSA PWA v7 — Full-featured: sounds, search, pins, offline, export, etc.
 // =============================================================================
 const API="https://web-production-2584d.up.railway.app",R=45000;
 
