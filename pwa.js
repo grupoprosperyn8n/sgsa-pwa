@@ -496,6 +496,7 @@ async function loadArchivedChats(){
     const gid=b.dataset.gid;
     const r=await P("/api/chat/hide",{group_id:gid});
     if(r?.ok&&!r.hidden){
+      S.del("sgsa_convCache");
       toast("Chat restaurado","success");
       await loadArchivedChats();
       refreshConversations();
@@ -503,12 +504,11 @@ async function loadArchivedChats(){
   }));
   list.querySelectorAll(".item-row").forEach(row=>row.addEventListener("click",async()=>{
     const gid=row.dataset.gid;
-    // Restore and open
     const r=await P("/api/chat/hide",{group_id:gid});
     if(r?.ok){
+      S.del("sgsa_convCache");
       closeModal("archivedModal");
       refreshConversations();
-      // Find the conversation and open it
       const cv=conversations.find(x=>x.group_id==gid);
       if(cv)openConversation(cv);
     }
