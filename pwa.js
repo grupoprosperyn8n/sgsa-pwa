@@ -521,7 +521,7 @@ function closeModal(id){const el=document.getElementById(id);if(el)el.style.disp
 document.querySelectorAll(".close-modal").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.modal)));
 
 // ====== INIT ======
-if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=7").catch(()=>{});
 if("Notification"in window&&Notification.permission==="default")Notification.requestPermission();
 
 (async function(){
