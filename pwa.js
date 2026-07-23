@@ -551,11 +551,13 @@ async function loadArchivedChats(){
   }));
   list.querySelectorAll(".item-row").forEach(row=>row.addEventListener("click",async()=>{
     const gid=row.dataset.gid;
+    // Unarchive then open
     const r=await P("/api/chat/hide",{group_id:gid});
     if(r?.ok){
       S.del("sgsa_convCache");
       closeModal("archivedModal");
-      refreshConversations();
+      await refreshConversations();
+      // Find the chat in refreshed conversations and open it
       const cv=conversations.find(x=>x.group_id==gid);
       if(cv)openConversation(cv);
     }
