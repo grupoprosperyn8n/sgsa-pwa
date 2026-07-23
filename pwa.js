@@ -290,8 +290,14 @@ function renderConversations(){
   const q=(document.getElementById("conversationSearch")?.value||"").toLowerCase(),f=q?conversations.filter(c=>c.display_name?.toLowerCase().includes(q)):conversations;
   const c=document.getElementById("conversationList"),e=document.getElementById("inboxEmpty");
   if(!f.length){c.innerHTML="";e.style.display="flex";return}e.style.display="none";
-  // Server-side pinned sort (backend returns pinned field)
-  const sorted=[...f].sort((a,b)=>(b.pinned?-1:0)-(a.pinned?-1:0)||(b.unread||0)-(a.unread||0));
+  // Sort: pinned first, then by last_message_time DESC (most recent activity first)
+  const sorted=[...f].sort((a,b)=>{
+    if(a.pinned&&!b.pinned)return -1;
+    if(!a.pinned&&b.pinned)return 1;
+    const ta=a.last_message_time?new Date(a.last_message_time).getTime():0;
+    const tb=b.last_message_time?new Date(b.last_message_time).getTime():0;
+    return tb-ta;
+  });
   c.innerHTML=sorted.map(cv=>{
     const initials=avatarInitials(cv.display_name);
     const bgColor=avatarColor(cv.display_name);
