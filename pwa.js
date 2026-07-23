@@ -37,7 +37,16 @@ function togglePin(gid){let p=getPins();if(p.includes(gid))p=p.filter(x=>x!==gid
 // ─── Offline queue ────────────────────────────────────────────────────────
 function getOfflineQueue(){return S.get("sgsa_offline")||[]}
 function enqueueOffline(msg){const q=getOfflineQueue();q.push({...msg,ts:Date.now()});S.set("sgsa_offline",q)}
-function flushOfflineQueue(){const q=getOfflineQueue();if(!q.length)return;S.set("sgsa_offline",[]);q.forEach(m=>P("/api/chat/send",m).catch(()=>enqueueOffline(m)))}
+function flushOfflineQueue(){const q=getOfflineQueue();if(!q.length)return;S.set("sgsa_offline",[]);q.forEach(async m=>{
+  try{const r=await P("/api/chat/send",m);
+    if(r?.ok){
+      // Remove the failed indicator and reload messages
+      if(m._fakeId){const el=document.querySelector(`[data-fake-id="${m._fakeId}"]`);if(el)el.remove()}
+      if(selectedConversation?.group_id==m.grupo_id)await loadMessages(m.grupo_id);
+      await refreshConversations();
+    }else{enqueueOffline(m)}
+  }catch{enqueueOffline(m)}
+})}
 setInterval(flushOfflineQueue,15000);
 
 // ─── Badge ────────────────────────────────────────────────────────────────
