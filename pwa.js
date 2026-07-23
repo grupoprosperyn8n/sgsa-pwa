@@ -528,8 +528,12 @@ async function loadArchivedChats(){
   if(!d?.ok||!d.conversations?.length){list.innerHTML="";empty.style.display="flex";return}
   list.innerHTML=d.conversations.map(cv=>{
     const initials=(cv.display_name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+    const bgColor=avatarColor(cv.display_name);
+    const avatarContent=cv.avatar_url
+      ?`<img src="${esc(cv.avatar_url)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`
+      :`<span class="material-symbols-outlined">${cv.is_dm?'person':'groups'}</span>`;
     return`<div class="item-row" data-gid="${cv.group_id}">
-      <div class="item-avatar">${cv.avatar_url?`<img src="${esc(cv.avatar_url)}">`:`<span class="material-symbols-outlined">${cv.is_dm?'person':'groups'}</span>`}</div>
+      <div class="item-avatar">${avatarContent}</div>
       <div class="item-info"><div class="item-name">${esc(cv.display_name||"Chat")}</div>${cv.is_dm?"":"<div class='item-sub'>"+(cv.member_count||0)+" miembros</div>"}</div>
       <button class="btn-unarchive" data-gid="${cv.group_id}" title="Restaurar"><span class="material-symbols-outlined">unarchive</span></button>
     </div>`}).join("");
