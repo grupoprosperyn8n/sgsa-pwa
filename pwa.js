@@ -6,6 +6,7 @@ const API="https://web-production-2584d.up.railway.app",R=45000;
 // ─── Storage ──────────────────────────────────────────────────────────────
 const S={get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
 function esc(t){const d=document.createElement("div");d.textContent=t;return d.innerHTML}
+function linkify(text){return esc(text).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener" style="color:inherit;text-decoration:underline">$1</a>')}
 
 // ─── Avatar color hash ───────────────────────────────────────────────────
 const AVATAR_COLORS=["#FF6B6B","#4ECDC4","#45B7D1","#96CEB4","#FFEAA7","#DDA0DD","#98D8C8","#F7DC6F","#BB8FCE","#85C1E9","#F0B27A","#82E0AA","#F1948A","#AED6F1","#A3E4D7","#FAD7A0","#D7BDE2","#A9CCE3"];
