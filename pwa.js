@@ -378,7 +378,8 @@ async function loadMessages(gid){const airId=currentUser?.airtable_id||"";const 
 function renderMsgList(c,e,gid,msgs){
   if(!msgs.length){e.style.display="flex";c.innerHTML="";return}
   e.style.display="none";
-  const myId=currentUser?.airtable_id||currentUser?.id||"";
+  const myId=currentUser?.airtable_id||"";
+  const myLoginId=currentUser?.id||"";
   let html="";let lastDate="";
   const sorted=msgs.slice().reverse();
   for(const m of sorted){
