@@ -1,5 +1,5 @@
 // SGSA PWA v4 — Service Worker
-const CACHE="sgsa-v4",ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
+const CACHE="sgsa-v5",ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 let badgeInterval=null;
 
