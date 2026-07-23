@@ -398,7 +398,10 @@ function renderMsgList(c,e,gid,msgs){
     if(m.tipo==="imagen"&&m.adjunto_url)body=`<div class="msg-attachment"><img src="${m.adjunto_url}" loading="lazy"></div>`;
     else if((m.tipo==="video"||m.tipo==="audio")&&m.adjunto_url)body=`<div class="msg-attachment">${m.tipo==="audio"?`<audio controls src="${m.adjunto_url}"></audio>`:`<video controls src="${m.adjunto_url}" style="max-width:100%;max-height:300px"></video>`}</div>`;
     else if(m.adjunto_url)body=`<div class="msg-attachment"><a class="file-link" href="${m.adjunto_url}" target="_blank"><span class="material-symbols-outlined" style="font-size:16px">attach_file</span>${esc(m.adjunto_nombre||"Archivo")}</a></div>`;
-    html+=`<div class="message ${isMine?"mine":"theirs"}"><div class="sender-name">${!isMine?esc(m.sender_nombre||m.remitente_nombre||""):""}</div>${body}<div class="msg-time">${timeAgo(m.created_at)}${isMine?` <span class="msg-checks ${m.visto?"seen":"sent"}" title="${m.visto?"Visto":"Enviado"}">${m.visto?"✓✓":"✓"}</span>`:""}</div></div>`;
+    // In DMs, don't show sender name at all (it's implied). In groups, show for others.
+    const isDM=selectedConversation?.is_dm;
+    const senderHtml=!isMine&&!isDM?`<div class="sender-name">${esc(m.sender_nombre||m.remitente_nombre||"")}</div>`:"";
+    html+=`<div class="message ${isMine?"mine":"theirs"}">${senderHtml}${body}<div class="msg-time">${timeAgo(m.created_at)}${isMine?` <span class="msg-checks ${m.visto?"seen":"sent"}" title="${m.visto?"Visto":"Enviado"}">${m.visto?"✓✓":"✓"}</span>`:""}</div></div>`;
   }
   c.innerHTML=html;c.scrollTop=c.scrollHeight;
 }
