@@ -256,7 +256,7 @@ let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_
 
 function initChat(){if(!authToken)return;
   const cached=S.get("sgsa_convCache");if(cached?.length){conversations=cached;renderConversations()}
-  refreshConversations();startPing();if(_ct)clearInterval(_ct);_ct=setInterval(refreshConversations,R)}
+  refreshConversations();if(_ct)clearInterval(_ct);_ct=setInterval(refreshConversations,R)}
 async function refreshConversations(){
   if(!authToken)return;
   // Show cached conversations immediately
