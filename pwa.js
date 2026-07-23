@@ -583,7 +583,6 @@ function renderArchived(){
       <button class="btn-unarchive" data-gid="${cv.group_id}" title="Restaurar"><span class="material-symbols-outlined">unarchive</span></button>
     </div>`}).join("");
   list.querySelectorAll(".btn-unarchive").forEach(b=>b.addEventListener("click",async e=>{
-  list.querySelectorAll(".btn-unarchive").forEach(b=>b.addEventListener("click",async e=>{
     e.stopPropagation();
     const gid=b.dataset.gid;
     const r=await P("/api/chat/hide",{group_id:gid});
