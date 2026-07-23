@@ -557,6 +557,13 @@ document.getElementById("archivedBtn").addEventListener("click",async()=>{
 });
 let _archivedCache=[];
 document.getElementById("archivedSearch")?.addEventListener("input",()=>renderArchived());
+async function loadArchivedChats(){
+  const list=document.getElementById("archivedList"),empty=document.getElementById("archivedEmpty");
+  list.innerHTML='<div class="empty-state"><p>Cargando...</p></div>';empty.style.display="none";
+  const d=await G("/api/chat/hidden");
+  if(!d?.ok||!d.conversations?.length){_archivedCache=[];list.innerHTML="";empty.style.display="flex";return}
+  _archivedCache=d.conversations;renderArchived();
+}
 function renderArchived(){
   const q=(document.getElementById("archivedSearch")?.value||"").toLowerCase();
   const list=document.getElementById("archivedList"),empty=document.getElementById("archivedEmpty");
