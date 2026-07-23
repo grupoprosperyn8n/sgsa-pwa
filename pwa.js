@@ -316,7 +316,8 @@ function timeAgo(iso){if(!iso)return"";const d=Date.now()-new Date(iso).getTime(
 async function openConversation(cv){selectedConversation=cv;
   document.getElementById("chatMainEmpty").style.display="none";
   document.getElementById("message-view").style.display="";
-  document.getElementById("chatBackBtn").style.display="none";
+  document.getElementById("chatBackBtn").style.display=window.innerWidth<=768?"":"none";
+  document.getElementById("chatMain").classList.add("open");
   // Header with name, online status, and member count
   const headerTitle=document.getElementById("chatHeaderTitle");
   let headerHtml=`<span class="chat-name">${esc(cv.display_name||"Chat")}</span>`;
