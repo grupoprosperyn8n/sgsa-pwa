@@ -277,7 +277,15 @@ async function refreshConversations(){
   // Show cached conversations immediately
   const cached=S.get("sgsa_convCache");if(cached?.length&&!conversations.length){conversations=cached;renderConversations()}
   const d=await G("/api/chat/conversations");
-  if(d?.ok){conversations=d.conversations;S.set("sgsa_convCache",conversations);renderConversations();
+  if(d?.ok){
+    // Merge: preserve optimistic last_message_time for new convos with no messages yet
+    const oldMap={};conversations.forEach(c=>{oldMap[c.group_id]=c});
+    d.conversations.forEach(c=>{
+      if(!c.last_message_time && oldMap[c.group_id]?.last_message_time){
+        c.last_message_time=oldMap[c.group_id].last_message_time;
+      }
+    });
+    conversations=d.conversations;S.set("sgsa_convCache",conversations);renderConversations();
     const newUnread=conversations.reduce((s,c)=>s+(c.unread||0),0);
     document.getElementById("chat-badge").textContent=newUnread||"";
     // Update selected conversation header with fresh online/offline status
