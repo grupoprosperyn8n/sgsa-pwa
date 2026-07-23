@@ -319,8 +319,9 @@ function renderConversations(){
   c.innerHTML=sorted.map(cv=>{
     const initials=avatarInitials(cv.display_name);
     const bgColor=avatarColor(cv.display_name);
-    const avatarContent=cv.avatar_url
-      ?`<img src="${esc(cv.avatar_url)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`
+    const avUrl=avatarUrl(cv.avatar_url);
+    const avatarContent=avUrl
+      ?`<img src="${esc(avUrl)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`
       :`<span class="avatar-initials" style="background:${bgColor}">${initials}</span>`;
     const onlineDot=cv.is_dm?`<span class="online-dot ${cv.online?"online":"offline"}"></span>`:"";
     const subtitle=cv.is_dm?(cv.online?"En línea":"Offline"):(cv.member_count?cv.member_count+" miembros":"");
