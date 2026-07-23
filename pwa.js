@@ -482,7 +482,8 @@ function renderPeopleList(list){const q=(document.getElementById("peopleSearch")
     const sendR=await P("/api/chat/send",{grupo_id:r.group_id,empleado_id:currentUser?.airtable_id,contenido:txt});
     if(sendR?.ok){
       // Optimistically add to conversations
-      const dmCv={group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:false,avatar_url:null,pinned:false,unread:0,last_message:txt.slice(0,100),last_message_time:new Date().toISOString()};
+      const emp=allEmployees.find(e=>e.id===el.dataset.empleadoId||e.airtable_id===el.dataset.empleadoId);
+      const dmCv={group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:false,avatar_url:emp?.avatar_url||null,pinned:false,unread:0,last_message:txt.slice(0,100),last_message_time:new Date().toISOString()};
       if(!conversations.find(x=>x.group_id==r.group_id))conversations.push(dmCv);
       renderConversations();
       await openConversation(dmCv);
