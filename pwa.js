@@ -336,10 +336,11 @@ async function showGroupInfo(gid){
   if(!d?.ok){document.getElementById("groupInfoBody").innerHTML='<div class="empty-state"><p>Error</p></div>';return}
   document.getElementById("groupInfoTitle").textContent=d.group?.nombre||"Grupo";
   const members=(d.members||[]).map(m=>{
-    const initials=(m.nombre||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+    const initials=avatarInitials(m.nombre);
+    const bgColor=avatarColor(m.nombre);
     const isOnline=m.online||false;
     return`<div class="member-row">
-      <div class="member-avatar">${m.avatar_url?`<img src="${esc(m.avatar_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="material-symbols-outlined" style="display:none">${initials}</span>`:`<span class="member-initials">${initials}</span>`}
+      <div class="member-avatar">${m.avatar_url?`<img src="${esc(m.avatar_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`:`<span class="avatar-initials" style="background:${bgColor}">${initials}</span>`}
         <span class="online-dot ${isOnline?"online":"offline"}"></span>
       </div>
       <div class="member-info">
