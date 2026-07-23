@@ -280,6 +280,15 @@ async function refreshConversations(){
   if(d?.ok){conversations=d.conversations;S.set("sgsa_convCache",conversations);renderConversations();
     const newUnread=conversations.reduce((s,c)=>s+(c.unread||0),0);
     document.getElementById("chat-badge").textContent=newUnread||"";
+    // Update selected conversation header with fresh online/offline status
+    if(selectedConversation){
+      const fresh=conversations.find(c=>c.group_id===selectedConversation.group_id);
+      if(fresh){
+        selectedConversation.online=fresh.online;
+        selectedConversation.display_name=fresh.display_name;
+        updateChatHeader(fresh);
+      }
+    }
   } else if(d?.error){
     console.error("Conversations error:",d.error);
     if(cached?.length){conversations=cached;renderConversations()}
