@@ -385,7 +385,7 @@ function renderMsgList(c,e,gid,msgs){
       if(label!==lastDate){html+=`<div class="date-separator"><span>${label}</span></div>`;lastDate=label}
     }
     const isMine=m.sender_id===myId;
-    let body=`<div class="msg-text">${esc(m.mensaje||m.texto||"")}</div>`;
+    let body=`<div class="msg-text">${linkify(m.mensaje||m.texto||"")}</div>`;
     if(m.tipo==="imagen"&&m.adjunto_url)body=`<div class="msg-attachment"><img src="${m.adjunto_url}" loading="lazy"></div>`;
     else if((m.tipo==="video"||m.tipo==="audio")&&m.adjunto_url)body=`<div class="msg-attachment">${m.tipo==="audio"?`<audio controls src="${m.adjunto_url}"></audio>`:`<video controls src="${m.adjunto_url}" style="max-width:100%;max-height:300px"></video>`}</div>`;
     else if(m.adjunto_url)body=`<div class="msg-attachment"><a class="file-link" href="${m.adjunto_url}" target="_blank"><span class="material-symbols-outlined" style="font-size:16px">attach_file</span>${esc(m.adjunto_nombre||"Archivo")}</a></div>`;
