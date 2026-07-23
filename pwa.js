@@ -307,7 +307,7 @@ function renderConversations(){
   c.querySelectorAll(".delete-chat-btn").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();const gid=b.dataset.gid;
     if(!confirm("¿Archivar este chat? No aparecerá en tu bandeja."))return;
     const r=await P("/api/chat/hide",{group_id:gid});
-    if(r?.ok){conversations=conversations.filter(x=>x.group_id!=gid);renderConversations();toast("Chat archivado","success")}
+    if(r?.ok){conversations=conversations.filter(x=>x.group_id!=gid);S.del("sgsa_convCache");renderConversations();toast("Chat archivado","success")}
     else{toast("Error al archivar","error")}
   }));
 }
