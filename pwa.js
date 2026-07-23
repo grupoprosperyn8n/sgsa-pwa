@@ -303,7 +303,7 @@ function renderConversations(){
     const r=await P("/api/chat/pin",{group_id:gid});
     if(r?.ok){const cv=conversations.find(x=>x.group_id==gid);if(cv)cv.pinned=r.pinned;
     }else{togglePin(gid);const cv=conversations.find(x=>x.group_id==gid);if(cv)cv.pinned=getPins().includes(gid)}
-    renderConversations()}));
+    S.del("sgsa_convCache");renderConversations()}));
   c.querySelectorAll(".delete-chat-btn").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();const gid=b.dataset.gid;
     if(!confirm("¿Archivar este chat? No aparecerá en tu bandeja."))return;
     const r=await P("/api/chat/hide",{group_id:gid});
