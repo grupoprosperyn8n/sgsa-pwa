@@ -362,7 +362,33 @@ document.getElementById("chatBackBtn").addEventListener("click",()=>{selectedCon
 async function loadMessages(gid){const airId=currentUser?.airtable_id||"";const d=await G("/api/chat/mensajes/"+gid+"?airtable_id="+encodeURIComponent(airId)),c=document.getElementById("messageList"),e=document.getElementById("messageEmpty");
   if(!d?.ok){const cached=S.get("sgsa_msgCache_"+gid);if(cached?.length){renderMsgList(c,e,gid,cached);return}c.innerHTML='<div class="empty-state"><span class="material-symbols-outlined empty-icon">cloud_off</span><p>Sin conexión</p><span class="empty-hint">No se pudieron cargar los mensajes</span></div>';return}
   const msgs=d.mensajes||[];S.set("sgsa_msgCache_"+gid,msgs);renderMsgList(c,e,gid,msgs)}
-function renderMsgList(c,e,gid,msgs){if(!msgs.length){e.style.display="flex";c.innerHTML="";return}e.style.display="none";const myId=currentUser?.airtable_id||currentUser?.id||"";c.innerHTML=msgs.reverse().map(m=>{const isMine=m.sender_id===myId;let body=`<div class="msg-text">${esc(m.mensaje||m.texto||"")}</div>`;if(m.tipo==="imagen"&&m.adjunto_url)body=`<div class="msg-attachment"><img src="${m.adjunto_url}" loading="lazy"></div>`;else if((m.tipo==="video"||m.tipo==="audio")&&m.adjunto_url)body=`<div class="msg-attachment">${m.tipo==="audio"?`<audio controls src="${m.adjunto_url}"></audio>`:`<video controls src="${m.adjunto_url}" style="max-width:100%;max-height:300px"></video>`}</div>`;else if(m.adjunto_url)body=`<div class="msg-attachment"><a class="file-link" href="${m.adjunto_url}" target="_blank"><span class="material-symbols-outlined" style="font-size:16px">attach_file</span>${esc(m.adjunto_nombre||"Archivo")}</a></div>`;return`<div class="message ${isMine?"mine":"theirs"}"><div class="sender-name" style="font-size:11px;color:var(--fg3);margin-bottom:2px">${!isMine?esc(m.sender_nombre||m.remitente_nombre||""):""}</div>${body}<div class="msg-time">${timeAgo(m.created_at)}${isMine?` <span class="msg-checks ${m.visto?"seen":"sent"}" title="${m.visto?"Visto":"Enviado"}">${m.visto?"✓✓":"✓"}</span>`:""}</div></div>`}).join("");c.scrollTop=c.scrollHeight}
+function renderMsgList(c,e,gid,msgs){
+  if(!msgs.length){e.style.display="flex";c.innerHTML="";return}
+  e.style.display="none";
+  const myId=currentUser?.airtable_id||currentUser?.id||"";
+  let html="";let lastDate="";
+  const sorted=msgs.slice().reverse();
+  for(const m of sorted){
+    // Date separator
+    const d=m.created_at?new Date(m.created_at):null;
+    if(d){
+      const today=new Date();const yesterday=new Date(today);yesterday.setDate(yesterday.getDate()-1);
+      const ds=d.toDateString();
+      let label="";
+      if(ds===today.toDateString())label="Hoy";
+      else if(ds===yesterday.toDateString())label="Ayer";
+      else label=d.toLocaleDateString("es-AR",{day:"numeric",month:"long",year:d.getFullYear()!==today.getFullYear()?"numeric":undefined});
+      if(label!==lastDate){html+=`<div class="date-separator"><span>${label}</span></div>`;lastDate=label}
+    }
+    const isMine=m.sender_id===myId;
+    let body=`<div class="msg-text">${esc(m.mensaje||m.texto||"")}</div>`;
+    if(m.tipo==="imagen"&&m.adjunto_url)body=`<div class="msg-attachment"><img src="${m.adjunto_url}" loading="lazy"></div>`;
+    else if((m.tipo==="video"||m.tipo==="audio")&&m.adjunto_url)body=`<div class="msg-attachment">${m.tipo==="audio"?`<audio controls src="${m.adjunto_url}"></audio>`:`<video controls src="${m.adjunto_url}" style="max-width:100%;max-height:300px"></video>`}</div>`;
+    else if(m.adjunto_url)body=`<div class="msg-attachment"><a class="file-link" href="${m.adjunto_url}" target="_blank"><span class="material-symbols-outlined" style="font-size:16px">attach_file</span>${esc(m.adjunto_nombre||"Archivo")}</a></div>`;
+    html+=`<div class="message ${isMine?"mine":"theirs"}"><div class="sender-name">${!isMine?esc(m.sender_nombre||m.remitente_nombre||""):""}</div>${body}<div class="msg-time">${timeAgo(m.created_at)}${isMine?` <span class="msg-checks ${m.visto?"seen":"sent"}" title="${m.visto?"Visto":"Enviado"}">${m.visto?"✓✓":"✓"}</span>`:""}</div></div>`;
+  }
+  c.innerHTML=html;c.scrollTop=c.scrollHeight;
+}
 
 async function sendMessage(){const input=document.getElementById("chatInput"),text=input.value.trim();if(!text||!selectedConversation)return;input.value="";const payload={grupo_id:selectedConversation.group_id,empleado_id:currentUser?.airtable_id,contenido:text};
   // Show message locally immediately
