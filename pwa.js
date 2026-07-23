@@ -84,7 +84,8 @@ function enterApp(){
   chatSound=p?.chatSound!==false;alertsSound=p?.alertsSound!==false;document.getElementById("toggleChatSound").checked=chatSound;document.getElementById("toggleAlertsSound").checked=alertsSound;
   updateSettingsUI();
   // Lazy load: only init alerts on startup, chat loads on tab click
-  initAlerts();flushOfflineQueue();
+  // Ping starts here so user is online immediately, not just when chat tab opens
+  initAlerts();flushOfflineQueue();startPing();
   if(!selectedOffice){openModal("office-modal");loadOfficeModal()}
   updateBadgeFromAlerts();
 }
