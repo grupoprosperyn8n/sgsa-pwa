@@ -422,6 +422,27 @@ function renderSelectedMembers(){const c=document.getElementById("selectedMember
 document.getElementById("memberSearch").addEventListener("input",()=>{const q=document.getElementById("memberSearch").value.toLowerCase();renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)&&e.nombre?.toLowerCase().includes(q)))});
 document.getElementById("createGroupBtn").addEventListener("click",async()=>{const name=document.getElementById("newGroupName").value.trim();if(!name){alert("Poné un nombre");return}const d=await P("/api/chat/grupos",{nombre:name,descripcion:document.getElementById("newGroupDesc").value.trim(),creado_por:currentUser?.airtable_id,miembros:selectedMembers.map(m=>m.airtable_id)});if(d?.ok){closeModal("newGroupModal");document.getElementById("newGroupName").value="";document.getElementById("newGroupDesc").value="";selectedMembers=[];renderSelectedMembers();refreshConversations()}else alert("Error al crear grupo")});
 
+// ─── Emoji picker ─────────────────────────────────────────────────────────
+const EMOJIS="😀😃😄😁😆🥹😅🤣😂🙂🥰😍🤩😘😗😚😋😛🤔🤫🤭🫡🤐😐😑😶😏😒🙄😬🤥😌😔😪🤤😴😷🤒🤕🥴😵🤯🤠🥳🥸😎🤓🧐😤😡🤬😈👿💀☠️💩🤡👹👺👻👽👾🤖😺😸😹😻😼😽🙀😿😾🙈🙉🙊💌❤️🧡💛💚💙💜🖤🤍🤎💔❣️💕💞💓💗💖💝💘👍👎👊✊🤛🤜🤞✌️🤘🙏🫶✍️💪🦾🔥⭐🌟✨💫🎉🎊💯".split(/(?:)/u);
+document.getElementById("emojiBtn").addEventListener("click",()=>{
+  const picker=document.getElementById("emojiPicker");
+  if(picker.style.display==="none"){
+    const grid=document.getElementById("emojiGrid");
+    if(!grid.children.length){
+      grid.innerHTML=EMOJIS.map(e=>`<button class="emoji-item">${e}</button>`).join("");
+      grid.querySelectorAll(".emoji-item").forEach(b=>b.addEventListener("click",()=>{
+        const input=document.getElementById("chatInput");
+        const start=input.selectionStart,end=input.selectionEnd;
+        input.value=input.value.slice(0,start)+b.textContent+input.value.slice(end);
+        input.focus();
+        input.setSelectionRange(start+b.textContent.length,start+b.textContent.length);
+      }));
+    }
+    picker.style.display="block";
+  }else{picker.style.display="none"}
+});
+document.getElementById("chatInput").addEventListener("focus",()=>{document.getElementById("emojiPicker").style.display="none"});
+
 // ─── Archived chats ──────────────────────────────────────────────────────
 document.getElementById("archivedBtn").addEventListener("click",async()=>{
   if(!authToken){showLogin();return}
