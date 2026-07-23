@@ -415,6 +415,48 @@ function renderSelectedMembers(){const c=document.getElementById("selectedMember
 document.getElementById("memberSearch").addEventListener("input",()=>{const q=document.getElementById("memberSearch").value.toLowerCase();renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)&&e.nombre?.toLowerCase().includes(q)))});
 document.getElementById("createGroupBtn").addEventListener("click",async()=>{const name=document.getElementById("newGroupName").value.trim();if(!name){alert("Poné un nombre");return}const d=await P("/api/chat/grupos",{nombre:name,descripcion:document.getElementById("newGroupDesc").value.trim(),creado_por:currentUser?.airtable_id,miembros:selectedMembers.map(m=>m.airtable_id)});if(d?.ok){closeModal("newGroupModal");document.getElementById("newGroupName").value="";document.getElementById("newGroupDesc").value="";selectedMembers=[];renderSelectedMembers();refreshConversations()}else alert("Error al crear grupo")});
 
+// ─── Archived chats ──────────────────────────────────────────────────────
+document.getElementById("archivedBtn").addEventListener("click",async()=>{
+  if(!authToken){showLogin();return}
+  openModal("archivedModal");
+  await loadArchivedChats();
+});
+async function loadArchivedChats(){
+  const list=document.getElementById("archivedList"),empty=document.getElementById("archivedEmpty");
+  list.innerHTML='<div class="empty-state"><p>Cargando...</p></div>';empty.style.display="none";
+  const d=await G("/api/chat/hidden");
+  if(!d?.ok||!d.conversations?.length){list.innerHTML="";empty.style.display="flex";return}
+  list.innerHTML=d.conversations.map(cv=>{
+    const initials=(cv.display_name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+    return`<div class="item-row" data-gid="${cv.group_id}">
+      <div class="item-avatar">${cv.avatar_url?`<img src="${esc(cv.avatar_url)}">`:`<span class="material-symbols-outlined">${cv.is_dm?'person':'groups'}</span>`}</div>
+      <div class="item-info"><div class="item-name">${esc(cv.display_name||"Chat")}</div>${cv.is_dm?"":"<div class='item-sub'>"+(cv.member_count||0)+" miembros</div>"}</div>
+      <button class="btn-unarchive" data-gid="${cv.group_id}" title="Restaurar"><span class="material-symbols-outlined">unarchive</span></button>
+    </div>`}).join("");
+  list.querySelectorAll(".btn-unarchive").forEach(b=>b.addEventListener("click",async e=>{
+    e.stopPropagation();
+    const gid=b.dataset.gid;
+    const r=await P("/api/chat/hide",{group_id:gid});
+    if(r?.ok&&!r.hidden){
+      toast("Chat restaurado","success");
+      await loadArchivedChats();
+      refreshConversations();
+    }else{toast("Error al restaurar","error")}
+  }));
+  list.querySelectorAll(".item-row").forEach(row=>row.addEventListener("click",async()=>{
+    const gid=row.dataset.gid;
+    // Restore and open
+    const r=await P("/api/chat/hide",{group_id:gid});
+    if(r?.ok){
+      closeModal("archivedModal");
+      refreshConversations();
+      // Find the conversation and open it
+      const cv=conversations.find(x=>x.group_id==gid);
+      if(cv)openConversation(cv);
+    }
+  }));
+}
+
 // ─── Modals ───────────────────────────────────────────────────────────────
 function openModal(id){const el=document.getElementById(id);if(el)el.style.display="flex"}
 function closeModal(id){const el=document.getElementById(id);if(el)el.style.display="none"}
