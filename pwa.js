@@ -379,7 +379,7 @@ async function showGroupInfo(gid){
     const bgColor=avatarColor(m.nombre);
     const isOnline=m.online||false;
     return`<div class="member-row">
-      <div class="member-avatar">${m.avatar_url?`<img src="${esc(m.avatar_url)}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`:`<span class="avatar-initials" style="background:${bgColor}">${initials}</span>`}
+      <div class="member-avatar">${avatarUrl(m.avatar_url)?`<img src="${esc(avatarUrl(m.avatar_url))}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`:`<span class="avatar-initials" style="background:${bgColor}">${initials}</span>`}
         <span class="online-dot ${isOnline?"online":"offline"}"></span>
       </div>
       <div class="member-info">
