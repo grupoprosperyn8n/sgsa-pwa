@@ -563,8 +563,9 @@ async function loadArchivedChats(){
   list.innerHTML=d.conversations.map(cv=>{
     const initials=(cv.display_name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
     const bgColor=avatarColor(cv.display_name);
-    const avatarContent=cv.avatar_url
-      ?`<img src="${esc(cv.avatar_url)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`
+    const avArchUrl=avatarUrl(cv.avatar_url);
+    const avatarContent=avArchUrl
+      ?`<img src="${esc(avArchUrl)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`
       :`<span class="material-symbols-outlined">${cv.is_dm?'person':'groups'}</span>`;
     return`<div class="item-row" data-gid="${cv.group_id}">
       <div class="item-avatar">${avatarContent}</div>
