@@ -357,7 +357,9 @@ async function showGroupInfo(gid){
 document.getElementById("chatBackBtn").addEventListener("click",()=>{selectedConversation=null;
   document.getElementById("chatMainEmpty").style.display="flex";
   document.getElementById("message-view").style.display="none";
-  document.getElementById("chatHeaderTitle").textContent="Chat";refreshConversations()});
+  document.getElementById("chatHeaderTitle").textContent="Chat";
+  document.getElementById("chatMain").classList.remove("open");
+  refreshConversations()});
 
 async function loadMessages(gid){const airId=currentUser?.airtable_id||"";const d=await G("/api/chat/mensajes/"+gid+"?airtable_id="+encodeURIComponent(airId)),c=document.getElementById("messageList"),e=document.getElementById("messageEmpty");
   if(!d?.ok){const cached=S.get("sgsa_msgCache_"+gid);if(cached?.length){renderMsgList(c,e,gid,cached);return}c.innerHTML='<div class="empty-state"><span class="material-symbols-outlined empty-icon">cloud_off</span><p>Sin conexión</p><span class="empty-hint">No se pudieron cargar los mensajes</span></div>';return}
