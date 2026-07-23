@@ -495,7 +495,8 @@ function renderPeopleList(list){const q=(document.getElementById("peopleSearch")
   const r=await P("/api/chat/dm",{target_empleado_id:el.dataset.empleadoId});
   if(r?.ok){
     closeModal("peopleModal");
-    const dmCv={group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:false,avatar_url:null,pinned:false,unread:0,last_message:null,last_message_time:new Date().toISOString()};
+    const emp=allEmployees.find(e=>e.id===el.dataset.empleadoId||e.airtable_id===el.dataset.empleadoId);
+    const dmCv={group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:false,avatar_url:emp?.avatar_url||null,pinned:false,unread:0,last_message:null,last_message_time:new Date().toISOString()};
     // Optimistically add to conversations so it appears in sidebar immediately
     if(!conversations.find(x=>x.group_id==r.group_id))conversations.push(dmCv);
     renderConversations();
