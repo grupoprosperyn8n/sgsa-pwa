@@ -230,10 +230,10 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .date-separator span{background:rgba(0,0,0,.15);color:white;font-size:11px;font-weight:500;padding:3px 10px;border-radius:10px;display:inline-block}
 .sender-name{font-size:11px;font-weight:600;color:var(--accent);margin-bottom:2px}
 .message .msg-text{white-space:pre-wrap;word-break:break-word}
-.message .msg-time{font-size:10px;color:var(--fg3);margin-top:4px;text-align:right}
-.message.mine .msg-time{color:rgba(255,255,255,.6)}
-.msg-checks{font-size:10px;margin-left:4px}
-.msg-checks.sent{color:rgba(255,255,255,.4)}
+.message .msg-time{font-size:10px;color:var(--fg3);margin-top:3px;text-align:right;display:flex;align-items:center;justify-content:flex-end;gap:3px}
+.message.mine .msg-time{color:rgba(255,255,255,.65)}
+.msg-checks{font-size:11px;margin-left:2px}
+.msg-checks.sent{color:rgba(255,255,255,.45)}
 .msg-checks.seen{color:#34d399}
 .message .msg-attachment{margin-top:6px;border-radius:8px;overflow:hidden}
 .message .msg-attachment img,.message .msg-attachment video{max-width:100%;max-height:300px;border-radius:8px;display:block}
