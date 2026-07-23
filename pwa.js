@@ -394,7 +394,7 @@ function renderMsgList(c,e,gid,msgs){
       else label=d.toLocaleDateString("es-AR",{day:"numeric",month:"long",year:d.getFullYear()!==today.getFullYear()?"numeric":undefined});
       if(label!==lastDate){html+=`<div class="date-separator"><span>${label}</span></div>`;lastDate=label}
     }
-    const isMine=m.sender_id===myId;
+    const isMine=m.sender_id===myId||m.sender_id===myLoginId;
     let body=`<div class="msg-text">${linkify(m.mensaje||m.texto||"")}</div>`;
     if(m.tipo==="imagen"&&m.adjunto_url)body=`<div class="msg-attachment"><img src="${m.adjunto_url}" loading="lazy"></div>`;
     else if((m.tipo==="video"||m.tipo==="audio")&&m.adjunto_url)body=`<div class="msg-attachment">${m.tipo==="audio"?`<audio controls src="${m.adjunto_url}"></audio>`:`<video controls src="${m.adjunto_url}" style="max-width:100%;max-height:300px"></video>`}</div>`;
