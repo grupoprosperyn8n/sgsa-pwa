@@ -394,11 +394,30 @@ function renderMsgList(c,e,gid,msgs){
   c.innerHTML=html;c.scrollTop=c.scrollHeight;
 }
 
-async function sendMessage(){const input=document.getElementById("chatInput"),text=input.value.trim();if(!text||!selectedConversation)return;input.value="";const payload={grupo_id:selectedConversation.group_id,empleado_id:currentUser?.airtable_id,contenido:text};
-  // Show message locally immediately
-  const c=document.getElementById("messageList");const fakeMsg=`<div class="message mine" style="opacity:.6"><div class="msg-text">${esc(text)}</div><div class="msg-time">ahora <span class="msg-checks">⏳</span></div></div>`;c.innerHTML+=fakeMsg;c.scrollTop=c.scrollHeight;
-  const d=await P("/api/chat/send",payload);
-  if(d?.ok){stats.msgsSent++;loadMessages(selectedConversation.group_id);refreshConversations()}else{enqueueOffline(payload);toast("Sin conexión — se enviará al reconectar","error")}}
+let _sending=false;
+async function sendMessage(){
+  if(_sending)return;_sending=true;
+  try{
+    const input=document.getElementById("chatInput"),text=input.value.trim();
+    if(!text||!selectedConversation)return;input.value="";
+    const payload={grupo_id:selectedConversation.group_id,empleado_id:currentUser?.airtable_id,contenido:text};
+    // Show message locally immediately with a tracking ID
+    const c=document.getElementById("messageList");
+    const fakeId="fake_"+Date.now();
+    const fakeEl=document.createElement("div");
+    fakeEl.className="message mine";fakeEl.dataset.fakeId=fakeId;
+    fakeEl.innerHTML=`<div class="msg-text">${esc(text)}</div><div class="msg-time">ahora <span class="msg-checks">⏳</span></div>`;
+    c.appendChild(fakeEl);c.scrollTop=c.scrollHeight;
+    const d=await P("/api/chat/send",payload);
+    if(d?.ok){stats.msgsSent++;await loadMessages(selectedConversation.group_id);await refreshConversations()}
+    else{
+      // Mark as failed instead of keeping it as pending forever
+      const failedEl=c.querySelector(`[data-fake-id="${fakeId}"]`);
+      if(failedEl)failedEl.querySelector(".msg-checks").textContent="⚠";
+      enqueueOffline({...payload,_fakeId:fakeId});
+      toast("Error al enviar — reintentando","error");
+    }
+  }finally{_sending=false}}
 document.getElementById("sendBtn").addEventListener("click",sendMessage);
 document.getElementById("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}});
 
