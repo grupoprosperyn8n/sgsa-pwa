@@ -345,3 +345,17 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .gestion-badge.g-del{background:rgba(239,68,68,.15);color:var(--danger)}
 .gestion-badge.g-prog{background:rgba(59,130,246,.15);color:var(--accent)}
 .gestion-badge.g-info{background:var(--bg4);color:var(--fg2)}
+
+/* ===== RESPONSIVE / MOBILE ===== */
+@media(max-width:768px){
+  .chat-layout{flex-direction:column}
+  .chat-sidebar{width:100%;max-width:100%;border-right:none}
+  .chat-main{position:fixed;inset:0;top:48px;z-index:100;background:var(--bg);display:none;flex-direction:column}
+  .chat-main.open{display:flex}
+  #chatBackBtn{display:flex!important}
+  .group-card .pin-btn,.group-card .delete-chat-btn{opacity:.6}
+  .group-card:active .pin-btn,.group-card:active .delete-chat-btn{opacity:1}
+  .message{max-width:85%}
+  .emoji-picker{max-height:160px}
+  .emoji-grid{grid-template-columns:repeat(7,1fr)}
+}
