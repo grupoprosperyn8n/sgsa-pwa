@@ -291,7 +291,7 @@ function renderConversations(){
       :`<span class="avatar-initials" style="background:${bgColor}">${initials}</span>`;
     const onlineDot=cv.is_dm?`<span class="online-dot ${cv.online?"online":"offline"}"></span>`:"";
     const subtitle=cv.is_dm?(cv.online?"En línea":"Offline"):(cv.member_count?cv.member_count+" miembros":"");
-    return`<div class="group-card ${selectedConversation?.group_id===cv.group_id?"selected":""}" data-gid="${cv.group_id}">
+    return`<div class="group-card ${cv.pinned?"pinned ":""}${selectedConversation?.group_id===cv.group_id?"selected":""}" data-gid="${cv.group_id}">
     <div class="group-avatar">${avatarContent}${onlineDot}</div>
     <div class="group-info"><div class="group-name">${esc(cv.display_name||"Chat")}</div><div class="group-last-msg">${subtitle?`<span class="conv-subtitle">${esc(subtitle)}</span> · `:""}${cv.last_message||"Sin mensajes"}</div></div>
     <div class="group-meta"><div class="group-time">${cv.last_message_time?timeAgo(cv.last_message_time):""}</div>${cv.unread>0?`<div class="group-unread">${cv.unread>99?"99+":cv.unread}</div>`:""}</div>
