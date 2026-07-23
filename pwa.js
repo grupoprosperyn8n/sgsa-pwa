@@ -7,6 +7,11 @@ const API="https://web-production-2584d.up.railway.app",R=45000;
 const S={get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
 function esc(t){const d=document.createElement("div");d.textContent=t;return d.innerHTML}
 
+// ─── Avatar color hash ───────────────────────────────────────────────────
+const AVATAR_COLORS=["#FF6B6B","#4ECDC4","#45B7D1","#96CEB4","#FFEAA7","#DDA0DD","#98D8C8","#F7DC6F","#BB8FCE","#85C1E9","#F0B27A","#82E0AA","#F1948A","#AED6F1","#A3E4D7","#FAD7A0","#D7BDE2","#A9CCE3"];
+function avatarColor(name){let h=0;for(let i=0;i<(name||"").length;i++)h=name.charCodeAt(i)+((h<<5)-h);return AVATAR_COLORS[Math.abs(h)%AVATAR_COLORS.length]}
+function avatarInitials(name){return(name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase()}
+
 // ─── Sound engine (Web Audio API, no external files) ──────────────────────
 const Sound={ctx:null,init(){if(!this.ctx)this.ctx=new(window.AudioContext||window.webkitAudioContext)()},
   beep(freq,dur,vol=.05){try{this.init();const o=this.ctx.createOscillator(),g=this.ctx.createGain();o.type="sine";o.frequency.value=freq;g.gain.setValueAtTime(vol,this.ctx.currentTime);g.gain.exponentialRampToValueAtTime(.001,this.ctx.currentTime+dur);o.connect(g);g.connect(this.ctx.destination);o.start();o.stop(this.ctx.currentTime+dur)}catch{}},
