@@ -429,13 +429,13 @@ function renderPeopleList(list){const q=(document.getElementById("peopleSearch")
     // Send the shared message FIRST, then open conversation
     const sendR=await P("/api/chat/send",{grupo_id:r.group_id,empleado_id:currentUser?.airtable_id,contenido:txt});
     if(sendR?.ok){
-      // Open the conversation in chat tab
-      selectedConversation={group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:null,avatar_url:null};
-      document.getElementById("chatMainEmpty").style.display="none";
-      document.getElementById("message-view").style.display="";
-      document.getElementById("chatBackBtn").style.display="";
-      document.getElementById("chatHeaderTitle").textContent=el.dataset.empleadoNombre||"DM";
-      await loadMessages(r.group_id);refreshConversations();toast("Compartido","success");
+      // Optimistically add to conversations
+      const dmCv={group_id:r.group_id,display_name:el.dataset.empleadoNombre||"DM",is_dm:true,online:false,avatar_url:null,pinned:false,unread:0,last_message:txt.slice(0,100),last_message_time:new Date().toISOString()};
+      if(!conversations.find(x=>x.group_id==r.group_id))conversations.push(dmCv);
+      renderConversations();
+      await openConversation(dmCv);
+      await refreshConversations();
+      toast("Compartido","success");
     }else{toast("Error al enviar","error")}
     return;
   }
