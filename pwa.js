@@ -283,10 +283,11 @@ function renderConversations(){
   // Server-side pinned sort (backend returns pinned field)
   const sorted=[...f].sort((a,b)=>(b.pinned?-1:0)-(a.pinned?-1:0)||(b.unread||0)-(a.unread||0));
   c.innerHTML=sorted.map(cv=>{
-    const initials=(cv.display_name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+    const initials=avatarInitials(cv.display_name);
+    const bgColor=avatarColor(cv.display_name);
     const avatarContent=cv.avatar_url
-      ?`<img src="${esc(cv.avatar_url)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="material-symbols-outlined avatar-fallback" style="display:none">${cv.is_dm?'person':'groups'}</span>`
-      :`<span class="material-symbols-outlined">${cv.is_dm?'person':'groups'}</span>`;
+      ?`<img src="${esc(cv.avatar_url)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`
+      :`<span class="avatar-initials" style="background:${bgColor}">${initials}</span>`;
     const onlineDot=cv.is_dm?`<span class="online-dot ${cv.online?"online":"offline"}"></span>`:"";
     const subtitle=cv.is_dm?(cv.online?"En línea":"Offline"):(cv.member_count?cv.member_count+" miembros":"");
     return`<div class="group-card ${selectedConversation?.group_id===cv.group_id?"selected":""}" data-gid="${cv.group_id}">
