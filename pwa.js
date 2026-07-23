@@ -555,12 +555,15 @@ document.getElementById("archivedBtn").addEventListener("click",async()=>{
   openModal("archivedModal");
   await loadArchivedChats();
 });
-async function loadArchivedChats(){
+let _archivedCache=[];
+document.getElementById("archivedSearch")?.addEventListener("input",()=>renderArchived());
+function renderArchived(){
+  const q=(document.getElementById("archivedSearch")?.value||"").toLowerCase();
   const list=document.getElementById("archivedList"),empty=document.getElementById("archivedEmpty");
-  list.innerHTML='<div class="empty-state"><p>Cargando...</p></div>';empty.style.display="none";
-  const d=await G("/api/chat/hidden");
-  if(!d?.ok||!d.conversations?.length){list.innerHTML="";empty.style.display="flex";return}
-  list.innerHTML=d.conversations.map(cv=>{
+  const f=q?_archivedCache.filter(c=>(c.display_name||"").toLowerCase().includes(q)):_archivedCache;
+  if(!f.length){list.innerHTML="";empty.style.display="flex";return}
+  empty.style.display="none";
+  list.innerHTML=f.map(cv=>{
     const initials=(cv.display_name||"?").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
     const bgColor=avatarColor(cv.display_name);
     const avArchUrl=avatarUrl(cv.avatar_url);
@@ -569,9 +572,10 @@ async function loadArchivedChats(){
       :`<span class="material-symbols-outlined">${cv.is_dm?'person':'groups'}</span>`;
     return`<div class="item-row" data-gid="${cv.group_id}">
       <div class="item-avatar">${avatarContent}</div>
-      <div class="item-info"><div class="item-name">${esc(cv.display_name||"Chat")}</div>${cv.is_dm?"":"<div class='item-sub'>"+(cv.member_count||0)+" miembros</div>"}</div>
+      <div class="item-info"><div class="item-name">${esc(cv.display_name||"Chat")}</div><div class="item-sub">${cv.archived_at?timeAgo(cv.archived_at):""}${cv.is_dm?"":" · "+(cv.member_count||0)+" miembros"}</div></div>
       <button class="btn-unarchive" data-gid="${cv.group_id}" title="Restaurar"><span class="material-symbols-outlined">unarchive</span></button>
     </div>`}).join("");
+  list.querySelectorAll(".btn-unarchive").forEach(b=>b.addEventListener("click",async e=>{
   list.querySelectorAll(".btn-unarchive").forEach(b=>b.addEventListener("click",async e=>{
     e.stopPropagation();
     const gid=b.dataset.gid;
