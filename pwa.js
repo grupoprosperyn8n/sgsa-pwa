@@ -861,12 +861,16 @@ document.getElementById("editAvatarPreviewWrap")?.addEventListener("click",funct
 });
 function _renderEditGroupIcons(){
   const picker=document.getElementById("editGroupIconPicker");if(!picker)return;
-  picker.style.display="flex";
-  picker.innerHTML=GROUP_ICONS.map(function(ico,i){
-    var sel=_editGroupAvatar===ico?'selected':'';
-    return`<div class="group-icon-option ${sel}" onclick="window._editPickGroupIcon(${i})"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`;
+  picker.style.display="block";
+  picker.innerHTML=ICON_CATEGORIES.map(function(cat){
+    var items=GROUP_ICONS.slice(cat.start,cat.end+1).map(function(ico,i){
+      var idx=cat.start+i;
+      var sel=_editGroupAvatar===ico?'selected':'';
+      return`<div class="group-icon-option ${sel}" onclick="window._editPickGroupIcon(${idx})"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`;
+    }).join("");
+    return`<div class="icon-category"><div class="icon-cat-label">${cat.name}</div><div class="icon-cat-grid">${items}</div></div>`;
   }).join("")+
-  `<div class="group-icon-option upload-icon" onclick="document.getElementById('editAvatarFileInput').click()"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
+  `<div class="icon-category"><div class="icon-cat-label">Subir foto</div><div class="icon-cat-grid"><div class="group-icon-option upload-icon" onclick="document.getElementById('editAvatarFileInput').click()"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div></div></div>`;
 }
 window._editPickGroupIcon=function(i){
   _editGroupAvatar=GROUP_ICONS[i];
