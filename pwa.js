@@ -372,6 +372,12 @@ function renderConversations(){
   }));
 }
 document.getElementById("conversationSearch")?.addEventListener("input",renderConversations);
+document.querySelectorAll(".filter-btn").forEach(b=>b.addEventListener("click",function(){
+  document.querySelectorAll(".filter-btn").forEach(x=>x.classList.remove("active"));
+  this.classList.add("active");
+  _chatFilter=this.dataset.filter;
+  renderConversations();
+}));
 function timeAgo(iso){if(!iso)return"";const d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<1)return"ahora";if(m<60)return m+"m";const h=Math.floor(m/60);if(h<24)return h+"h";return Math.floor(h/24)+"d"}
 
 function updateChatHeader(cv){
