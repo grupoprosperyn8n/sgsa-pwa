@@ -806,10 +806,10 @@ document.getElementById("groupAvatarInput").addEventListener("change",function(e
 });
 
 const ICON_CATEGORIES=[
-  {name:"Seguros",start:0,end:15},
-  {name:"Sistemas",start:16,end:23},
-  {name:"Accidentes",start:24,end:27},
-  {name:"Seguridad",start:28,end:31},
+  {name:"Seguros",start:0,end:18},
+  {name:"Sistemas",start:19,end:26},
+  {name:"Accidentes",start:27,end:30},
+  {name:"Seguridad",start:31,end:34},
 ];
 function _renderGroupIcons(){
   const picker=document.getElementById("groupIconPicker");if(!picker)return;
