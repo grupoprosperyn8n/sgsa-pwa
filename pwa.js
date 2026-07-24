@@ -994,7 +994,52 @@ document.getElementById("archivedBtn").addEventListener("click",async()=>{
   await loadArchivedChats();
 });
 let _archivedCache=[];
+let _archDateRange="";
+let _archDateFrom="";
+let _archDateTo="";
+let _archDaysAgo="";
+
+function _applyArchiveFilters(list){
+  let f=list;
+  const q=(document.getElementById("archivedSearch")?.value||"").toLowerCase();
+  if(q)f=f.filter(c=>(c.display_name||"").toLowerCase().includes(q));
+  // Quick date range
+  const now=new Date();
+  const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  if(_archDateRange==="today"){f=f.filter(c=>{const d=c.archived_at?new Date(c.archived_at):null;return d&&d>=todayStart})}
+  else if(_archDateRange==="yesterday"){const ys=new Date(todayStart);ys.setDate(ys.getDate()-1);const ye=new Date(todayStart);f=f.filter(c=>{const d=c.archived_at?new Date(c.archived_at):null;return d&&d>=ys&&d<ye})}
+  else if(_archDateRange==="week"){const ws=new Date(todayStart);ws.setDate(ws.getDate()-ws.getDay());f=f.filter(c=>{const d=c.archived_at?new Date(c.archived_at):null;return d&&d>=ws})}
+  else if(_archDateRange==="month"){const ms=new Date(now.getFullYear(),now.getMonth(),1);f=f.filter(c=>{const d=c.archived_at?new Date(c.archived_at):null;return d&&d>=ms})}
+  else if(_archDateRange==="year"){const ys2=new Date(now.getFullYear(),0,1);f=f.filter(c=>{const d=c.archived_at?new Date(c.archived_at):null;return d&&d>=ys2})}
+  // Custom from/to
+  if(_archDateFrom){const fd=new Date(_archDateFrom);f=f.filter(c=>{const d=c.archived_at?new Date(c.archived_at):null;return d&&d>=fd})}
+  if(_archDateTo){const td=new Date(_archDateTo);td.setHours(23,59,59,999);f=f.filter(c=>{const d=c.archived_at?new Date(c.archived_at):null;return d&&d<=td})}
+  // Days ago
+  if(_archDaysAgo){const da=parseInt(_archDaysAgo);if(da>0){const dd=new Date(todayStart);dd.setDate(dd.getDate()-da);f=f.filter(c=>{const d=c.archived_at?new Date(c.archived_at):null;return d&&d>=dd})}}
+  return f;
+}
+
 document.getElementById("archivedSearch")?.addEventListener("input",()=>renderArchived());
+// Archived filter button listeners
+document.querySelectorAll(".arch-filter-btn").forEach(b=>b.addEventListener("click",function(){
+  _archDateRange=this.dataset.range;
+  document.querySelectorAll(".arch-filter-btn").forEach(x=>x.classList.toggle("active",x===this));
+  _archDateFrom="";_archDateTo="";_archDaysAgo="";
+  document.getElementById("archDateFrom").value="";document.getElementById("archDateTo").value="";
+  document.getElementById("archDaysAgo").value="";
+  renderArchived();
+}));
+document.getElementById("archDateFrom")?.addEventListener("change",function(){_archDateFrom=this.value;_archDateRange="";_archDaysAgo="";document.querySelectorAll(".arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("archDaysAgo").value="";renderArchived()});
+document.getElementById("archDateTo")?.addEventListener("change",function(){_archDateTo=this.value;_archDateRange="";_archDaysAgo="";document.querySelectorAll(".arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("archDaysAgo").value="";renderArchived()});
+document.getElementById("archDaysAgo")?.addEventListener("input",function(){_archDaysAgo=this.value;_archDateRange="";_archDateFrom="";_archDateTo="";document.querySelectorAll(".arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("archDateFrom").value="";document.getElementById("archDateTo").value="";renderArchived()});
+document.getElementById("archClearFilter")?.addEventListener("click",function(){
+  _archDateRange="";_archDateFrom="";_archDateTo="";_archDaysAgo="";
+  document.querySelectorAll(".arch-filter-btn").forEach(x=>x.classList.remove("active"));
+  document.getElementById("archDateFrom").value="";document.getElementById("archDateTo").value="";
+  document.getElementById("archDaysAgo").value="";document.getElementById("archivedSearch").value="";
+  renderArchived();
+});
+
 async function loadArchivedChats(){
   const list=document.getElementById("archivedList"),empty=document.getElementById("archivedEmpty");
   list.innerHTML='<div class="empty-state"><p>Cargando...</p></div>';empty.style.display="none";
@@ -1003,9 +1048,8 @@ async function loadArchivedChats(){
   _archivedCache=d.conversations;stats.chatArchived=d.conversations.length;updateStats();renderArchived();
 }
 function renderArchived(){
-  const q=(document.getElementById("archivedSearch")?.value||"").toLowerCase();
   const list=document.getElementById("archivedList"),empty=document.getElementById("archivedEmpty");
-  const f=q?_archivedCache.filter(c=>(c.display_name||"").toLowerCase().includes(q)):_archivedCache;
+  const f=_applyArchiveFilters(_archivedCache);
   if(!f.length){list.innerHTML="";empty.style.display="flex";return}
   empty.style.display="none";
   list.innerHTML=f.map(cv=>{
