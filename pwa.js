@@ -470,17 +470,7 @@ async function showGroupInfo(gid,currentAvatar){
     _editGroupId=gid;
     document.getElementById("editGroupName").value=name;
     document.getElementById("editGroupDesc").value=desc;
-    // Show current avatar in edit preview
-    const preview=document.getElementById("editAvatarPreview");
-    const placeholder=document.getElementById("editAvatarPlaceholder");
-    if(_editGroupAvatar){
-      preview.src=avatarUrl(_editGroupAvatar);
-      preview.style.display="block";
-      if(placeholder)placeholder.style.display="none";
-    }else{
-      preview.style.display="none";
-      if(placeholder)placeholder.style.display="flex";
-    }
+    _updateEditAvatarPreview();
     openModal("editGroupModal");
   });
   document.getElementById("deleteGroupBtn")?.addEventListener("click",function(){
