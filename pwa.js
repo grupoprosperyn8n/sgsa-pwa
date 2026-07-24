@@ -589,6 +589,7 @@ let _selectedGroupAvatar="",_avatarExpanded=false;
 // ─── New group ────────────────────────────────────────────────────────────
 let selectedMembers=[];
 document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}_selectedGroupAvatar="";_avatarExpanded=false;openModal("newGroupModal");loadMemberSearch();renderGroupIcons()});
+document.getElementById("avatarToggleRow").addEventListener("click",()=>{_avatarExpanded=!_avatarExpanded;renderGroupIcons()});
 function renderGroupIcons(){
   const c=document.getElementById("groupIconPicker");if(!c)return;
   document.getElementById("avatarToggleIcon").textContent=_avatarExpanded?"expand_less":"expand_more";
