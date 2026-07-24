@@ -179,6 +179,12 @@
   <!-- Group info modal -->
   <div id="groupInfoModal" class="modal"><div class="modal-content" style="max-width:420px"><div class="modal-header"><h2 id="groupInfoTitle">Info del grupo</h2><button class="icon-btn close-modal" data-modal="groupInfoModal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body" id="groupInfoBody" style="overflow-y:auto"></div></div></div>
 
+  <!-- Edit group modal -->
+  <div id="editGroupModal" class="modal"><div class="modal-content" style="max-width:380px"><div class="modal-header"><h2>Editar grupo</h2><button class="icon-btn close-modal" data-modal="editGroupModal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><input type="text" id="editGroupName" placeholder="Nombre del grupo"><input type="text" id="editGroupDesc" placeholder="Descripción (opcional)"><button id="saveGroupBtn" class="btn-primary">Guardar cambios</button></div></div></div>
+
+  <!-- Confirm delete modal -->
+  <div id="confirmDeleteModal" class="modal"><div class="modal-content" style="max-width:340px"><div class="modal-header"><h2>Eliminar grupo</h2><button class="icon-btn close-modal" data-modal="confirmDeleteModal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="margin:8px 0 16px;font-size:13px;color:var(--fg2);line-height:1.5">¿Estás seguro de eliminar este grupo? Se borrarán todos los mensajes y miembros. Esta acción no se puede deshacer.</p><div style="display:flex;gap:8px"><button id="cancelDeleteBtn" class="btn-outline" style="flex:1">Cancelar</button><button id="confirmDeleteBtn" class="btn-danger" style="flex:1">Eliminar</button></div></div></div></div>
+
   <!-- Employee card modal -->
   <div id="employeeCardModal" class="modal"><div class="modal-content" style="max-width:340px"><div class="modal-header"><h2>Empleado</h2><button class="icon-btn close-modal" data-modal="employeeCardModal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body" id="employeeCardBody" style="overflow-y:auto;text-align:center;padding:24px 16px"></div></div></div>
 
