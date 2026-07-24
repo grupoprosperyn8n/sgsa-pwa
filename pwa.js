@@ -602,7 +602,23 @@ function renderMemberList(list){const c=document.getElementById("memberSearchRes
   return`<div class="item-row" data-airtable="${e.airtable_id||""}" data-name="${esc(e.nombre)}"><div class="item-avatar">${avatarUrl(e.avatar_url)?`<img src="${esc(avatarUrl(e.avatar_url))}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="member-initials" style="display:none;background:${bg}">${initials}</span>`:`<span class="member-initials" style="background:${bg}">${initials}</span>`}</div><div class="item-info"><div class="item-name">${esc(e.nombre)}</div></div>${selectedMembers.find(m=>m.airtable_id===e.airtable_id)?'<span class="material-symbols-outlined" style="color:var(--success)">check</span>':'<span class="material-symbols-outlined" style="color:var(--accent)">add</span>'}</div>`}).join("");c.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",()=>{const aid=el.dataset.airtable;if(selectedMembers.find(m=>m.airtable_id===aid))selectedMembers=selectedMembers.filter(m=>m.airtable_id!==aid);else selectedMembers.push({airtable_id:aid,nombre:el.dataset.name});renderSelectedMembers();renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)))}))}
 function renderSelectedMembers(){const c=document.getElementById("selectedMembers");if(!selectedMembers.length){c.innerHTML="";return}c.innerHTML=selectedMembers.map(m=>`<div class="selected-member">${esc(m.nombre)}<span class="remove-member" data-airtable="${m.airtable_id}">✕</span></div>`).join("");c.querySelectorAll(".remove-member").forEach(el=>el.addEventListener("click",()=>{selectedMembers=selectedMembers.filter(m=>m.airtable_id!==el.dataset.airtable);renderSelectedMembers();renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)))}))}
 document.getElementById("memberSearch").addEventListener("input",()=>{const q=document.getElementById("memberSearch").value.toLowerCase();renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)&&e.nombre?.toLowerCase().includes(q)))});
-document.getElementById("createGroupBtn").addEventListener("click",async()=>{const name=document.getElementById("newGroupName").value.trim();if(!name){alert("Poné un nombre");return}const d=await P("/api/chat/grupos",{nombre:name,descripcion:document.getElementById("newGroupDesc").value.trim(),creado_por:currentUser?.airtable_id,miembros:selectedMembers.map(m=>m.airtable_id)});if(d?.ok){closeModal("newGroupModal");document.getElementById("newGroupName").value="";document.getElementById("newGroupDesc").value="";selectedMembers=[];renderSelectedMembers();refreshConversations()}else alert("Error al crear grupo")});
+document.getElementById("groupAvatarInput").addEventListener("change",async e=>{
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async function(ev){_selectedGroupAvatar=ev.target.result;renderGroupIcons()};
+  reader.readAsDataURL(file);
+  e.target.value="";
+});
+document.getElementById("createGroupBtn").addEventListener("click",async()=>{
+  const name=document.getElementById("newGroupName").value.trim();if(!name){alert("Poné un nombre");return}
+  const d=await P("/api/chat/grupos",{nombre:name,descripcion:document.getElementById("newGroupDesc").value.trim(),creado_por:currentUser?.airtable_id,miembros:selectedMembers.map(m=>m.airtable_id)});
+  if(d?.ok){
+    if(d.group_id&&_selectedGroupAvatar)await P("/api/chat/group-avatar/"+d.group_id,{avatar:_selectedGroupAvatar}).catch(()=>{});
+    closeModal("newGroupModal");
+    document.getElementById("newGroupName").value="";document.getElementById("newGroupDesc").value="";
+    _selectedGroupAvatar="";selectedMembers=[];renderSelectedMembers();refreshConversations();
+  }else alert("Error al crear grupo");
+});
 
 // ─── Emoji picker ─────────────────────────────────────────────────────────
 const EMOJIS="😀😃😄😁😆🥹😅🤣😂🙂🥰😍🤩😘😗😚😋😛🤔🤫🤭🫡🤐😐😑😶😏😒🙄😬🤥😌😔😪🤤😴😷🤒🤕🥴😵🤯🤠🥳🥸😎🤓🧐😤😡🤬😈👿💀☠️💩🤡👹👺👻👽👾🤖😺😸😹😻😼😽🙀😿😾🙈🙉🙊💌❤️🧡💛💚💙💜🖤🤍🤎💔❣️💕💞💓💗💖💝💘👍👎👊✊🤛🤜🤞✌️🤘🙏🫶✍️💪🦾🔥⭐🌟✨💫🎉🎊💯".split(/(?:)/u);
