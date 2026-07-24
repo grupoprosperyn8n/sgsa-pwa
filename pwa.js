@@ -668,7 +668,7 @@ function renderArchived(){
     const avArchUrl=avatarUrl(cv.avatar_url);
     const avatarContent=avArchUrl
       ?`<img src="${esc(avArchUrl)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`
-      :`<span class="material-symbols-outlined">${cv.is_dm?'person':'groups'}</span>`;
+      :`<span class="material-symbols-outlined">chat</span>`;
     return`<div class="item-row" data-gid="${cv.group_id}">
       <div class="item-avatar">${avatarContent}</div>
       <div class="item-info"><div class="item-name">${esc(cv.display_name||"Chat")}</div><div class="item-sub">${cv.archived_at?timeAgo(cv.archived_at):""}${cv.is_dm?"":" · "+(cv.member_count||0)+" miembros"}</div></div>
