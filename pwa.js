@@ -791,20 +791,26 @@ document.getElementById("confirmDeleteBtn")?.addEventListener("click",async()=>{
   const gid=_deleteGroupId;if(!gid){toast("Error: no hay grupo","error");return}
   const btn=document.getElementById("confirmDeleteBtn");
   btn.disabled=true;btn.textContent="Eliminando...";
-  const d=await P("/api/chat/groups/"+gid,{},{method:"DELETE"});
-  if(d?.ok){
-    closeModal("confirmDeleteModal");
-    conversations=conversations.filter(c=>c.group_id!=gid);
-    if(selectedConversation?.group_id==gid){
-      selectedConversation=null;
-      document.getElementById("chatMainEmpty").style.display="flex";
-      document.getElementById("message-view").style.display="none";
+  try{
+    const r=await fetch(API+"/api/chat/groups/"+gid,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+    const d=await r.json();
+    if(d?.ok){
+      closeModal("confirmDeleteModal");
+      conversations=conversations.filter(c=>c.group_id!=gid);
+      if(selectedConversation?.group_id==gid){
+        selectedConversation=null;
+        document.getElementById("chatMainEmpty").style.display="flex";
+        document.getElementById("message-view").style.display="none";
+      }
+      S.del("sgsa_convCache");
+      renderConversations();
+      toast("Grupo eliminado","success");
+    }else{
+      toast("Error al eliminar: "+(d?.error||"desconocido"),"error");
+      btn.disabled=false;btn.textContent="Eliminar";
     }
-    S.del("sgsa_convCache");
-    renderConversations();
-    toast("Grupo eliminado","success");
-  }else{
-    toast("Error al eliminar","error");
+  }catch{
+    toast("Error de conexión","error");
     btn.disabled=false;btn.textContent="Eliminar";
   }
 });
