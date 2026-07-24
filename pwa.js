@@ -584,41 +584,53 @@ const GROUP_ICONS=[
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23f97316'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E⭐%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%236366f1'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🏢%3C/text%3E%3C/svg%3E",
 ];
-let _selectedGroupAvatar="",_avatarExpanded=false;
+let _selectedGroupAvatar="";
 
 // ─── New group ────────────────────────────────────────────────────────────
 let selectedMembers=[];
-document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}_selectedGroupAvatar="";_avatarExpanded=false;openModal("newGroupModal");loadMemberSearch();renderGroupIcons()});
-document.getElementById("avatarToggleRow").addEventListener("click",()=>{_avatarExpanded=!_avatarExpanded;renderGroupIcons()});
-function renderGroupIcons(){
-  const c=document.getElementById("groupIconPicker");if(!c)return;
-  document.getElementById("avatarToggleIcon").textContent=_avatarExpanded?"expand_less":"expand_more";
-  document.getElementById("avatarPickerBody").style.display=_avatarExpanded?"flex":"none";
-  if(!_avatarExpanded)return;
-  c.innerHTML=GROUP_ICONS.map((ico,i)=>`<div class="group-icon-option ${_selectedGroupAvatar===ico?'selected':''}" data-idx="${i}"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`).join("");
-  c.innerHTML+=`<div class="group-icon-option upload-icon" title="Subir foto" id="uploadIconBtn"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
-  // Use delegated click on container
-  c.onclick=function(e){
-    const opt=e.target.closest(".group-icon-option");
-    if(!opt)return;
-    if(opt.id==="uploadIconBtn"){document.getElementById("groupAvatarInput").click();return}
-    const idx=opt.dataset.idx;
-    if(idx!==undefined){_selectedGroupAvatar=GROUP_ICONS[+idx];renderGroupIcons()}
-  };
-}
-async function loadMemberSearch(){const d=await G("/api/chat/employees");allEmployees=(d?.ok)?d.employees:allEmployees;renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)))}
-function renderMemberList(list){const c=document.getElementById("memberSearchResults");if(!list.length){c.innerHTML='<div class="empty-state"><p>Sin resultados</p></div>';return}c.innerHTML=list.map(e=>{
-  const initials=avatarInitials(e.nombre),bg=avatarColor(e.nombre);
-  return`<div class="item-row" data-airtable="${e.airtable_id||""}" data-name="${esc(e.nombre)}"><div class="item-avatar">${avatarUrl(e.avatar_url)?`<img src="${esc(avatarUrl(e.avatar_url))}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="member-initials" style="display:none;background:${bg}">${initials}</span>`:`<span class="member-initials" style="background:${bg}">${initials}</span>`}</div><div class="item-info"><div class="item-name">${esc(e.nombre)}</div></div>${selectedMembers.find(m=>m.airtable_id===e.airtable_id)?'<span class="material-symbols-outlined" style="color:var(--success)">check</span>':'<span class="material-symbols-outlined" style="color:var(--accent)">add</span>'}</div>`}).join("");c.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",()=>{const aid=el.dataset.airtable;if(selectedMembers.find(m=>m.airtable_id===aid))selectedMembers=selectedMembers.filter(m=>m.airtable_id!==aid);else selectedMembers.push({airtable_id:aid,nombre:el.dataset.name});renderSelectedMembers();renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)))}))}
-function renderSelectedMembers(){const c=document.getElementById("selectedMembers");if(!selectedMembers.length){c.innerHTML="";return}c.innerHTML=selectedMembers.map(m=>`<div class="selected-member">${esc(m.nombre)}<span class="remove-member" data-airtable="${m.airtable_id}">✕</span></div>`).join("");c.querySelectorAll(".remove-member").forEach(el=>el.addEventListener("click",()=>{selectedMembers=selectedMembers.filter(m=>m.airtable_id!==el.dataset.airtable);renderSelectedMembers();renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)))}))}
-document.getElementById("memberSearch").addEventListener("input",()=>{const q=document.getElementById("memberSearch").value.toLowerCase();renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)&&e.nombre?.toLowerCase().includes(q)))});
-document.getElementById("groupAvatarInput").addEventListener("change",async e=>{
+document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}_selectedGroupAvatar="";openModal("newGroupModal");loadMemberSearch()});
+
+// Avatar toggle
+document.getElementById("avatarToggleRow").addEventListener("click",function(){
+  const body=document.getElementById("avatarPickerBody");
+  const icon=document.getElementById("avatarToggleIcon");
+  const isOpen=body.style.display==="flex";
+  body.style.display=isOpen?"none":"flex";
+  icon.textContent=isOpen?"expand_more":"expand_less";
+  if(!isOpen){renderGroupIcons()}
+});
+
+// File input
+document.getElementById("groupAvatarInput").addEventListener("change",async function(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=async function(ev){_selectedGroupAvatar=ev.target.result;renderGroupIcons()};
+  reader.onload=function(ev){
+    _selectedGroupAvatar=ev.target.result;
+    // Show preview
+    document.getElementById("avatarPreview").innerHTML=`<img src="${ev.target.result}" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`;
+    document.getElementById("avatarPreviewContainer").style.display="block";
+    document.getElementById("groupIconPicker").style.display="none";
+  };
   reader.readAsDataURL(file);
   e.target.value="";
 });
+
+function renderGroupIcons(){
+  const picker=document.getElementById("groupIconPicker");if(!picker)return;
+  picker.style.display="flex";
+  document.getElementById("avatarPreviewContainer").style.display="none";
+  picker.innerHTML=GROUP_ICONS.map(function(ico,i){
+    var sel=_selectedGroupAvatar===ico?'selected':'';
+    return`<div class="group-icon-option ${sel}" onclick="_selectGroupIcon(${i})"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`;
+  }).join("")+
+  `<div class="group-icon-option upload-icon" onclick="document.getElementById('groupAvatarInput').click()"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
+}
+
+// Global function for inline onclick
+window._selectGroupIcon=function(i){
+  _selectedGroupAvatar=GROUP_ICONS[i];
+  renderGroupIcons();
+};
 document.getElementById("createGroupBtn").addEventListener("click",async()=>{
   const name=document.getElementById("newGroupName").value.trim();if(!name){alert("Poné un nombre");return}
   const d=await P("/api/chat/grupos",{nombre:name,descripcion:document.getElementById("newGroupDesc").value.trim(),creado_por:currentUser?.airtable_id,miembros:selectedMembers.map(m=>m.airtable_id)});
