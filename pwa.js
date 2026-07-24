@@ -581,7 +581,13 @@ async function loadMemberSearch(){
   const list=cached?.length?cached.filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id)):[];
   if(list.length)renderMemberSearch(list);
   const d=await G("/api/chat/employees");
-  if(d?.ok){S.set("sgsa_empCache",d.employees);const emp=(d.employees||[]).filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id));renderMemberSearch(emp)}else if(!cached&&list.length)renderMemberSearch(list)}
+  if(d?.ok){
+    S.set("sgsa_empCache",d.employees);
+    const emp=(d.employees||[]).filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id));
+    renderMemberSearch(emp);
+  }else if(!cached){
+    renderMemberSearch([]);
+  }}
 function renderMemberSearch(list){
   const q=(document.getElementById("memberSearch")?.value||"").toLowerCase();
   const f=q?list.filter(e=>e.nombre?.toLowerCase().includes(q)):list;
