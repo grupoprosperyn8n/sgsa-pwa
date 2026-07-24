@@ -390,7 +390,7 @@ function updateChatHeader(cv){
   }
   headerTitle.innerHTML=headerHtml;
   headerTitle.style.cursor="pointer";
-  headerTitle.onclick=cv.is_dm?()=>showEmployeeCard(cv.group_id):()=>showGroupInfo(cv.group_id);
+  headerTitle.onclick=cv.is_dm?()=>showEmployeeCard(cv.group_id):()=>showGroupInfo(cv.group_id,cv.avatar_url);
 }
 
 async function showEmployeeCard(gidOrId){
