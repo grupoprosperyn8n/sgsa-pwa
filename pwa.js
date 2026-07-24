@@ -808,8 +808,8 @@ document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
     const r=await fetch(API+"/api/chat/groups/"+gid,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({nombre:name,descripcion:desc})});
     const d=await r.json();
     if(d?.ok){
-      // Upload new avatar if changed
-      if(_editGroupAvatar&&!_editGroupAvatar.startsWith(API||""))await P("/api/chat/group-avatar/"+gid,{avatar:_editGroupAvatar}).catch(()=>{});
+      // Upload new avatar if changed (data URL starts with "data:")
+      if(_editGroupAvatar&&_editGroupAvatar.startsWith("data:"))await P("/api/chat/group-avatar/"+gid,{avatar:_editGroupAvatar}).catch(()=>{});
       closeModal("editGroupModal");
       _editGroupAvatar="";
       toast("Grupo actualizado","success");
