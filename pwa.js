@@ -368,6 +368,7 @@ function renderConversations(){
     return tb-ta;
   });
   c.innerHTML=sorted.map(cv=>{
+    const gid=cv.group_id;
     const initials=avatarInitials(cv.display_name);
     const bgColor=avatarColor(cv.display_name);
     const avUrl=avatarUrl(cv.avatar_url);
@@ -376,14 +377,17 @@ function renderConversations(){
       :`<span class="avatar-initials" style="background:${bgColor}">${initials}</span>`;
     const onlineDot=cv.is_dm?`<span class="online-dot ${cv.online?"online":"offline"}"></span>`:"";
     const subtitle=cv.is_dm?(cv.online?"En línea":"Offline"):(cv.member_count?cv.member_count+" miembros":"");
-    return`<div class="group-card ${cv.pinned?"pinned ":""}${selectedConversation?.group_id===cv.group_id?"selected":""}" data-gid="${cv.group_id}">
+    const sel=_batchSelected.includes(gid);
+    return`<div class="group-card ${cv.pinned?"pinned ":""}${selectedConversation?.group_id===gid?"selected":""}${_batchMode?" batch-mode":""}" data-gid="${gid}">
+    ${_batchMode?`<span class="batch-check ${sel?"checked":""}">${sel?'<span class="material-symbols-outlined" style="font-size:18px">check_circle</span>':'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>'}</span>`:""}
     <div class="group-avatar">${avatarContent}${onlineDot}</div>
     <div class="group-info"><div class="group-name">${esc(cv.display_name||"Chat")}</div><div class="group-last-msg">${subtitle?`<span class="conv-subtitle">${esc(subtitle)}</span> · `:""}${cv.unread>0&&!cv.last_message?cv.unread+" mensaje"+(cv.unread>1?"s":"")+" nuevo"+(cv.unread>1?"s":""):esc(cv.last_message||"Sin mensajes")}</div></div>
     <div class="group-meta"><div class="group-time">${cv.last_message_time?timeAgo(cv.last_message_time):""}</div>${cv.unread>0?`<div class="group-unread">${cv.unread>99?"99+":cv.unread}</div>`:""}</div>
-    <button class="pin-btn ${cv.pinned?"pinned":""}" data-gid="${cv.group_id}" title="${cv.pinned?"Desfijar":"Fijar"}"><span class="material-symbols-outlined">push_pin</span></button>
-    <button class="delete-chat-btn" data-gid="${cv.group_id}" title="Archivar chat"><span class="material-symbols-outlined">archive</span></button>
+    <button class="pin-btn ${cv.pinned?"pinned":""}" data-gid="${gid}" title="${cv.pinned?"Desfijar":"Fijar"}"><span class="material-symbols-outlined">push_pin</span></button>
+    <button class="delete-chat-btn" data-gid="${gid}" title="Archivar chat"><span class="material-symbols-outlined">archive</span></button>
   </div>`}).join("");
-  c.querySelectorAll(".group-card").forEach(card=>card.addEventListener("click",e=>{if(e.target.closest(".pin-btn,.delete-chat-btn"))return;const gid=card.dataset.gid,cv=conversations.find(x=>x.group_id==gid);if(cv)openConversation(cv)}));
+  c.querySelectorAll(".group-card").forEach(card=>card.addEventListener("click",e=>{if(e.target.closest(".pin-btn,.delete-chat-btn,.batch-check"))return;const gid=card.dataset.gid,cv=conversations.find(x=>x.group_id==gid);if(_batchMode){_toggleGid(gid);renderConversations()}else if(cv)openConversation(cv)}));
+  if(_batchMode)c.querySelectorAll(".batch-check").forEach(el=>el.addEventListener("click",e=>{e.stopPropagation();const card=el.closest(".group-card");if(card)_toggleGid(card.dataset.gid);renderConversations()}));
   c.querySelectorAll(".pin-btn").forEach(b=>b.addEventListener("click",async e=>{e.stopPropagation();const gid=b.dataset.gid;
     const r=await P("/api/chat/pin",{group_id:gid});
     if(r?.ok){const cv=conversations.find(x=>x.group_id==gid);if(cv)cv.pinned=r.pinned;
