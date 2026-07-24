@@ -816,6 +816,73 @@ function _updateEditAvatarPreview(){
     if(placeholder)placeholder.style.display="flex";
   }
 }
+// Edit modal: member management
+let _editMembers=[];
+async function _loadEditMembers(gid){
+  _editMembers=[];
+  const d=await G("/api/chat/groups/"+gid);
+  if(d?.ok){
+    _editMembers=d.members||[];
+    _renderEditMembers();
+  }
+}
+function _renderEditMembers(){
+  const c=document.getElementById("editMembersList");
+  const count=document.getElementById("editMemberCount");
+  if(!c)return;
+  if(count)count.textContent="("+_editMembers.length+")";
+  if(!_editMembers.length){c.innerHTML='<div class="empty-state" style="padding:8px"><p>Sin miembros</p></div>';return}
+  c.innerHTML=_editMembers.map(m=>{
+    const initials=avatarInitials(m.nombre),bg=avatarColor(m.nombre);
+    return`<div class="edit-member-row">
+      <span class="edit-member-avatar">${m.avatar_url?`<img src="${esc(avatarUrl(m.avatar_url))}" onerror="this.style.display='none'">`:''}<span class="avatar-initials-sm" style="background:${bg}">${initials}</span></span>
+      <span class="edit-member-name">${esc(m.nombre||m.id||"—")}</span>
+      <span class="edit-member-remove" data-id="${m.id}" data-airtable="${m.airtable_id||''}" title="Quitar">×</span>
+    </div>`;
+  }).join("");
+  c.querySelectorAll(".edit-member-remove").forEach(el=>el.addEventListener("click",function(){
+    const id=this.dataset.id;
+    const airtable=this.dataset.airtable;
+    _editMembers=_editMembers.filter(m=>m.id!==id&&m.airtable_id!==airtable);
+    _renderEditMembers();
+  }));
+}
+document.getElementById("editAddMemberBtn")?.addEventListener("click",async function(){
+  // Open directory to pick a member to add
+  const cached=S.get("sgsa_empCache");
+  const d=cached?.length?{ok:true,employees:cached}:await G("/api/chat/employees");
+  if(!d?.ok){toast("Error al cargar empleados","error");return}
+  S.set("sgsa_empCache",d.employees);
+  const already=_editMembers.map(m=>m.id);
+  const available=(d.employees||[]).filter(e=>!already.includes(e.id)&&!already.includes(e.airtable_id));
+  if(!available.length){toast("Todos los empleados ya son miembros","info");return}
+  // Show a simple picker
+  const names=available.map(e=>e.nombre||e.id);
+  const idx=await new Promise(resolve=>{
+    const div=document.createElement("div");
+    div.style.cssText="position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:9999";
+    const inner=document.createElement("div");
+    inner.style.cssText="background:var(--bg2);border-radius:14px;padding:16px;max-width:300px;width:90%;max-height:80%;overflow-y:auto";
+    inner.innerHTML='<h3 style="font-size:14px;margin-bottom:8px">Agregar miembro</h3>'+
+      available.map((e,i)=>'<div class="item-row" data-idx="'+i+'"><div class="item-avatar">'+
+        (e.avatar_url?'<img src="'+esc(avatarUrl(e.avatar_url))+'" style="width:34px;height:34px;border-radius:50%;object-fit:cover">':'<span class="avatar-initials" style="background:'+avatarColor(e.nombre)+'">'+avatarInitials(e.nombre)+'</span>')+
+        '</div><div class="item-info"><div class="item-name">'+esc(e.nombre||"")+'</div></div></div>'
+      ).join('');
+    inner.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",()=>{
+      document.body.removeChild(div);
+      resolve(parseInt(el.dataset.idx));
+    }));
+    div.appendChild(inner);
+    document.body.appendChild(div);
+  });
+  const picked=available[idx];
+  if(picked){
+    _editMembers.push(picked);
+    _renderEditMembers();
+    toast("Miembro agregado","success");
+  }
+});
+
 // File input for editing avatar
 document.getElementById("editAvatarFileInput")?.addEventListener("change",function(e){
   const file=e.target.files[0];if(!file)return;
