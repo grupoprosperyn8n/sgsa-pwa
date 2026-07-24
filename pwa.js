@@ -919,7 +919,7 @@ function _renderEditMembers(){
   c.innerHTML=_editMembers.map(m=>{
     const initials=avatarInitials(m.nombre),bg=avatarColor(m.nombre);
     return`<div class="edit-member-row">
-      <span class="edit-member-avatar">${m.avatar_url?`<img src="${esc(avatarUrl(m.avatar_url))}" onerror="this.style.display='none'">`:''}<span class="avatar-initials-sm" style="background:${bg}">${initials}</span></span>
+      <span class="edit-member-avatar">${m.avatar_url?`<img src="${esc(avatarUrl(m.avatar_url))}" onerror="this.remove()">`:''}<span class="avatar-initials-sm" style="background:${bg}">${initials}</span></span>
       <span class="edit-member-name">${esc(m.nombre||m.id||"—")}</span>
       <span class="edit-member-remove" data-id="${m.id}" data-airtable="${m.airtable_id||''}" title="Quitar">×</span>
     </div>`;
