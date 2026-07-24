@@ -187,6 +187,10 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .chat-search-box input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius);background:var(--bg);color:var(--fg);font-size:13px;outline:none;transition:border var(--t)}
 .chat-search-box input:focus{border-color:var(--accent)}
 .chat-search-box input::placeholder{color:var(--fg3)}
+.filter-toggle-btn{font-size:20px;cursor:pointer;color:var(--fg3);transition:color .15s;flex-shrink:0}
+.filter-toggle-btn:hover{color:var(--accent)}
+.filter-toggle-btn.active{color:var(--accent)}
+.inbox-date-filters{padding:0 10px 4px;border-bottom:1px solid var(--border);flex-shrink:0}
 .chat-filter-bar{display:flex;gap:4px;padding:4px 10px 6px;flex-shrink:0;flex-wrap:wrap}
 .filter-btn{padding:3px 12px;border-radius:10px;font-size:11px;font-weight:500;cursor:pointer;color:var(--fg3);background:var(--bg3);border:1px solid transparent;transition:all .15s}
 .filter-btn:hover{color:var(--fg);border-color:var(--border)}
