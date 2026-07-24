@@ -1,5 +1,5 @@
 // =============================================================================
-// SGSA PWA v24 — Stack Desde/Hasta vertically in inbox
+// SGSA PWA v25 — 32 group icons (16 new)
 // =============================================================================
 const API="https://web-production-2584d.up.railway.app",R=8000;
 
@@ -1157,7 +1157,7 @@ function closeModal(id){const el=document.getElementById(id);if(el)el.style.disp
 document.querySelectorAll(".close-modal").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.modal)));
 
 // ====== INIT ======
-if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=24").catch(()=>{});
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=25").catch(()=>{});
 if("Notification"in window&&Notification.permission==="default")Notification.requestPermission();
 
 (async function(){
