@@ -584,17 +584,26 @@ const GROUP_ICONS=[
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23f97316'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E⭐%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%236366f1'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🏢%3C/text%3E%3C/svg%3E",
 ];
-let _selectedGroupAvatar="";
+let _selectedGroupAvatar="",_avatarExpanded=false;
 
 // ─── New group ────────────────────────────────────────────────────────────
 let selectedMembers=[];
-document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}_selectedGroupAvatar="";openModal("newGroupModal");loadMemberSearch();renderGroupIcons()});
+document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}_selectedGroupAvatar="";_avatarExpanded=false;openModal("newGroupModal");loadMemberSearch();renderGroupIcons()});
 function renderGroupIcons(){
   const c=document.getElementById("groupIconPicker");if(!c)return;
+  document.getElementById("avatarToggleIcon").textContent=_avatarExpanded?"expand_less":"expand_more";
+  document.getElementById("avatarPickerBody").style.display=_avatarExpanded?"flex":"none";
+  if(!_avatarExpanded)return;
   c.innerHTML=GROUP_ICONS.map((ico,i)=>`<div class="group-icon-option ${_selectedGroupAvatar===ico?'selected':''}" data-idx="${i}"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`).join("");
-  c.innerHTML+=`<div class="group-icon-option upload-icon" title="Subir foto"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
-  c.querySelectorAll(".group-icon-option:not(.upload-icon)").forEach(el=>el.addEventListener("click",()=>{_selectedGroupAvatar=GROUP_ICONS[+el.dataset.idx];renderGroupIcons()}));
-  c.querySelector(".upload-icon")?.addEventListener("click",()=>document.getElementById("groupAvatarInput").click());
+  c.innerHTML+=`<div class="group-icon-option upload-icon" title="Subir foto" id="uploadIconBtn"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
+  // Use delegated click on container
+  c.onclick=function(e){
+    const opt=e.target.closest(".group-icon-option");
+    if(!opt)return;
+    if(opt.id==="uploadIconBtn"){document.getElementById("groupAvatarInput").click();return}
+    const idx=opt.dataset.idx;
+    if(idx!==undefined){_selectedGroupAvatar=GROUP_ICONS[+idx];renderGroupIcons()}
+  };
 }
 async function loadMemberSearch(){const d=await G("/api/chat/employees");allEmployees=(d?.ok)?d.employees:allEmployees;renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)))}
 function renderMemberList(list){const c=document.getElementById("memberSearchResults");if(!list.length){c.innerHTML='<div class="empty-state"><p>Sin resultados</p></div>';return}c.innerHTML=list.map(e=>{
