@@ -874,6 +874,7 @@ function _renderEditGroupIcons(){
     if(cat.name==="Seguridad")items+=`<div class="group-icon-option upload-icon" onclick="document.getElementById('editAvatarFileInput').click()" title="Subir foto"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
     return`<div class="icon-category"><div class="icon-cat-label">${cat.name}</div><div class="icon-cat-grid">${items}</div></div>`;
   }).join("");
+}
 window._editPickGroupIcon=function(i){
   _editGroupAvatar=GROUP_ICONS[i];
   _updateEditAvatarPreview();
