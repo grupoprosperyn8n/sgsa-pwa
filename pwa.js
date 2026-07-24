@@ -1,5 +1,5 @@
 // =============================================================================
-// SGSA PWA v16 — Edit modal icon picker + file upload fix
+// SGSA PWA v17 — Edit members + fix descripcion column
 // =============================================================================
 const API="https://web-production-2584d.up.railway.app",R=8000;
 
@@ -1052,7 +1052,7 @@ function closeModal(id){const el=document.getElementById(id);if(el)el.style.disp
 document.querySelectorAll(".close-modal").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.modal)));
 
 // ====== INIT ======
-if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=16").catch(()=>{});
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=17").catch(()=>{});
 if("Notification"in window&&Notification.permission==="default")Notification.requestPermission();
 
 (async function(){
