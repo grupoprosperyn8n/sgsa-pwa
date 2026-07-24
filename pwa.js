@@ -575,8 +575,8 @@ async function loadArchivedChats(){
   const list=document.getElementById("archivedList"),empty=document.getElementById("archivedEmpty");
   list.innerHTML='<div class="empty-state"><p>Cargando...</p></div>';empty.style.display="none";
   const d=await G("/api/chat/hidden");
-  if(!d?.ok||!d.conversations?.length){_archivedCache=[];list.innerHTML="";empty.style.display="flex";return}
-  _archivedCache=d.conversations;renderArchived();
+  if(!d?.ok||!d.conversations?.length){_archivedCache=[];list.innerHTML="";empty.style.display="flex";stats.chatArchived=0;updateStats();return}
+  _archivedCache=d.conversations;stats.chatArchived=d.conversations.length;updateStats();renderArchived();
 }
 function renderArchived(){
   const q=(document.getElementById("archivedSearch")?.value||"").toLowerCase();
