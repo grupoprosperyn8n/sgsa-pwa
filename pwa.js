@@ -325,12 +325,31 @@ async function refreshConversations(){
 }
 
 let _chatFilter="all";
+let _inboxDateRange="";
+let _inboxDateFrom="";
+let _inboxDateTo="";
+let _inboxDaysAgo="";
+function _applyInboxDateFilter(list){
+  let f=list;
+  const now=new Date();
+  const todayStart=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  if(_inboxDateRange==="today"){f=f.filter(c=>{const d=c.last_message_time?new Date(c.last_message_time):null;return d&&d>=todayStart})}
+  else if(_inboxDateRange==="yesterday"){const ys=new Date(todayStart);ys.setDate(ys.getDate()-1);const ye=new Date(todayStart);f=f.filter(c=>{const d=c.last_message_time?new Date(c.last_message_time):null;return d&&d>=ys&&d<ye})}
+  else if(_inboxDateRange==="week"){const ws=new Date(todayStart);ws.setDate(ws.getDate()-ws.getDay());f=f.filter(c=>{const d=c.last_message_time?new Date(c.last_message_time):null;return d&&d>=ws})}
+  else if(_inboxDateRange==="month"){const ms=new Date(now.getFullYear(),now.getMonth(),1);f=f.filter(c=>{const d=c.last_message_time?new Date(c.last_message_time):null;return d&&d>=ms})}
+  else if(_inboxDateRange==="year"){const ys2=new Date(now.getFullYear(),0,1);f=f.filter(c=>{const d=c.last_message_time?new Date(c.last_message_time):null;return d&&d>=ys2})}
+  if(_inboxDateFrom){const fd=new Date(_inboxDateFrom);f=f.filter(c=>{const d=c.last_message_time?new Date(c.last_message_time):null;return d&&d>=fd})}
+  if(_inboxDateTo){const td=new Date(_inboxDateTo);td.setHours(23,59,59,999);f=f.filter(c=>{const d=c.last_message_time?new Date(c.last_message_time):null;return d&&d<=td})}
+  if(_inboxDaysAgo){const da=parseInt(_inboxDaysAgo);if(da>0){const dd=new Date(todayStart);dd.setDate(dd.getDate()-da);f=f.filter(c=>{const d=c.last_message_time?new Date(c.last_message_time):null;return d&&d>=dd})}}
+  return f;
+}
 function renderConversations(){
   const q=(document.getElementById("conversationSearch")?.value||"").toLowerCase();
   let f=conversations;
   if(_chatFilter==="groups")f=f.filter(c=>!c.is_dm);
   else if(_chatFilter==="dms")f=f.filter(c=>c.is_dm);
   if(q)f=f.filter(c=>c.display_name?.toLowerCase().includes(q));
+  f=_applyInboxDateFilter(f);
   const c=document.getElementById("conversationList"),e=document.getElementById("inboxEmpty");
   if(!f.length){c.innerHTML="";e.style.display="flex";return}e.style.display="none";
   // Sort: pinned first, then by last_message_time DESC (most recent activity first)
