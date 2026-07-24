@@ -711,6 +711,7 @@ document.getElementById("memberSearch").addEventListener("input",()=>{
 
 // ─── Group avatar icons (insurance themed) ────────────────────────────────
 const GROUP_ICONS=[
+  // Original 16 — insurance/business themed
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%233b82f6'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🛡️%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%2322c55e'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🤝%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23f59e0b'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🚗%3C/text%3E%3C/svg%3E",
@@ -727,21 +728,24 @@ const GROUP_ICONS=[
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23007c91'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E🌊%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%239c27b0'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E👮%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23e91e63'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E💼%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ff6f00'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🔧%3C/text%3E%3C/svg%3E",
+  // Systems & technology
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23344e5c'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🖥️%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%230081cb'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E📊%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%234caf50'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🌿%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ff4081'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🎯%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23607d8b'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E⚙️%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%237c4dff'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E💡%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ffab00'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🏆%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%2300bfa5'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🌍%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23d50000'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E❤️%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ff6f00'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🔧%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%235c6bc0'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E📈%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23e67e22'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E☀️%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%231e88e5'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E💬%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%2343a047'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E✅%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23a1887f'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🗂️%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ff6f00'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🚀%3C/text%3E%3C/svg%3E",
+  // Accidents & claims
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23d50000'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🔥%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ff6f00'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E⚠️%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23e67e22'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🚒%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ff4081'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🚧%3C/text%3E%3C/svg%3E",
+  // Security & documents
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%232e7d32'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🔒%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23a1887f'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E📄%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ffab00'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🏆%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23900ff0'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E👥%3C/text%3E%3C/svg%3E",
 ];
 let _selectedGroupAvatar="";
