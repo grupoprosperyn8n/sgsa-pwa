@@ -1,7 +1,7 @@
 // =============================================================================
 // SGSA PWA v28 — + bicicleta, celular, robo en Seguros
 // =============================================================================
-const API="https://web-production-2584d.up.railway.app",R=8000;
+const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
 const S={get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
