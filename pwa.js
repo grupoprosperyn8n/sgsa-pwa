@@ -324,6 +324,7 @@ async function refreshConversations(){
     console.error("Conversations error:",d.error);
     if(cached?.length){conversations=cached;renderConversations()}
   }
+  _refreshing=0;
 }
 
 let _chatFilter="all";
