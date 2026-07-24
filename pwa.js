@@ -682,6 +682,7 @@ const GROUP_ICONS=[
 ];
 let _selectedGroupAvatar="";
 let _editGroupId=null;
+let _editGroupAvatar="";
 let _deleteGroupId=null;
 
 // ─── New group ────────────────────────────────────────────────────────────
