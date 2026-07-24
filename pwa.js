@@ -722,14 +722,21 @@ window._pickGroupIcon=function(i){
   document.getElementById("avatarToggleIcon").textContent="expand_more";
 };
 document.getElementById("createGroupBtn").addEventListener("click",async()=>{
-  const name=document.getElementById("newGroupName").value.trim();if(!name){alert("Poné un nombre");return}
+  const btn=document.getElementById("createGroupBtn");
+  const name=document.getElementById("newGroupName").value.trim();if(!name){toast("Poné un nombre al grupo","error");return}
+  if(!selectedMembers.length){toast("Agregá al menos un miembro","error");return}
+  btn.disabled=true;btn.textContent="Creando...";
   const d=await P("/api/chat/grupos",{nombre:name,descripcion:document.getElementById("newGroupDesc").value.trim(),creado_por:currentUser?.airtable_id,miembros:selectedMembers.map(m=>m.airtable_id)});
   if(d?.ok){
     if(d.group_id&&_selectedGroupAvatar)await P("/api/chat/group-avatar/"+d.group_id,{avatar:_selectedGroupAvatar}).catch(()=>{});
     closeModal("newGroupModal");
     document.getElementById("newGroupName").value="";document.getElementById("newGroupDesc").value="";
     _selectedGroupAvatar="";selectedMembers=[];renderSelectedMembers();refreshConversations();
-  }else alert("Error al crear grupo");
+    toast("Grupo creado","success");
+  }else{
+    toast("Error al crear grupo: "+(d?.error||"desconocido"),"error");
+    btn.disabled=false;btn.textContent="Crear grupo";
+  }
 });
 
 // ─── Emoji picker ─────────────────────────────────────────────────────────
