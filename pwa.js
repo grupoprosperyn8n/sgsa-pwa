@@ -1,5 +1,5 @@
 // =============================================================================
-// SGSA PWA v26 — 32 group icons: sistemas, seguros, accidentes, trabajo
+// SGSA PWA v27 — Icon picker categorizado: Seguros, Sistemas, Accidentes, Seguridad
 // =============================================================================
 const API="https://web-production-2584d.up.railway.app",R=8000;
 
@@ -1175,7 +1175,7 @@ function closeModal(id){const el=document.getElementById(id);if(el)el.style.disp
 document.querySelectorAll(".close-modal").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.modal)));
 
 // ====== INIT ======
-if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=26").catch(()=>{});
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=27").catch(()=>{});
 if("Notification"in window&&Notification.permission==="default")Notification.requestPermission();
 
 (async function(){
