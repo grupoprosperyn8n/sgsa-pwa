@@ -774,7 +774,7 @@ function renderArchived(){
     const avArchUrl=avatarUrl(cv.avatar_url);
     const avatarContent=avArchUrl
       ?`<img src="${esc(avArchUrl)}" class="group-avatar-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bgColor}">${initials}</span>`
-      :`<span class="material-symbols-outlined">chat</span>`;
+      :`<span class="avatar-initials" style="background:${bgColor};width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:12px;font-weight:600;color:#fff">${initials}</span>`;
     return`<div class="item-row" data-gid="${cv.group_id}">
       <div class="item-avatar">${avatarContent}</div>
       <div class="item-info"><div class="item-name">${esc(cv.display_name||"Chat")}</div><div class="item-sub">${cv.archived_at?timeAgo(cv.archived_at):""}${cv.is_dm?"":" · "+(cv.member_count||0)+" miembros"}</div></div>
@@ -812,7 +812,7 @@ function closeModal(id){const el=document.getElementById(id);if(el)el.style.disp
 document.querySelectorAll(".close-modal").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.modal)));
 
 // ====== INIT ======
-if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=10").catch(()=>{});
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=11").catch(()=>{});
 if("Notification"in window&&Notification.permission==="default")Notification.requestPermission();
 
 (async function(){
