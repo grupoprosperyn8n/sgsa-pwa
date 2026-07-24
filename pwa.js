@@ -382,17 +382,21 @@ function updateChatHeader(cv){
   headerTitle.onclick=cv.is_dm?()=>showEmployeeCard(cv.group_id):()=>showGroupInfo(cv.group_id);
 }
 
-async function showEmployeeCard(gid){
+async function showEmployeeCard(gidOrId){
   document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Cargando...</p></div>';
   openModal("employeeCardModal");
-  // Get group info to find the other person
-  const d=await G("/api/chat/groups/"+gid);
-  if(!d?.ok){document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Error al cargar</p></div>';return}
-  // Find the OTHER member (not current user)
-  const other=(d.members||[]).find(m=>m.id!==currentUser?.id&&m.id!==currentUser?.airtable_id);
-  if(!other){document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Sin datos</p></div>';return}
-  // Fetch full employee details
-  const ed=await G("/api/chat/employee/"+encodeURIComponent(other.id||other.airtable_id));
+  let empId=gidOrId;
+  // If it's a group_id (number), get group info to find the other person
+  if(typeof gidOrId==="number"||/^\d+$/.test(gidOrId)){
+    const d=await G("/api/chat/groups/"+gidOrId);
+    if(!d?.ok){document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Error al cargar</p></div>';return}
+    // Try to find other member by all possible currentUser identifiers
+    const myIds=[currentUser?.id,currentUser?.login_id,currentUser?.airtable_id,currentUser?.email].filter(Boolean);
+    const other=((d.members||[]).find(m=>!myIds.some(id=>m.id===id||m.airtable_id===id||m.email===id)));
+    if(!other){document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Sin datos</p></div>';return}
+    empId=other.id||other.airtable_id;
+  }
+  const ed=await G("/api/chat/employee/"+encodeURIComponent(empId));
   if(!ed?.ok){document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Error al cargar empleado</p></div>';return}
   const emp=ed.employee,initials=avatarInitials(emp.nombre),bg=avatarColor(emp.nombre);
   const av=avatarUrl(emp.avatar_url);
