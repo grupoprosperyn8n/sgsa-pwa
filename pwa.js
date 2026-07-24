@@ -679,6 +679,8 @@ const GROUP_ICONS=[
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23e91e63'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E💼%3C/text%3E%3C/svg%3E",
 ];
 let _selectedGroupAvatar="";
+let _editGroupId=null;
+let _deleteGroupId=null;
 
 // ─── New group ────────────────────────────────────────────────────────────
 let selectedMembers=[];
