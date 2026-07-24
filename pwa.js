@@ -120,7 +120,13 @@ function switchTab(tab){if(tab==="chat"&&!authToken){showLogin();return}document
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
 
 // ====== SETTINGS ======
-document.getElementById("settingsBtn").addEventListener("click",()=>{updateSettingsUI();updateStats();document.getElementById("settings-overlay").style.display="block";document.getElementById("settings-panel").style.display="flex"});
+document.getElementById("settingsBtn").addEventListener("click",async()=>{
+  updateSettingsUI();
+  // Fetch archived count for stats
+  try{const d=await G("/api/chat/hidden");if(d?.ok)stats.chatArchived=d.conversations?.length||0}catch{}
+  updateStats();
+  document.getElementById("settings-overlay").style.display="block";document.getElementById("settings-panel").style.display="flex";
+});
 document.getElementById("closeSettingsBtn").addEventListener("click",closeSettings);document.getElementById("settings-overlay").addEventListener("click",closeSettings);
 function closeSettings(){document.getElementById("settings-overlay").style.display="none";document.getElementById("settings-panel").style.display="none"}
 function updateSettingsUI(){document.getElementById("settingsName").textContent=currentUser?.nombre||"—";document.getElementById("settingsEmail").textContent=currentUser?.email||"—"}
