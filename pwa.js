@@ -324,8 +324,13 @@ async function refreshConversations(){
   }
 }
 
+let _chatFilter="all";
 function renderConversations(){
-  const q=(document.getElementById("conversationSearch")?.value||"").toLowerCase(),f=q?conversations.filter(c=>c.display_name?.toLowerCase().includes(q)):conversations;
+  const q=(document.getElementById("conversationSearch")?.value||"").toLowerCase();
+  let f=conversations;
+  if(_chatFilter==="groups")f=f.filter(c=>!c.is_dm);
+  else if(_chatFilter==="dms")f=f.filter(c=>c.is_dm);
+  if(q)f=f.filter(c=>c.display_name?.toLowerCase().includes(q));
   const c=document.getElementById("conversationList"),e=document.getElementById("inboxEmpty");
   if(!f.length){c.innerHTML="";e.style.display="flex";return}e.style.display="none";
   // Sort: pinned first, then by last_message_time DESC (most recent activity first)
