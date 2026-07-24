@@ -131,8 +131,17 @@ document.getElementById("settingsSwitchUser").addEventListener("click",()=>{clos
 document.getElementById("settingsLogout").addEventListener("click",()=>{closeSettings();clearCurrent();if(window._ct)clearInterval(window._ct);stopPing();const e=currentUser?.email;if(e){const p=getProfile(e);if(p)p._f=true,saveProfile(e,p)}showLogin()});
 
 // ====== STATS ======
-let stats={alertsToday:0,alertsDone:0,msgsSent:0};
-function updateStats(){document.getElementById("statAlertsToday").textContent=stats.alertsToday;document.getElementById("statAlertsDone").textContent=stats.alertsDone;document.getElementById("statMsgsSent").textContent=stats.msgsSent}
+let stats={alertsToday:0,alertsDone:0,msgsSent:0,chatActive:0,chatUnread:0,chatArchived:0,chatOnline:0,chatOffline:0};
+function updateStats(){
+  document.getElementById("statAlertsToday").textContent=stats.alertsToday;
+  document.getElementById("statAlertsDone").textContent=stats.alertsDone;
+  document.getElementById("statMsgsSent").textContent=stats.msgsSent;
+  document.getElementById("statChatActive").textContent=stats.chatActive;
+  document.getElementById("statChatUnread").textContent=stats.chatUnread;
+  document.getElementById("statChatArchived").textContent=stats.chatArchived;
+  document.getElementById("statChatOnline").textContent=stats.chatOnline;
+  document.getElementById("statChatOffline").textContent=stats.chatOffline;
+}
 
 // ====== OFFICE ======
 async function loadOfficeModal(){if(offices.length){renderOfficeList(offices);return}try{const r=await fetch(API+"/api/oficinas");const d=await r.json();if(d.ok)offices=d.oficinas;renderOfficeList(offices)}catch{}}
