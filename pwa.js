@@ -99,9 +99,9 @@ function enterApp(){
   selectedOffice=p?.office||"";selectedOfficeId=p?.officeId||"";if(selectedOffice&&p?.officeName){document.getElementById("office-label").innerHTML=`<span class="material-symbols-outlined">apartment</span>${esc(p.officeName)}`;document.getElementById("selectOfficeBtn").classList.add("filled")}
   chatSound=p?.chatSound!==false;alertsSound=p?.alertsSound!==false;document.getElementById("toggleChatSound").checked=chatSound;document.getElementById("toggleAlertsSound").checked=alertsSound;
   updateSettingsUI();
-  // Lazy load: only init alerts on startup, chat loads on tab click
-  // Ping starts here so user is online immediately, not just when chat tab opens
+  // Init chat for badge count on startup (conversations load in background)
   initAlerts();flushOfflineQueue();startPing();
+  setTimeout(()=>{if(authToken)refreshConversations()},100);
   if(!selectedOffice){openModal("office-modal");loadOfficeModal()}
   updateBadgeFromAlerts();
 }
