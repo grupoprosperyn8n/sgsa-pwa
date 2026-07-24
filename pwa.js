@@ -575,6 +575,58 @@ function renderPeopleList(list){const q=(document.getElementById("peopleSearch")
 }))}
 document.getElementById("peopleSearch").addEventListener("input",()=>renderPeopleList(allEmployees));
 
+// ─── Group member search ───────────────────────────────────────────────────
+async function loadMemberSearch(){
+  const cached=S.get("sgsa_empCache");
+  const list=cached?.length?cached.filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id)):[];
+  if(list.length)renderMemberSearch(list);
+  const d=await G("/api/chat/employees");
+  if(d?.ok){S.set("sgsa_empCache",d.employees);const emp=(d.employees||[]).filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id));renderMemberSearch(emp)}else if(!cached&&list.length)renderMemberSearch(list)}
+function renderMemberSearch(list){
+  const q=(document.getElementById("memberSearch")?.value||"").toLowerCase();
+  const f=q?list.filter(e=>e.nombre?.toLowerCase().includes(q)):list;
+  const c=document.getElementById("memberSearchResults");
+  if(!f.length){c.innerHTML='<div class="empty-state"><p>Sin resultados</p></div>';return}
+  const sel=new Set(selectedMembers.map(m=>m.airtable_id));
+  c.innerHTML=f.map(e=>{
+    const isSel=sel.has(e.airtable_id);
+    const initials=avatarInitials(e.nombre),bg=avatarColor(e.nombre);
+    return`<div class="item-row ${isSel?'selected':''}" data-airtable-id="${e.airtable_id}" data-nombre="${esc(e.nombre)}" data-avatar="${esc(e.avatar_url||'')}">
+      <div class="item-avatar">${avatarUrl(e.avatar_url)?`<img src="${esc(avatarUrl(e.avatar_url))}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="member-initials" style="display:none;background:${bg}">${initials}</span>`:`<span class="member-initials" style="background:${bg}">${initials}</span>`}
+        <span class="online-dot ${e.online?'online':'offline'}"></span></div>
+      <div class="item-info"><div class="item-name">${esc(e.nombre)}</div><div class="item-sub">${e.oficina_nombre||''}</div></div>
+      <span class="item-action">${isSel?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--accent)">check_circle</span>':'<span class="material-symbols-outlined" style="font-size:18px;color:var(--fg3)">add_circle</span>'}</span>
+    </div>`}).join("");
+  c.querySelectorAll(".item-row").forEach(el=>el.addEventListener("click",()=>{
+    const id=el.dataset.airtableId;
+    const name=el.dataset.nombre;
+    const avatar=el.dataset.avatar;
+    const idx=selectedMembers.findIndex(m=>m.airtable_id===id);
+    if(idx>=0)selectedMembers.splice(idx,1);else selectedMembers.push({airtable_id:id,nombre:name,avatar_url:avatar||null});
+    renderMemberSearch(list);
+    renderSelectedMembers();
+  }));
+}
+function renderSelectedMembers(){
+  const c=document.getElementById("selectedMembers");
+  if(!selectedMembers.length){c.innerHTML='';return}
+  c.innerHTML=selectedMembers.map(m=>{
+    const initials=avatarInitials(m.nombre),bg=avatarColor(m.nombre);
+    return`<span class="member-chip"><span class="chip-avatar">${m.avatar_url?`<img src="${esc(avatarUrl(m.avatar_url))}" onerror="this.style.display='none';this.parentElement.innerHTML='${initials}'">`:initials}</span>${esc(m.nombre)}<span class="chip-remove" data-id="${m.airtable_id}">×</span></span>`;
+  }).join("");
+  c.querySelectorAll(".chip-remove").forEach(el=>el.addEventListener("click",function(){
+    const id=this.dataset.id;
+    selectedMembers=selectedMembers.filter(m=>m.airtable_id!==id);
+    const cached=S.get("sgsa_empCache")||[];
+    renderMemberSearch(cached.length?cached.filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id)):[]);
+    renderSelectedMembers();
+  }));
+}
+document.getElementById("memberSearch").addEventListener("input",()=>{
+  const cached=S.get("sgsa_empCache");
+  if(cached?.length)renderMemberSearch(cached.filter(e=>e.airtable_id!==(currentUser?.airtable_id)&&e.id!==(currentUser?.airtable_id)));
+});
+
 // ─── Group avatar icons (insurance themed) ────────────────────────────────
 const GROUP_ICONS=[
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%233b82f6'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🛡️%3C/text%3E%3C/svg%3E",
