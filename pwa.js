@@ -298,6 +298,11 @@ async function refreshConversations(){
     conversations=d.conversations;S.set("sgsa_convCache",conversations);renderConversations();
     const newUnread=conversations.reduce((s,c)=>s+(c.unread||0),0);
     document.getElementById("chat-badge").textContent=newUnread||"";
+    // Update chat stats
+    stats.chatActive=conversations.length;
+    stats.chatUnread=newUnread;
+    stats.chatOnline=conversations.filter(c=>c.online).length;
+    stats.chatOffline=conversations.filter(c=>c.is_dm&&!c.online).length;
     // Update selected conversation header with fresh online/offline status
     if(selectedConversation){
       const fresh=conversations.find(c=>c.group_id===selectedConversation.group_id);
