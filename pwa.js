@@ -775,15 +775,18 @@ document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
   if(!name){toast("El nombre no puede estar vacío","error");return}
   const btn=document.getElementById("saveGroupBtn");
   btn.disabled=true;btn.textContent="Guardando...";
-  const d=await P("/api/chat/groups/"+gid,{nombre:name,descripcion:desc});
-  if(d?.ok){
-    closeModal("editGroupModal");
-    toast("Grupo actualizado","success");
-    refreshConversations();
-  }else{
-    toast("Error al guardar","error");
-    btn.disabled=false;btn.textContent="Guardar cambios";
-  }
+  try{
+    const r=await fetch(API+"/api/chat/groups/"+gid,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({nombre:name,descripcion:desc})});
+    const d=await r.json();
+    if(d?.ok){
+      closeModal("editGroupModal");
+      toast("Grupo actualizado","success");
+      refreshConversations();
+    }else{
+      toast("Error al guardar: "+(d?.error||"desconocido"),"error");
+      btn.disabled=false;btn.textContent="Guardar cambios";
+    }
+  }catch{toast("Error de conexión","error");btn.disabled=false;btn.textContent="Guardar cambios"}
 });
 
 // ─── Delete group ───────────────────────────────────────────────────────────
