@@ -343,6 +343,13 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .toast.success{border-color:var(--success)}
 .toast.error{border-color:var(--danger)}
 
+/* ===== GROUP ICON PICKER ===== */
+.group-icon-option{width:44px;height:44px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:all .15s;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--bg3)}
+.group-icon-option:hover{border-color:var(--accent);transform:scale(1.1)}
+.group-icon-option.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow)}
+.group-icon-option.upload-icon{background:var(--bg4);color:var(--fg2);border:2px dashed var(--border);font-size:20px}
+.group-icon-option.upload-icon:hover{border-color:var(--accent);color:var(--accent)}
+
 /* ===== UPLOAD ===== */
 .upload-preview{display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--bg3);border-top:1px solid var(--border);flex-shrink:0;font-size:12px;color:var(--fg2)}
 
