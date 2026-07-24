@@ -571,9 +571,31 @@ function renderPeopleList(list){const q=(document.getElementById("peopleSearch")
 }))}
 document.getElementById("peopleSearch").addEventListener("input",()=>renderPeopleList(allEmployees));
 
+// ─── Group avatar icons (insurance themed) ────────────────────────────────
+const GROUP_ICONS=[
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%233b82f6'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🛡️%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%2322c55e'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🤝%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23f59e0b'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🚗%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ef4444'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🏠%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%238b5cf6'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E❤️%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%230ea5e9'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E☂️%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ec4899'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E👨‍👩‍👧‍👦%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%2314b8a6'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E📋%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23f97316'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E⭐%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%236366f1'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🏢%3C/text%3E%3C/svg%3E",
+];
+let _selectedGroupAvatar="";
+
 // ─── New group ────────────────────────────────────────────────────────────
 let selectedMembers=[];
-document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}openModal("newGroupModal");loadMemberSearch()});
+document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}_selectedGroupAvatar="";openModal("newGroupModal");loadMemberSearch();renderGroupIcons()});
+function renderGroupIcons(){
+  const c=document.getElementById("groupIconPicker");if(!c)return;
+  c.innerHTML=GROUP_ICONS.map((ico,i)=>`<div class="group-icon-option ${_selectedGroupAvatar===ico?'selected':''}" data-idx="${i}"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`).join("");
+  c.innerHTML+=`<div class="group-icon-option upload-icon" title="Subir foto"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
+  c.querySelectorAll(".group-icon-option:not(.upload-icon)").forEach(el=>el.addEventListener("click",()=>{_selectedGroupAvatar=GROUP_ICONS[+el.dataset.idx];renderGroupIcons()}));
+  c.querySelector(".upload-icon")?.addEventListener("click",()=>document.getElementById("groupAvatarInput").click());
+}
 async function loadMemberSearch(){const d=await G("/api/chat/employees");allEmployees=(d?.ok)?d.employees:allEmployees;renderMemberList(allEmployees.filter(e=>!selectedMembers.find(m=>m.airtable_id===e.airtable_id)))}
 function renderMemberList(list){const c=document.getElementById("memberSearchResults");if(!list.length){c.innerHTML='<div class="empty-state"><p>Sin resultados</p></div>';return}c.innerHTML=list.map(e=>{
   const initials=avatarInitials(e.nombre),bg=avatarColor(e.nombre);
