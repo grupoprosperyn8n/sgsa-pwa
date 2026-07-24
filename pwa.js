@@ -306,7 +306,7 @@ async function refreshConversations(){
     document.getElementById("chat-badge").textContent=newUnread||"";
     // Update chat stats
     stats.chatActive=conversations.length;
-    stats.chatUnread=newUnread;
+    stats.chatUnread=conversations.filter(c=>c.unread>0).length;
     stats.chatOnline=conversations.filter(c=>c.online).length;
     stats.chatOffline=conversations.filter(c=>c.is_dm&&!c.online).length;
     // Update selected conversation header with fresh online/offline status
