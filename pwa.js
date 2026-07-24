@@ -460,7 +460,22 @@ async function showGroupInfo(gid){
   }).join("");
   document.getElementById("groupInfoBody").innerHTML=(d.group?.descripcion?`<div class="group-desc">${esc(d.group.descripcion)}</div>`:"")+
     `<div class="members-header"><span class="material-symbols-outlined" style="font-size:16px">group</span> ${d.member_count||0} miembros</div>`+
-    `<div class="members-list">${members}</div>`;
+    `<div class="members-list">${members}</div>`+
+    `<div class="group-actions"><button class="btn-outline" id="editGroupBtn" data-gid="${gid}" data-nombre="${esc(d.group?.nombre||'')}" data-desc="${esc(d.group?.descripcion||'')}"><span class="material-symbols-outlined" style="font-size:16px">edit</span> Editar</button><button class="btn-outline btn-danger" id="deleteGroupBtn" data-gid="${gid}"><span class="material-symbols-outlined" style="font-size:16px">delete</span> Eliminar</button></div>`;
+  document.getElementById("editGroupBtn")?.addEventListener("click",function(){
+    const gid=this.dataset.gid,name=this.dataset.nombre,desc=this.dataset.desc;
+    closeModal("groupInfoModal");
+    _editGroupId=gid;
+    document.getElementById("editGroupName").value=name;
+    document.getElementById("editGroupDesc").value=desc;
+    openModal("editGroupModal");
+  });
+  document.getElementById("deleteGroupBtn")?.addEventListener("click",function(){
+    const gid=this.dataset.gid;
+    closeModal("groupInfoModal");
+    _deleteGroupId=gid;
+    openModal("confirmDeleteModal");
+  });
 }
 document.getElementById("chatBackBtn").addEventListener("click",()=>{selectedConversation=null;
   document.getElementById("chatMainEmpty").style.display="flex";
