@@ -990,8 +990,6 @@ document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
   const btn=document.getElementById("saveGroupBtn");
   btn.disabled=true;btn.textContent="Guardando...";
   try{
-    // Timeout helper: 15s
-    function _ft(url,opts){const ac=new AbortController();const t=setTimeout(()=>ac.abort(),15000);return fetch(url,{...opts,signal:ac.signal}).finally(()=>clearTimeout(t))}
     // Update name/description
     const r=await _ft(API+"/api/chat/groups/"+gid,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({nombre:name,descripcion:desc})});
     const d=await r.json();
