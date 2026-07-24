@@ -378,7 +378,7 @@ function updateChatHeader(cv){
     headerHtml+=`<span class="chat-status">${cv.member_count} miembros</span>`;
   }
   headerTitle.innerHTML=headerHtml;
-  headerTitle.style.cursor=cv.is_dm?"pointer":"pointer";
+  headerTitle.style.cursor="pointer";
   headerTitle.onclick=cv.is_dm?()=>showEmployeeCard(cv.group_id):()=>showGroupInfo(cv.group_id);
 }
 
