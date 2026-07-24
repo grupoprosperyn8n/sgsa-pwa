@@ -912,6 +912,19 @@ document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
     if(d?.ok){
       // Upload new avatar if changed (data URL starts with "data:")
       if(_editGroupAvatar&&_editGroupAvatar.startsWith("data:"))await P("/api/chat/group-avatar/"+gid,{avatar:_editGroupAvatar}).catch(()=>{});
+      // Sync members: remove members that were taken out
+      const currentIds=_editMembers.map(m=>m.id);
+      for(const oldId of _editOriginalMemberIds){
+        if(!currentIds.includes(oldId)){
+          await fetch(API+"/api/chat/groups/"+gid+"/members/"+encodeURIComponent(oldId),{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}}).catch(()=>{});
+        }
+      }
+      // Add new members
+      for(const m of _editMembers){
+        if(!_editOriginalMemberIds.includes(m.id)){
+          await fetch(API+"/api/chat/groups/"+gid+"/members",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({empleado_id:m.airtable_id||m.id})}).catch(()=>{});
+        }
+      }
       closeModal("editGroupModal");
       _editGroupAvatar="";
       toast("Grupo actualizado","success");
