@@ -388,6 +388,9 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .group-icon-option.selected{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-glow)}
 .group-icon-option.upload-icon{background:var(--bg4);color:var(--fg2);border:2px dashed var(--border);font-size:20px}
 .group-icon-option.upload-icon:hover{border-color:var(--accent);color:var(--accent)}
+.icon-category{margin-bottom:6px}
+.icon-cat-label{font-size:10px;font-weight:600;color:var(--fg3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;padding:0 2px}
+.icon-cat-grid{display:flex;flex-wrap:wrap;gap:4px}
 
 /* ===== GROUP ACTIONS ===== */
 .group-actions{display:flex;gap:8px;padding:12px 0 4px;border-top:1px solid var(--border);margin-top:8px}
