@@ -767,6 +767,49 @@ document.getElementById("createGroupBtn").addEventListener("click",async()=>{
   }
 });
 
+// ─── Edit group ─────────────────────────────────────────────────────────────
+document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
+  const gid=_editGroupId;if(!gid){toast("Error: no hay grupo","error");return}
+  const name=document.getElementById("editGroupName").value.trim();
+  const desc=document.getElementById("editGroupDesc").value.trim();
+  if(!name){toast("El nombre no puede estar vacío","error");return}
+  const btn=document.getElementById("saveGroupBtn");
+  btn.disabled=true;btn.textContent="Guardando...";
+  const d=await P("/api/chat/groups/"+gid,{nombre:name,descripcion:desc});
+  if(d?.ok){
+    closeModal("editGroupModal");
+    toast("Grupo actualizado","success");
+    refreshConversations();
+  }else{
+    toast("Error al guardar","error");
+    btn.disabled=false;btn.textContent="Guardar cambios";
+  }
+});
+
+// ─── Delete group ───────────────────────────────────────────────────────────
+document.getElementById("confirmDeleteBtn")?.addEventListener("click",async()=>{
+  const gid=_deleteGroupId;if(!gid){toast("Error: no hay grupo","error");return}
+  const btn=document.getElementById("confirmDeleteBtn");
+  btn.disabled=true;btn.textContent="Eliminando...";
+  const d=await P("/api/chat/groups/"+gid,{},{method:"DELETE"});
+  if(d?.ok){
+    closeModal("confirmDeleteModal");
+    conversations=conversations.filter(c=>c.group_id!=gid);
+    if(selectedConversation?.group_id==gid){
+      selectedConversation=null;
+      document.getElementById("chatMainEmpty").style.display="flex";
+      document.getElementById("message-view").style.display="none";
+    }
+    S.del("sgsa_convCache");
+    renderConversations();
+    toast("Grupo eliminado","success");
+  }else{
+    toast("Error al eliminar","error");
+    btn.disabled=false;btn.textContent="Eliminar";
+  }
+});
+document.getElementById("cancelDeleteBtn")?.addEventListener("click",()=>closeModal("confirmDeleteModal"));
+
 // ─── Emoji picker ─────────────────────────────────────────────────────────
 const EMOJIS="😀😃😄😁😆🥹😅🤣😂🙂🥰😍🤩😘😗😚😋😛🤔🤫🤭🫡🤐😐😑😶😏😒🙄😬🤥😌😔😪🤤😴😷🤒🤕🥴😵🤯🤠🥳🥸😎🤓🧐😤😡🤬😈👿💀☠️💩🤡👹👺👻👽👾🤖😺😸😹😻😼😽🙀😿😾🙈🙉🙊💌❤️🧡💛💚💙💜🖤🤍🤎💔❣️💕💞💓💗💖💝💘👍👎👊✊🤛🤜🤞✌️🤘🙏🫶✍️💪🦾🔥⭐🌟✨💫🎉🎊💯".split(/(?:)/u);
 document.getElementById("emojiBtn").addEventListener("click",()=>{
