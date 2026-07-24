@@ -818,6 +818,7 @@ function _updateEditAvatarPreview(){
 }
 // Edit modal: member management
 let _editMembers=[];
+let _editOriginalMemberIds=[];
 async function _loadEditMembers(gid){
   _editMembers=[];
   const d=await G("/api/chat/groups/"+gid);
