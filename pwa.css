@@ -312,7 +312,7 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .modal-body{padding:12px 16px 16px;display:flex;flex-direction:column;flex:1;overflow-y:visible;min-height:0}
 .modal-body input[type="text"]{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg);color:var(--fg);font-size:13px;outline:none;margin-bottom:8px;transition:border var(--t)}
 .modal-body input:focus{border-color:var(--accent)}
-.select-list{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:2px}
+.select-list{flex:1;min-height:100px;display:flex;flex-direction:column;gap:2px}
 .item-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-sm);cursor:pointer;transition:background var(--t);font-size:13px}
 .item-row:hover{background:var(--bg3)}
 .item-avatar{width:34px;height:34px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--fg2);font-weight:600;flex-shrink:0;position:relative}
