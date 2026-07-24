@@ -378,7 +378,41 @@ function updateChatHeader(cv){
     headerHtml+=`<span class="chat-status">${cv.member_count} miembros</span>`;
   }
   headerTitle.innerHTML=headerHtml;
-  headerTitle.onclick=cv.is_dm?null:()=>showGroupInfo(cv.group_id);
+  headerTitle.style.cursor=cv.is_dm?"pointer":"pointer";
+  headerTitle.onclick=cv.is_dm?()=>showEmployeeCard(cv.group_id):()=>showGroupInfo(cv.group_id);
+}
+
+async function showEmployeeCard(gid){
+  document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Cargando...</p></div>';
+  openModal("employeeCardModal");
+  // Get group info to find the other person
+  const d=await G("/api/chat/groups/"+gid);
+  if(!d?.ok){document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Error al cargar</p></div>';return}
+  // Find the OTHER member (not current user)
+  const other=(d.members||[]).find(m=>m.id!==currentUser?.id&&m.id!==currentUser?.airtable_id);
+  if(!other){document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Sin datos</p></div>';return}
+  // Fetch full employee details
+  const ed=await G("/api/chat/employee/"+encodeURIComponent(other.id||other.airtable_id));
+  if(!ed?.ok){document.getElementById("employeeCardBody").innerHTML='<div class="empty-state"><p>Error al cargar empleado</p></div>';return}
+  const emp=ed.employee,initials=avatarInitials(emp.nombre),bg=avatarColor(emp.nombre);
+  const av=avatarUrl(emp.avatar_url);
+  document.getElementById("employeeCardBody").innerHTML=`
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px">
+      <div style="width:72px;height:72px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;flex-shrink:0">
+        ${av?`<img src="${esc(av)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><span class="avatar-initials" style="display:none;background:${bg};font-size:24px">${initials}</span>`
+          :`<span class="avatar-initials" style="background:${bg};font-size:24px">${initials}</span>`}
+        ${emp.online?`<span style="position:absolute;bottom:2px;right:2px;width:14px;height:14px;border-radius:50%;background:var(--success);border:3px solid var(--bg2)"></span>`:""}
+      </div>
+      <h3 style="font-size:18px;font-weight:700;margin:0">${esc(emp.nombre||"—")}</h3>
+      <div style="display:flex;flex-direction:column;gap:6px;width:100%">
+        ${emp.es_admin?`<div class="detail-field"><span class="detail-label">Rol</span><span class="detail-value" style="color:var(--accent);font-weight:600">Admin</span></div>`:""}
+        ${emp.oficina_nombre?`<div class="detail-field"><span class="detail-label">Sucursal</span><span class="detail-value">${esc(emp.oficina_nombre)}</span></div>`:""}
+        ${emp.email?`<div class="detail-field"><span class="detail-label">Email</span><span class="detail-value">${esc(emp.email)}</span></div>`:""}
+        ${emp.telefono?`<div class="detail-field"><span class="detail-label">Teléfono</span><span class="detail-value">${esc(emp.telefono)}</span></div>`:""}
+        <div class="detail-field"><span class="detail-label">Estado</span><span class="detail-value" style="color:${emp.online?'var(--success)':'var(--danger)'}">${emp.online?"En línea":"Desconectado"}</span></div>
+      </div>
+    </div>
+  `;
 }
 async function openConversation(cv){selectedConversation=cv;
   document.getElementById("chatMainEmpty").style.display="none";
