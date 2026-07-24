@@ -1,5 +1,5 @@
 // =============================================================================
-// SGSA PWA v11 — Group modal fix: loadMemberSearch + scroll
+// SGSA PWA v12 — Group modal layout: button al fondo, chips visibles
 // =============================================================================
 const API="https://web-production-2584d.up.railway.app",R=8000;
 
@@ -818,7 +818,7 @@ function closeModal(id){const el=document.getElementById(id);if(el)el.style.disp
 document.querySelectorAll(".close-modal").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.modal)));
 
 // ====== INIT ======
-if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=11").catch(()=>{});
+if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=12").catch(()=>{});
 if("Notification"in window&&Notification.permission==="default")Notification.requestPermission();
 
 (async function(){
