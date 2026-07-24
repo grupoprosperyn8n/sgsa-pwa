@@ -980,6 +980,8 @@ document.getElementById("editAvatarFileInput")?.addEventListener("change",functi
   reader.readAsDataURL(file);
   e.target.value="";
 });
+// Fetch with 15s timeout
+function _ft(url,opts){const ac=new AbortController();const t=setTimeout(()=>ac.abort(),15000);return fetch(url,{...opts,signal:ac.signal}).finally(()=>clearTimeout(t))}
 document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
   const gid=_editGroupId;if(!gid){toast("Error: no hay grupo","error");return}
   const name=document.getElementById("editGroupName").value.trim();
