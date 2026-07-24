@@ -728,6 +728,9 @@ const GROUP_ICONS=[
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23007c91'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E🌊%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%239c27b0'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E👮%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23e91e63'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E💼%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ff6f00'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🚲%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%230081cb'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E📱%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23d50000'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E💰%3C/text%3E%3C/svg%3E",
   // Systems & technology
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23344e5c'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🖥️%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%230081cb'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E📊%3C/text%3E%3C/svg%3E",
