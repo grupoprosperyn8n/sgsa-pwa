@@ -577,12 +577,18 @@ const GROUP_ICONS=[
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%2322c55e'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🤝%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23f59e0b'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🚗%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ef4444'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🏠%3C/text%3E%3C/svg%3E",
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%238b5cf6'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E❤️%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%238b5cf6'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E💊%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%230ea5e9'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E☂️%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ec4899'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E👨‍👩‍👧‍👦%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%2314b8a6'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E📋%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23f97316'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E⭐%3C/text%3E%3C/svg%3E",
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%236366f1'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='22' fill='white'%3E🏢%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%2300bcd4'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E✈️%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23795548'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E🏥%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23ff5722'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E🚑%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23007c91'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E🌊%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%239c27b0'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E👮%3C/text%3E%3C/svg%3E",
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='22' fill='%23e91e63'/%3E%3Ctext x='24' y='30' text-anchor='middle' font-size='20' fill='white'%3E💼%3C/text%3E%3C/svg%3E",
 ];
 let _selectedGroupAvatar="";
 
