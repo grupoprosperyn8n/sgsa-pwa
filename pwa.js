@@ -588,48 +588,63 @@ let _selectedGroupAvatar="";
 
 // ─── New group ────────────────────────────────────────────────────────────
 let selectedMembers=[];
-document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}_selectedGroupAvatar="";openModal("newGroupModal");loadMemberSearch()});
+document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}_selectedGroupAvatar="";openModal("newGroupModal");loadMemberSearch();_updateAvatarPreview()});
 
-// Avatar toggle
-document.getElementById("avatarToggleRow").addEventListener("click",function(){
+function _updateAvatarPreview(){
+  const preview=document.getElementById("avatarPreviewImg");
+  if(!preview)return;
+  if(_selectedGroupAvatar){
+    preview.src=_selectedGroupAvatar;
+    preview.style.display="block";
+    document.getElementById("avatarPreviewPlaceholder").style.display="none";
+  }else{
+    preview.style.display="none";
+    document.getElementById("avatarPreviewPlaceholder").style.display="flex";
+  }
+}
+
+// Click on avatar preview toggles icon picker
+document.getElementById("avatarPreviewWrap").addEventListener("click",function(){
   const body=document.getElementById("avatarPickerBody");
   const icon=document.getElementById("avatarToggleIcon");
   const isOpen=body.style.display==="flex";
   body.style.display=isOpen?"none":"flex";
   icon.textContent=isOpen?"expand_more":"expand_less";
-  if(!isOpen){renderGroupIcons()}
+  if(!isOpen)_renderGroupIcons();
 });
 
 // File input
-document.getElementById("groupAvatarInput").addEventListener("change",async function(e){
+document.getElementById("groupAvatarInput").addEventListener("change",function(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=function(ev){
     _selectedGroupAvatar=ev.target.result;
-    // Show preview
-    document.getElementById("avatarPreview").innerHTML=`<img src="${ev.target.result}" style="width:44px;height:44px;border-radius:50%;object-fit:cover">`;
-    document.getElementById("avatarPreviewContainer").style.display="block";
-    document.getElementById("groupIconPicker").style.display="none";
+    _updateAvatarPreview();
+    // Close picker after selecting
+    document.getElementById("avatarPickerBody").style.display="none";
+    document.getElementById("avatarToggleIcon").textContent="expand_more";
   };
   reader.readAsDataURL(file);
   e.target.value="";
 });
 
-function renderGroupIcons(){
+function _renderGroupIcons(){
   const picker=document.getElementById("groupIconPicker");if(!picker)return;
   picker.style.display="flex";
-  document.getElementById("avatarPreviewContainer").style.display="none";
   picker.innerHTML=GROUP_ICONS.map(function(ico,i){
     var sel=_selectedGroupAvatar===ico?'selected':'';
-    return`<div class="group-icon-option ${sel}" onclick="_selectGroupIcon(${i})"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`;
+    return`<div class="group-icon-option ${sel}" onclick="window._pickGroupIcon(${i})"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`;
   }).join("")+
   `<div class="group-icon-option upload-icon" onclick="document.getElementById('groupAvatarInput').click()"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
 }
 
 // Global function for inline onclick
-window._selectGroupIcon=function(i){
+window._pickGroupIcon=function(i){
   _selectedGroupAvatar=GROUP_ICONS[i];
-  renderGroupIcons();
+  _updateAvatarPreview();
+  // Close picker after selecting
+  document.getElementById("avatarPickerBody").style.display="none";
+  document.getElementById("avatarToggleIcon").textContent="expand_more";
 };
 document.getElementById("createGroupBtn").addEventListener("click",async()=>{
   const name=document.getElementById("newGroupName").value.trim();if(!name){alert("Poné un nombre");return}
