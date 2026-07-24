@@ -802,14 +802,24 @@ document.getElementById("groupAvatarInput").addEventListener("change",function(e
   e.target.value="";
 });
 
+const ICON_CATEGORIES=[
+  {name:"Seguros",start:0,end:15},
+  {name:"Sistemas",start:16,end:23},
+  {name:"Accidentes",start:24,end:27},
+  {name:"Seguridad",start:28,end:31},
+];
 function _renderGroupIcons(){
   const picker=document.getElementById("groupIconPicker");if(!picker)return;
-  picker.style.display="flex";
-  picker.innerHTML=GROUP_ICONS.map(function(ico,i){
-    var sel=_selectedGroupAvatar===ico?'selected':'';
-    return`<div class="group-icon-option ${sel}" onclick="window._pickGroupIcon(${i})"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`;
+  picker.style.display="block";
+  picker.innerHTML=ICON_CATEGORIES.map(function(cat){
+    var items=GROUP_ICONS.slice(cat.start,cat.end+1).map(function(ico,i){
+      var idx=cat.start+i;
+      var sel=_selectedGroupAvatar===ico?'selected':'';
+      return`<div class="group-icon-option ${sel}" onclick="window._pickGroupIcon(${idx})"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`;
+    }).join("");
+    return`<div class="icon-category"><div class="icon-cat-label">${cat.name}</div><div class="icon-cat-grid">${items}</div></div>`;
   }).join("")+
-  `<div class="group-icon-option upload-icon" onclick="document.getElementById('groupAvatarInput').click()"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
+  `<div class="icon-category"><div class="icon-cat-label">Subir foto</div><div class="icon-cat-grid"><div class="group-icon-option upload-icon" onclick="document.getElementById('groupAvatarInput').click()"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div></div></div>`;
 }
 
 // Global function for inline onclick
