@@ -101,7 +101,7 @@ function enterApp(){
   updateSettingsUI();
   // Init chat for badge count on startup (conversations load in background)
   initAlerts();flushOfflineQueue();startPing();
-  setTimeout(()=>{if(authToken)refreshConversations()},100);
+  setTimeout(()=>{if(authToken){refreshConversations();G("/api/chat/hidden").then(d=>{if(d?.ok)stats.chatArchived=d.conversations?.length||0;updateStats()}).catch(()=>{})}},100);
   if(!selectedOffice){openModal("office-modal");loadOfficeModal()}
   updateBadgeFromAlerts();
 }
