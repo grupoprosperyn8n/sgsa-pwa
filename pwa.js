@@ -988,8 +988,10 @@ document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
   const btn=document.getElementById("saveGroupBtn");
   btn.disabled=true;btn.textContent="Guardando...";
   try{
+    // Timeout helper: 15s
+    function _ft(url,opts){const ac=new AbortController();const t=setTimeout(()=>ac.abort(),15000);return fetch(url,{...opts,signal:ac.signal}).finally(()=>clearTimeout(t))}
     // Update name/description
-    const r=await fetch(API+"/api/chat/groups/"+gid,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({nombre:name,descripcion:desc})});
+    const r=await _ft(API+"/api/chat/groups/"+gid,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({nombre:name,descripcion:desc})});
     const d=await r.json();
     if(d?.ok){
       // Upload new avatar if changed (data URL starts with "data:")
@@ -998,13 +1000,13 @@ document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
       const currentIds=_editMembers.map(m=>m.id);
       for(const oldId of _editOriginalMemberIds){
         if(!currentIds.includes(oldId)){
-          await fetch(API+"/api/chat/groups/"+gid+"/members/"+encodeURIComponent(oldId),{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}}).catch(()=>{});
+          await _ft(API+"/api/chat/groups/"+gid+"/members/"+encodeURIComponent(oldId),{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}}).catch(()=>{});
         }
       }
       // Add new members
       for(const m of _editMembers){
         if(!_editOriginalMemberIds.includes(m.id)){
-          await fetch(API+"/api/chat/groups/"+gid+"/members",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({empleado_id:m.airtable_id||m.id})}).catch(()=>{});
+          await _ft(API+"/api/chat/groups/"+gid+"/members",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({empleado_id:m.airtable_id||m.id})}).catch(()=>{});
         }
       }
       closeModal("editGroupModal");
@@ -1012,10 +1014,10 @@ document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
       toast("Grupo actualizado","success");
       refreshConversations();
     }else{
-      toast("Error al guardar: "+(d?.error||"desconocido"),"error");
       btn.disabled=false;btn.textContent="Guardar cambios";
+      toast("Error al guardar: "+(d?.error||r.status||"desconocido"),"error");
     }
-  }catch{toast("Error de conexión","error");btn.disabled=false;btn.textContent="Guardar cambios"}
+  }catch(e){btn.disabled=false;btn.textContent="Guardar cambios";toast("Error de conexión: "+(e?.name||"intentá de nuevo"),"error")}
 });
 
 // ─── Delete group ───────────────────────────────────────────────────────────
