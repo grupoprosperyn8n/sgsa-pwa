@@ -302,7 +302,7 @@ async function refreshConversations(){
       }
     });
     conversations=d.conversations;S.set("sgsa_convCache",conversations);renderConversations();
-    const newUnread=conversations.reduce((s,c)=>s+(c.unread||0),0);
+    const newUnread=conversations.filter(c=>c.unread>0).length;
     document.getElementById("chat-badge").textContent=newUnread||"";
     // Update chat stats
     stats.chatActive=conversations.length;
