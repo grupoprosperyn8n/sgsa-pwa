@@ -397,6 +397,32 @@ document.querySelectorAll(".filter-btn").forEach(b=>b.addEventListener("click",f
   _chatFilter=this.dataset.filter;
   renderConversations();
 }));
+// Inbox date filter toggle
+document.getElementById("inboxFilterToggle")?.addEventListener("click",function(){
+  const body=document.getElementById("inboxDateFilters");
+  if(!body)return;
+  const show=body.style.display!=="flex";
+  body.style.display=show?"flex":"none";
+  this.classList.toggle("active",show);
+});
+// Inbox date filter controls
+document.querySelectorAll("#inboxDateFilters .arch-filter-btn").forEach(b=>b.addEventListener("click",function(){
+  _inboxDateRange=this.dataset.range;
+  document.querySelectorAll("#inboxDateFilters .arch-filter-btn").forEach(x=>x.classList.toggle("active",x===this));
+  _inboxDateFrom="";_inboxDateTo="";_inboxDaysAgo="";
+  document.getElementById("inboxDateFrom").value="";document.getElementById("inboxDateTo").value="";
+  document.getElementById("inboxDaysAgo").value="";
+  renderConversations();
+}));
+document.getElementById("inboxDateFrom")?.addEventListener("change",function(){_inboxDateFrom=this.value;_inboxDateRange="";_inboxDaysAgo="";document.querySelectorAll("#inboxDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("inboxDaysAgo").value="";renderConversations()});
+document.getElementById("inboxDateTo")?.addEventListener("change",function(){_inboxDateTo=this.value;_inboxDateRange="";_inboxDaysAgo="";document.querySelectorAll("#inboxDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("inboxDaysAgo").value="";renderConversations()});
+document.getElementById("inboxDaysAgo")?.addEventListener("input",function(){_inboxDaysAgo=this.value;_inboxDateRange="";_inboxDateFrom="";_inboxDateTo="";document.querySelectorAll("#inboxDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("inboxDateFrom").value="";document.getElementById("inboxDateTo").value="";renderConversations()});
+document.getElementById("inboxClearFilter")?.addEventListener("click",function(){
+  _inboxDateRange="";_inboxDateFrom="";_inboxDateTo="";_inboxDaysAgo="";
+  document.querySelectorAll("#inboxDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));
+  document.getElementById("inboxDateFrom").value="";document.getElementById("inboxDateTo").value="";
+  document.getElementById("inboxDaysAgo").value="";renderConversations();
+});
 function timeAgo(iso){if(!iso)return"";const d=Date.now()-new Date(iso).getTime(),m=Math.floor(d/60000);if(m<1)return"ahora";if(m<60)return m+"m";const h=Math.floor(m/60);if(h<24)return h+"h";return Math.floor(h/24)+"d"}
 
 function updateChatHeader(cv){
