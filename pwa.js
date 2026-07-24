@@ -820,10 +820,11 @@ function _updateEditAvatarPreview(){
 let _editMembers=[];
 let _editOriginalMemberIds=[];
 async function _loadEditMembers(gid){
-  _editMembers=[];
+  _editMembers=[];_editOriginalMemberIds=[];
   const d=await G("/api/chat/groups/"+gid);
   if(d?.ok){
     _editMembers=d.members||[];
+    _editOriginalMemberIds=_editMembers.map(m=>m.id);
     _renderEditMembers();
   }
 }
