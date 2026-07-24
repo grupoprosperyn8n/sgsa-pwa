@@ -782,16 +782,57 @@ document.getElementById("createGroupBtn").addEventListener("click",async()=>{
 });
 
 // ─── Edit group ─────────────────────────────────────────────────────────────
+// Edit modal: avatar preview toggle
+document.getElementById("editAvatarPreviewWrap")?.addEventListener("click",function(){
+  const body=document.getElementById("editAvatarPickerBody");
+  const icon=document.getElementById("editAvatarToggleIcon");
+  if(!body||!icon)return;
+  const isOpen=body.style.display==="flex";
+  body.style.display=isOpen?"none":"flex";
+  icon.textContent=isOpen?"expand_more":"expand_less";
+  if(!isOpen)_renderEditGroupIcons();
+});
+function _renderEditGroupIcons(){
+  const picker=document.getElementById("editGroupIconPicker");if(!picker)return;
+  picker.style.display="flex";
+  picker.innerHTML=GROUP_ICONS.map(function(ico,i){
+    var sel=_editGroupAvatar===ico?'selected':'';
+    return`<div class="group-icon-option ${sel}" onclick="window._editPickGroupIcon(${i})"><img src="${ico}" style="width:40px;height:40px;border-radius:50%"></div>`;
+  }).join("")+
+  `<div class="group-icon-option upload-icon" onclick="document.getElementById('editAvatarFileInput').click()"><span class="material-symbols-outlined" style="font-size:22px;line-height:40px">add_a_photo</span></div>`;
+}
+window._editPickGroupIcon=function(i){
+  _editGroupAvatar=GROUP_ICONS[i];
+  _updateEditAvatarPreview();
+  document.getElementById("editAvatarPickerBody").style.display="none";
+  document.getElementById("editAvatarToggleIcon").textContent="expand_more";
+};
+function _updateEditAvatarPreview(){
+  const preview=document.getElementById("editAvatarPreview");
+  const placeholder=document.getElementById("editAvatarPreviewPlaceholder");
+  if(!preview)return;
+  if(_editGroupAvatar&&_editGroupAvatar.startsWith("data:")){
+    preview.src=_editGroupAvatar;
+    preview.style.display="block";
+    if(placeholder)placeholder.style.display="none";
+  }else if(_editGroupAvatar){
+    preview.src=avatarUrl(_editGroupAvatar);
+    preview.style.display="block";
+    if(placeholder)placeholder.style.display="none";
+  }else{
+    preview.style.display="none";
+    if(placeholder)placeholder.style.display="flex";
+  }
+}
 // File input for editing avatar
-document.getElementById("editAvatarInput")?.addEventListener("change",function(e){
+document.getElementById("editAvatarFileInput")?.addEventListener("change",function(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=function(ev){
     _editGroupAvatar=ev.target.result;
-    const preview=document.getElementById("editAvatarPreview");
-    const placeholder=document.getElementById("editAvatarPlaceholder");
-    if(preview){preview.src=_editGroupAvatar;preview.style.display="block"}
-    if(placeholder)placeholder.style.display="none";
+    _updateEditAvatarPreview();
+    document.getElementById("editAvatarPickerBody").style.display="none";
+    document.getElementById("editAvatarToggleIcon").textContent="expand_more";
   };
   reader.readAsDataURL(file);
   e.target.value="";
