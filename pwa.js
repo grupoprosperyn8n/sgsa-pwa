@@ -1026,7 +1026,7 @@ document.getElementById("confirmDeleteBtn")?.addEventListener("click",async()=>{
   const btn=document.getElementById("confirmDeleteBtn");
   btn.disabled=true;btn.textContent="Eliminando...";
   try{
-    const r=await fetch(API+"/api/chat/groups/"+gid,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+    const r=await _ft(API+"/api/chat/groups/"+gid,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
     const d=await r.json();
     if(d?.ok){
       closeModal("confirmDeleteModal");
