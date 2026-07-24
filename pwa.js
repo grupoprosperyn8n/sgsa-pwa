@@ -782,6 +782,20 @@ document.getElementById("createGroupBtn").addEventListener("click",async()=>{
 });
 
 // ─── Edit group ─────────────────────────────────────────────────────────────
+// File input for editing avatar
+document.getElementById("editAvatarInput")?.addEventListener("change",function(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=function(ev){
+    _editGroupAvatar=ev.target.result;
+    const preview=document.getElementById("editAvatarPreview");
+    const placeholder=document.getElementById("editAvatarPlaceholder");
+    if(preview){preview.src=_editGroupAvatar;preview.style.display="block"}
+    if(placeholder)placeholder.style.display="none";
+  };
+  reader.readAsDataURL(file);
+  e.target.value="";
+});
 document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
   const gid=_editGroupId;if(!gid){toast("Error: no hay grupo","error");return}
   const name=document.getElementById("editGroupName").value.trim();
@@ -790,10 +804,14 @@ document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
   const btn=document.getElementById("saveGroupBtn");
   btn.disabled=true;btn.textContent="Guardando...";
   try{
+    // Update name/description
     const r=await fetch(API+"/api/chat/groups/"+gid,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({nombre:name,descripcion:desc})});
     const d=await r.json();
     if(d?.ok){
+      // Upload new avatar if changed
+      if(_editGroupAvatar&&!_editGroupAvatar.startsWith(API||""))await P("/api/chat/group-avatar/"+gid,{avatar:_editGroupAvatar}).catch(()=>{});
       closeModal("editGroupModal");
+      _editGroupAvatar="";
       toast("Grupo actualizado","success");
       refreshConversations();
     }else{
