@@ -292,39 +292,40 @@ let _refreshing=0;
 async function refreshConversations(){
   if(!authToken||_refreshing)return;
   _refreshing=1;
-  // Show cached conversations immediately
-  const cached=S.get("sgsa_convCache");if(cached?.length&&!conversations.length){conversations=cached;renderConversations()}
-  const d=await G("/api/chat/conversations");
-  if(d?.ok){
-    // Merge: preserve optimistic last_message_time for new convos with no messages yet
-    const oldMap={};conversations.forEach(c=>{oldMap[c.group_id]=c});
-    d.conversations.forEach(c=>{
-      if(!c.last_message_time && oldMap[c.group_id]?.last_message_time){
-        c.last_message_time=oldMap[c.group_id].last_message_time;
+  try{
+    // Show cached conversations immediately
+    const cached=S.get("sgsa_convCache");if(cached?.length&&!conversations.length){conversations=cached;renderConversations()}
+    const d=await G("/api/chat/conversations");
+    if(d?.ok){
+      // Merge: preserve optimistic last_message_time for new convos with no messages yet
+      const oldMap={};conversations.forEach(c=>{oldMap[c.group_id]=c});
+      d.conversations.forEach(c=>{
+        if(!c.last_message_time && oldMap[c.group_id]?.last_message_time){
+          c.last_message_time=oldMap[c.group_id].last_message_time;
+        }
+      });
+      conversations=d.conversations;S.set("sgsa_convCache",conversations);renderConversations();
+      const newUnread=conversations.filter(c=>c.unread>0).length;
+      document.getElementById("chat-badge").textContent=newUnread||"";
+      // Update chat stats
+      stats.chatActive=conversations.length;
+      stats.chatUnread=conversations.filter(c=>c.unread>0).length;
+      stats.chatOnline=conversations.filter(c=>c.online).length;
+      stats.chatOffline=conversations.filter(c=>c.is_dm&&!c.online).length;
+      // Update selected conversation header with fresh online/offline status
+      if(selectedConversation){
+        const fresh=conversations.find(c=>c.group_id===selectedConversation.group_id);
+        if(fresh){
+          selectedConversation.online=fresh.online;
+          selectedConversation.display_name=fresh.display_name;
+          updateChatHeader(fresh);
+        }
       }
-    });
-    conversations=d.conversations;S.set("sgsa_convCache",conversations);renderConversations();
-    const newUnread=conversations.filter(c=>c.unread>0).length;
-    document.getElementById("chat-badge").textContent=newUnread||"";
-    // Update chat stats
-    stats.chatActive=conversations.length;
-    stats.chatUnread=conversations.filter(c=>c.unread>0).length;
-    stats.chatOnline=conversations.filter(c=>c.online).length;
-    stats.chatOffline=conversations.filter(c=>c.is_dm&&!c.online).length;
-    // Update selected conversation header with fresh online/offline status
-    if(selectedConversation){
-      const fresh=conversations.find(c=>c.group_id===selectedConversation.group_id);
-      if(fresh){
-        selectedConversation.online=fresh.online;
-        selectedConversation.display_name=fresh.display_name;
-        updateChatHeader(fresh);
-      }
+    } else if(d?.error){
+      console.error("Conversations error:",d.error);
+      if(cached?.length){conversations=cached;renderConversations()}
     }
-  } else if(d?.error){
-    console.error("Conversations error:",d.error);
-    if(cached?.length){conversations=cached;renderConversations()}
-  }
-  _refreshing=0;
+  }finally{_refreshing=0}
 }
 
 let _chatFilter="all";
