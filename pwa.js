@@ -288,8 +288,10 @@ let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_
 function initChat(){if(!authToken)return;
   const cached=S.get("sgsa_convCache");if(cached?.length){conversations=cached;renderConversations()}
   refreshConversations();if(_ct)clearInterval(_ct);_ct=setInterval(refreshConversations,R)}
+let _refreshing=0;
 async function refreshConversations(){
-  if(!authToken)return;
+  if(!authToken||_refreshing)return;
+  _refreshing=1;
   // Show cached conversations immediately
   const cached=S.get("sgsa_convCache");if(cached?.length&&!conversations.length){conversations=cached;renderConversations()}
   const d=await G("/api/chat/conversations");
