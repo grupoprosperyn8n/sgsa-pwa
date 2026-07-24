@@ -471,6 +471,8 @@ async function showGroupInfo(gid,currentAvatar){
     document.getElementById("editGroupName").value=name;
     document.getElementById("editGroupDesc").value=desc;
     _updateEditAvatarPreview();
+    // Load current members
+    _loadEditMembers(gid);
     openModal("editGroupModal");
   });
   document.getElementById("deleteGroupBtn")?.addEventListener("click",function(){
