@@ -650,7 +650,14 @@ let _selectedGroupAvatar="";
 
 // ─── New group ────────────────────────────────────────────────────────────
 let selectedMembers=[];
-document.getElementById("newGroupBtn").addEventListener("click",()=>{if(!authToken){showLogin();return}_selectedGroupAvatar="";openModal("newGroupModal");loadMemberSearch();_updateAvatarPreview()});
+document.getElementById("newGroupBtn").addEventListener("click",()=>{
+  if(!authToken){showLogin();return}
+  _selectedGroupAvatar="";selectedMembers=[];
+  document.getElementById("newGroupName").value="";document.getElementById("newGroupDesc").value="";
+  document.getElementById("memberSearch").value="";
+  document.getElementById("selectedMembers").innerHTML="";
+  renderSelectedMembers();
+  openModal("newGroupModal");loadMemberSearch();_updateAvatarPreview()});
 
 function _updateAvatarPreview(){
   const preview=document.getElementById("avatarPreviewImg");
