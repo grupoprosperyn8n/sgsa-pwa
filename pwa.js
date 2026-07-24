@@ -436,13 +436,15 @@ async function openConversation(cv){selectedConversation=cv;
   document.getElementById("chatMain").classList.add("open");
   updateChatHeader(cv);
   await loadMessages(cv.group_id);renderConversations()}
-async function showGroupInfo(gid){
+async function showGroupInfo(gid,currentAvatar){
   document.getElementById("groupInfoTitle").textContent="Cargando...";
   document.getElementById("groupInfoBody").innerHTML='<div class="empty-state"><p>Cargando...</p></div>';
   openModal("groupInfoModal");
   const d=await G("/api/chat/groups/"+gid);
   if(!d?.ok){document.getElementById("groupInfoBody").innerHTML='<div class="empty-state"><p>Error</p></div>';return}
   document.getElementById("groupInfoTitle").textContent=d.group?.nombre||"Grupo";
+  // Store current avatar for edit modal
+  _editGroupAvatar=currentAvatar||"";
   const members=(d.members||[]).map(m=>{
     const initials=avatarInitials(m.nombre);
     const bgColor=avatarColor(m.nombre);
