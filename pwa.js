@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v34 — visual confirm modal, improved system messages, premium spinner
+// SGSA PWA v35 — upload timeout fix (120s), visual confirm modal, improved system messages
 // =============================================================================
-console.log("[SGSA] PWA v34 loaded");
+console.log("[SGSA] PWA v35 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
