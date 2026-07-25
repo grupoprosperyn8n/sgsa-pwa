@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v32 — batch: delegated listener, direct DOM toggle
+// SGSA PWA v34 — visual confirm modal, improved system messages, premium spinner
 // =============================================================================
-console.log("[SGSA] PWA v32 loaded");
+console.log("[SGSA] PWA v34 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
