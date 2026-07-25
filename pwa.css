@@ -414,7 +414,8 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .edit-members-list{display:flex;flex-direction:column;gap:2px;margin-bottom:6px;max-height:180px;overflow-y:auto}
 .edit-member-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:var(--radius-sm);font-size:13px;background:var(--bg3)}
 .edit-member-avatar{width:26px;height:26px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center}
-.edit-member-avatar img{width:100%;height:100%;object-fit:cover}
+.edit-member-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.avatar-initials-sm{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;border-radius:50%;flex-shrink:0}
 .edit-member-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .edit-member-remove{cursor:pointer;color:var(--danger);font-size:18px;line-height:1;font-weight:700;opacity:.6;transition:opacity .15s;flex-shrink:0}
 .edit-member-remove:hover{opacity:1}
