@@ -273,6 +273,11 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .attach-opt:hover{background:var(--bg3)}
 .attach-opt .material-symbols-outlined{font-size:18px;color:var(--fg2)}
 .attach-opt:hover .material-symbols-outlined{color:var(--accent)}
+/* Uploading system message */
+.message.system{align-self:center;max-width:90%;background:var(--bg3);color:var(--fg2);border-radius:12px;padding:8px 16px;margin:4px 0}
+.msg-uploading{display:flex;align-items:center;gap:8px;font-size:12px}
+.upload-spinner{width:14px;height:14px;border:2px solid var(--bg4);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 #chatInput{flex:1;padding:10px 18px;border:none;border-radius:22px;background:var(--bg);color:var(--fg);font-size:13px;outline:none;transition:box-shadow .15s}
 #chatInput:focus{box-shadow:0 0 0 2px var(--accent)}
 #chatInput::placeholder{color:var(--fg3)}
