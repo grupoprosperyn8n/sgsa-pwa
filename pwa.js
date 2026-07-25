@@ -648,9 +648,9 @@ function renderMsgList(c,e,gid,msgs){
     }
     const isMine=m.sender_id===myId||m.sender_id===myLoginId;
     let body=`<div class="msg-text">${linkify(m.mensaje||m.texto||"")}</div>`;
-    if(m.tipo==="imagen"&&m.adjunto_url)body=`<div class="msg-attachment"><img src="${m.adjunto_url}" loading="lazy"></div>`;
-    else if((m.tipo==="video"||m.tipo==="audio")&&m.adjunto_url)body=`<div class="msg-attachment">${m.tipo==="audio"?`<audio controls src="${m.adjunto_url}"></audio>`:`<video controls src="${m.adjunto_url}" style="max-width:100%;max-height:300px"></video>`}</div>`;
-    else if(m.adjunto_url)body=`<div class="msg-attachment"><a class="file-link" href="${m.adjunto_url}" target="_blank"><span class="material-symbols-outlined" style="font-size:16px">attach_file</span>${esc(m.adjunto_nombre||"Archivo")}</a></div>`;
+    if(m.tipo==="imagen"&&m.adjunto_url)body=`<div class="msg-attachment"><div class="att-preview"><img src="${m.adjunto_url}" loading="lazy"><a class="att-dl" href="${m.adjunto_url}" download="${esc(m.adjunto_nombre||"imagen")}" target="_blank" title="Descargar"><span class="material-symbols-outlined">download</span></a></div></div>`;
+    else if((m.tipo==="video"||m.tipo==="audio")&&m.adjunto_url)body=`<div class="msg-attachment"><div class="att-preview">${m.tipo==="audio"?`<audio controls src="${m.adjunto_url}"></audio>`:`<video controls src="${m.adjunto_url}" style="max-width:100%;max-height:300px"></video>`}<a class="att-dl" href="${m.adjunto_url}" download="${esc(m.adjunto_nombre||m.tipo)}" target="_blank" title="Descargar"><span class="material-symbols-outlined">download</span></a></div></div>`;
+    else if(m.adjunto_url)body=`<div class="msg-attachment"><a class="file-link" href="${m.adjunto_url}" target="_blank" download="${esc(m.adjunto_nombre||"archivo")}"><span class="material-symbols-outlined" style="font-size:16px">attach_file</span>${esc(m.adjunto_nombre||"Archivo")}</a></div>`;
     // In DMs, don't show sender name at all (it's implied). In groups, show for others.
     const isDM=selectedConversation?.is_dm;
     const senderHtml=!isMine&&!isDM?`<div class="sender-name">${esc(m.sender_nombre||m.remitente_nombre||"")}</div>`:"";
