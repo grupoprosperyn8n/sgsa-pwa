@@ -820,10 +820,7 @@ document.getElementById("vaultGrid").addEventListener("click",async function(e){
   // Document — download
   _download(url,nombre);
 });
-// Expose vaultClose so chatBackBtn can call it
-document.getElementById("vaultCloseBtn").addEventListener("click",_vaultClose);
-document.getElementById("vaultOverlay").addEventListener("click",_vaultClose);
-
+// Expose vaultClose
 async function loadMessages(gid){const airId=currentUser?.airtable_id||"";const d=await G("/api/chat/mensajes/"+gid+"?airtable_id="+encodeURIComponent(airId)),c=document.getElementById("messageList"),e=document.getElementById("messageEmpty");
   if(!d?.ok){const cached=S.get("sgsa_msgCache_"+gid);if(cached?.length){renderMsgList(c,e,gid,cached);return}c.innerHTML='<div class="empty-state"><span class="material-symbols-outlined empty-icon">cloud_off</span><p>Sin conexión</p><span class="empty-hint">No se pudieron cargar los mensajes</span></div>';return}
   const msgs=d.mensajes||[];S.set("sgsa_msgCache_"+gid,msgs);renderMsgList(c,e,gid,msgs)}
