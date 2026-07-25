@@ -260,10 +260,17 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .msg-checks{font-size:11px;margin-left:2px}
 .msg-checks.sent{color:rgba(255,255,255,.45)}
 .msg-checks.seen{color:#34d399}
-.message .msg-attachment{margin-top:4px;border-radius:10px;overflow:hidden}
+.message .msg-attachment{margin-top:4px;border-radius:10px}
 .message .msg-attachment img,.message .msg-attachment video{max-width:100%;max-height:300px;border-radius:10px;display:block}
+.att-preview{position:relative;border-radius:10px;overflow:hidden;display:inline-block;max-width:100%}
+.att-preview audio{width:220px;display:block;border-radius:10px}
 .message .msg-attachment .file-link{display:flex;align-items:center;gap:6px;padding:8px 12px;background:rgba(255,255,255,.08);border-radius:8px;color:var(--fg);text-decoration:none;font-size:12px}
 .message.mine .msg-attachment .file-link{background:rgba(255,255,255,.12);color:white}
+/* Download button — appears on hover */
+.att-dl{position:absolute;top:6px;right:6px;width:32px;height:32px;border:none;border-radius:50%;background:rgba(0,0,0,.55);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s,transform .2s,background .2s;backdrop-filter:blur(4px);z-index:2}
+.att-dl .material-symbols-outlined{font-size:16px}
+.att-preview:hover .att-dl,.att-dl:focus-visible{opacity:1;transform:scale(1)}
+.att-dl:hover{background:rgba(0,0,0,.75);transform:scale(1.1)!important}
 
 .chat-input-area{display:flex;gap:8px;padding:10px 12px 12px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;align-items:center}
 .attach-wrap{position:relative}
