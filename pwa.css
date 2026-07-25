@@ -273,11 +273,26 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .attach-opt:hover{background:var(--bg3)}
 .attach-opt .material-symbols-outlined{font-size:18px;color:var(--fg2)}
 .attach-opt:hover .material-symbols-outlined{color:var(--accent)}
-/* Uploading system message */
-.message.system{align-self:center;max-width:90%;background:var(--bg3);color:var(--fg2);border-radius:12px;padding:8px 16px;margin:4px 0}
-.msg-uploading{display:flex;align-items:center;gap:8px;font-size:12px}
-.upload-spinner{width:14px;height:14px;border:2px solid var(--bg4);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
+/* System messages (info, upload, error) */
+.message.system{align-self:center;max-width:88%;background:linear-gradient(135deg,var(--bg3),var(--bg4));color:var(--fg2);border-radius:14px;padding:10px 18px;margin:6px 0;border:1px solid var(--border);backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.12);animation:sysMsgIn .35s ease}
+@keyframes sysMsgIn{from{opacity:0;transform:translateY(8px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+.message.system.sys-error{border-color:rgba(239,68,68,.3);background:linear-gradient(135deg,rgba(239,68,68,.12),rgba(239,68,68,.06))}
+.message.system.sys-error .msg-uploading{color:#f87171}
+.message.system.sys-success{border-color:rgba(52,211,153,.3);background:linear-gradient(135deg,rgba(52,211,153,.12),rgba(52,211,153,.06))}
+.message.system.sys-success .msg-uploading{color:#34d399}
+.msg-uploading{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500}
+
+/* Upload spinner — premium */
+.upload-spinner{position:relative;width:18px;height:18px;flex-shrink:0}
+.upload-spinner::before,.upload-spinner::after{content:'';position:absolute;inset:0;border-radius:50%;border:2px solid transparent}
+.upload-spinner::before{border-top-color:var(--accent);animation:spin1 .8s cubic-bezier(.6,.2,.4,.8) infinite}
+.upload-spinner::after{border-right-color:var(--accent);opacity:.5;animation:spin2 .6s cubic-bezier(.4,.6,.8,.2) infinite reverse}
+@keyframes spin1{to{transform:rotate(360deg)}}
+@keyframes spin2{to{transform:rotate(-360deg)}}
+
+/* Upload error — subtle pulse */
+@keyframes errPulse{0%,100%{opacity:1}50%{opacity:.7}}
+.message.system.sys-error .msg-uploading{animation:errPulse 1.5s ease-in-out infinite}
 #chatInput{flex:1;padding:10px 18px;border:none;border-radius:22px;background:var(--bg);color:var(--fg);font-size:13px;outline:none;transition:box-shadow .15s}
 #chatInput:focus{box-shadow:0 0 0 2px var(--accent)}
 #chatInput::placeholder{color:var(--fg3)}
