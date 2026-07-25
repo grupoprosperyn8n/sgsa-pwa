@@ -1,7 +1,7 @@
-// SGSA PWA v14 — visual confirm modal, improved system messages, premium spinner
+// SGSA PWA v15 — upload timeout fix (120s), visual confirm modal, improved system messages
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v14";
-const CACHE_STATIC="sgsa-static-v14";
+const CACHE_V="sgsa-v15";
+const CACHE_STATIC="sgsa-static-v15";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
