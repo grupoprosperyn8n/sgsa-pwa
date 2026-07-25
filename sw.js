@@ -1,7 +1,7 @@
-// SGSA PWA v12 — batch selection: onclick on .batch-check with this
+// SGSA PWA v14 — visual confirm modal, improved system messages, premium spinner
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v13";
-const CACHE_STATIC="sgsa-static-v13";
+const CACHE_V="sgsa-v14";
+const CACHE_STATIC="sgsa-static-v14";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
