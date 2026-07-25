@@ -380,6 +380,29 @@ async function refreshConversations(){
 let _chatFilter="all";
 let _batchMode=0,_batchSelected=[];
 function _toggleBatch(){_batchMode=!_batchMode;if(!_batchMode)_batchSelected=[];document.getElementById("batchBar")?.classList.toggle("active",_batchMode>0);renderConversations();_updateBatchBtn()}
+
+// ─── Visual confirm (replaces native confirm()) ──────────────────────────
+function _confirm(msg, title, danger){
+  return new Promise(resolve => {
+    const modal=document.getElementById("confirmModal");
+    const icon=document.getElementById("confirmIcon");
+    const titleEl=document.getElementById("confirmTitle");
+    const msgEl=document.getElementById("confirmMsg");
+    const okBtn=document.getElementById("confirmOkBtn");
+    const cancelBtn=document.getElementById("confirmCancelBtn");
+    icon.textContent=danger?"warning":"help";
+    icon.style.color=danger?"var(--danger)":"var(--accent)";
+    titleEl.textContent=title||(danger?"Atención":"Confirmar");
+    msgEl.textContent=msg;
+    okBtn.textContent=danger?"Eliminar":"Aceptar";
+    okBtn.className=danger?"btn-danger":"btn-primary";
+    okBtn.style.marginTop="0";
+    modal.style.display="flex";
+    const close=()=>{modal.style.display="none"; okBtn.onclick=null; cancelBtn.onclick=null;};
+    okBtn.onclick=()=>{close(); resolve(true);};
+    cancelBtn.onclick=()=>{close(); resolve(false);};
+  });
+}
 function _updateBatchBtn(){const b=document.getElementById("batchDeleteBtn");if(!b)return;const n=_batchSelected.length;b.textContent=n?"Eliminar ("+n+")":"Eliminar";b.disabled=!n}
 let _inboxDateRange="";
 let _inboxDateFrom="";
