@@ -789,6 +789,77 @@ document.querySelectorAll(".attach-opt").forEach(function(btn){
   });
 });
 
+// ─── Voice recorder (MediaRecorder) ────────────────────────────────
+function _startRecording(){
+  if(_recording||_sending||!selectedConversation)return;
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){toast("Grabación no soportada","error");return}
+  navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+    _recording=true;_recChunks=[];
+    var mr;try{mr=new MediaRecorder(stream,{mimeType:"audio/webm"})}catch(e){try{mr=new MediaRecorder(stream)}catch(e2){toast("Error al iniciar grabación","error");_recording=false;return}}
+    mr.ondataavailable=function(e){if(e.data.size>0)_recChunks.push(e.data)};
+    mr.onstop=function(){
+      stream.getTracks().forEach(function(t){t.stop()});
+      if(_recTimer){clearInterval(_recTimer);_recTimer=null}
+      _recording=false;
+      // Hide voice bar, show input+send+voice
+      document.getElementById("voiceBar").classList.remove("active");document.getElementById("voiceBar").style.display="none";
+      document.getElementById("voiceBtn").classList.remove("hidden");document.getElementById("sendBtn").classList.remove("hidden");
+      document.getElementById("chatInput").style.display="";
+      // Upload the blob
+      var blob=new Blob(_recChunks,{type:"audio/webm"});
+      if(blob.size<100){toast("Grabación muy corta","error");return}
+      _sendVoiceBlob(blob);
+    };
+    mr.onerror=function(){stream.getTracks().forEach(function(t){t.stop()});_recording=false;toast("Error de grabación","error")};
+    mr.start(100); // collect data every 100ms
+    _mediaRecorder=mr;_recStart=Date.now();
+    // Show voice bar, hide input+send+voice
+    document.getElementById("voiceBtn").classList.add("hidden");document.getElementById("sendBtn").classList.add("hidden");
+    document.getElementById("chatInput").style.display="none";
+    var vb=document.getElementById("voiceBar");vb.style.display="flex";setTimeout(function(){vb.classList.add("active")},10);
+    _recTimer=setInterval(function(){
+      var sec=Math.floor((Date.now()-_recStart)/1000);
+      var m=Math.floor(sec/60),s=sec%60;
+      document.getElementById("voiceTimer").textContent=m+":"+(s<10?"0":"")+s;
+      if(sec>=180){_stopRecording()} // max 3 min
+    },200);
+  }).catch(function(e){
+    if(e.name==="NotAllowedError"||e.name==="PermissionDeniedError"){toast("Permiso de micrófono denegado","error");return}
+    toast("No se pudo acceder al micrófono","error")
+  });
+}
+function _stopRecording(){
+  if(_mediaRecorder&&_mediaRecorder.state==="recording"){_mediaRecorder.stop()}
+}
+function _sendVoiceBlob(blob){
+  var c=document.getElementById("messageList"),fakeId="voice_"+Date.now();
+  var fakeEl=document.createElement("div");fakeEl.className="message system";fakeEl.dataset.fakeId=fakeId;
+  fakeEl.innerHTML='<div class="msg-uploading"><span class="material-symbols-outlined" style="font-size:18px;color:var(--accent)">mic</span><span class="upload-spinner"></span>Enviando audio…</div>';
+  c.appendChild(fakeEl);c.scrollTop=c.scrollHeight;
+  var fd=new FormData();fd.append("file",blob,"audio_"+Date.now()+".webm");
+  _upload(API+"/api/chat/upload",{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{},body:fd},120000).then(function(r){return r.json()}).then(function(res){
+    if(res?.url){
+      return P("/api/chat/messages",{
+        grupo_id:selectedConversation.group_id,
+        sender_id:currentUser?.airtable_id||currentUser?.id,
+        mensaje:"🎤 Nota de voz",
+        tipo:"audio",
+        adjunto_url:res.url,
+        adjunto_nombre:"nota-de-voz.webm"
+      });
+    }else{throw new Error("upload failed")}
+  }).then(function(){
+    var fl=c.querySelector('[data-fake-id="'+fakeId+'"]');
+    if(fl)fl.remove();
+    loadMessages(selectedConversation.group_id);refreshConversations();
+  }).catch(function(){
+    var fl=c.querySelector('[data-fake-id="'+fakeId+'"]');
+    if(fl){fl.classList.add("sys-error");fl.querySelector(".msg-uploading").innerHTML='<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">error</span> Error al enviar audio'}
+  });
+}
+document.getElementById("voiceBtn").addEventListener("click",_startRecording);
+document.getElementById("voiceStopBtn").addEventListener("click",_stopRecording);
+
 // Ping
 function startPing(){stopPing();P("/api/chat/ping",{});_pingTimer=setInterval(()=>P("/api/chat/ping",{}),30000)}
 function stopPing(){if(_pingTimer){clearInterval(_pingTimer);_pingTimer=null}}
