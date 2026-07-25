@@ -1,6 +1,7 @@
 // =============================================================================
-// SGSA PWA v30 — + menú adjuntos por tipo, spinner subiendo
+// SGSA PWA v32 — batch: delegated listener, direct DOM toggle
 // =============================================================================
+console.log("[SGSA] PWA v32 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
