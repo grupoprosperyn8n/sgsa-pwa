@@ -719,7 +719,7 @@ document.querySelectorAll(".attach-opt").forEach(function(btn){
     const fakeEl=document.createElement("div");
     fakeEl.className="message system";
     fakeEl.dataset.fakeId=fakeId;
-    fakeEl.innerHTML='<div class="msg-uploading"><span class="material-symbols-outlined" style="font-size:16px">'+icon+'</span><span class="upload-spinner"></span>Subiendo <strong>'+esc(file.name)+'</strong>…</div>';
+    fakeEl.innerHTML='<div class="msg-uploading"><span class="material-symbols-outlined" style="font-size:18px;color:var(--accent)">'+icon+'</span><span class="upload-spinner"></span>Subiendo <strong>'+esc(file.name)+'</strong>…</div>';
     c.appendChild(fakeEl);c.scrollTop=c.scrollHeight;
     try{
       const fd=new FormData();fd.append("file",file);
