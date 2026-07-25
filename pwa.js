@@ -336,15 +336,42 @@ function initChat(){if(!authToken)return;
     // ── Open conversation ──
     if(cv)openConversation(cv);
   });
-  // ── Delegated download handler for attachments ──
+  // ── Attachment actions: download + fullscreen ──
   document.getElementById("messageList").addEventListener("click",function(ev){
-    var btn=ev.target.closest(".att-dl");
-    if(btn){
-      ev.preventDefault();ev.stopPropagation();
-      _download(btn.dataset.url,btn.dataset.name);
-    }
+    var dl=ev.target.closest(".att-dl");
+    if(dl){ev.preventDefault();ev.stopPropagation();_download(dl.dataset.url,dl.dataset.name);return}
+    var fs=ev.target.closest(".att-fs");
+    if(fs){ev.preventDefault();ev.stopPropagation();_openViewer(fs.dataset.url,fs.dataset.name,fs.dataset.tipo)}
   });
 }
+// ─── Fullscreen viewer ────────────────────────────────────────────
+var _fsOpen=false;
+function _openViewer(url,name,tipo){
+  if(_fsOpen)return;
+  var v=document.getElementById("fullscreenViewer"),img=document.getElementById("fsImage"),video=document.getElementById("fsVideo"),fn=document.getElementById("fsFilename");
+  img.style.display="none";video.style.display="none";
+  if(tipo==="imagen"||tipo==="video"){
+    if(tipo==="imagen"){img.src=url;img.style.display="block"}
+    else{video.src=url;video.style.display="block"}
+    fn.textContent=name||"";
+    v.classList.add("open");_fsOpen=true;
+    document.body.style.overflow="hidden";
+  }
+}
+function _closeViewer(){
+  var v=document.getElementById("fullscreenViewer"),img=document.getElementById("fsImage"),video=document.getElementById("fsVideo");
+  v.classList.remove("open");_fsOpen=false;
+  document.body.style.overflow="";
+  setTimeout(function(){img.src="";video.src=""},300);
+}
+document.getElementById("fsCloseBtn").addEventListener("click",_closeViewer);
+document.getElementById("fullscreenViewer").addEventListener("click",function(e){if(e.target===this)_closeViewer()});
+document.getElementById("fsDownloadBtn").addEventListener("click",function(){
+  var img=document.getElementById("fsImage"),video=document.getElementById("fsVideo");
+  var url=img.style.display!="none"?img.src:video.src;
+  var name=document.getElementById("fsFilename").textContent;
+  if(url)_download(url,name);
+});
 let _refreshing=0;
 async function refreshConversations(){
   if(!authToken||_refreshing)return;
