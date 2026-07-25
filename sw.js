@@ -1,4 +1,4 @@
-// SGSA PWA v8 — Service Worker with proper caching strategy
+// SGSA PWA v10 — + attachment menu, uploading spinner
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
 const CACHE_V="sgsa-v10";
 const CACHE_STATIC="sgsa-static-v10";
