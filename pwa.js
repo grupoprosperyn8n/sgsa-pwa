@@ -1132,6 +1132,8 @@ document.getElementById("editAvatarFileInput")?.addEventListener("change",functi
 });
 // Fetch with 15s timeout (graceful fallback if AbortController unavailable)
 function _ft(url,opts){var ac,t;try{ac=new AbortController();t=setTimeout(function(){ac.abort()},15000)}catch(e){}return fetch(url,{...opts,signal:ac?ac.signal:null}).finally(function(){if(t)clearTimeout(t)})}
+// Upload fetch — generous timeout for large files (120s)
+function _upload(url,opts,ms){ms=ms||120000;var ac,t;try{ac=new AbortController();t=setTimeout(function(){ac.abort()},ms)}catch(e){}return fetch(url,{...opts,signal:ac?ac.signal:null}).finally(function(){if(t)clearTimeout(t)})}
 document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
   const gid=_editGroupId;if(!gid){toast("Error: no hay grupo","error");return}
   const name=document.getElementById("editGroupName").value.trim();
