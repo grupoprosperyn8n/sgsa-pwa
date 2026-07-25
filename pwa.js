@@ -315,6 +315,22 @@ function initChat(){if(!authToken)return;
     }
   });
 }
+// Global pin handler (used by onclick on .pin-btn)
+window._pinChat=async function(gid,btn){
+  const cv=conversations.find(x=>x.group_id==gid);
+  const r=await P("/api/chat/pin",{group_id:gid});
+  if(r?.ok){if(cv)cv.pinned=r.pinned}
+  else{togglePin(gid);if(cv)cv.pinned=getPins().includes(gid)}
+  S.del("sgsa_convCache");renderConversations();
+};
+// Global archive handler (used by onclick on .delete-chat-btn)
+window._archiveChat=async function(gid){
+  if(!confirm("¿Archivar este chat? No aparecerá en tu bandeja."))return;
+  const r=await P("/api/chat/hide",{group_id:gid});
+  if(r?.ok&&r.hidden){conversations=conversations.filter(x=>x.group_id!=gid);S.del("sgsa_convCache");renderConversations();toast("Chat archivado","success")}
+  else if(r?.ok&&!r.hidden){toast("Chat ya estaba archivado","info")}
+  else{toast("Error al archivar","error")}
+};
 // Global card click — opens conversation (unless batch mode)
 window._openCard=function(gid){
   if(_batchMode)return;
