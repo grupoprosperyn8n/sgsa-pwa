@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v41 — file vault: full archive of all chat attachments with search, filter, and delete
+// SGSA PWA v42 — file vault: fix rendering when no grid items, handle null tipo, check adjunto_url, high limit
 // =============================================================================
-console.log("[SGSA] PWA v41 loaded");
+console.log("[SGSA] PWA v42 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
