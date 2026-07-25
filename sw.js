@@ -1,7 +1,7 @@
-// SGSA PWA v22 — file vault: fix grid-only rendering, null tipo fallback
+// SGSA PWA v23 — file vault: fix long filename overflow in grid cards
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v22";
-const CACHE_STATIC="sgsa-static-v22";
+const CACHE_V="sgsa-v23";
+const CACHE_STATIC="sgsa-static-v23";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
