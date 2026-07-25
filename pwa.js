@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v35 — upload timeout fix (120s), visual confirm modal, improved system messages
+// SGSA PWA v36 — attachment download buttons (cross-origin blob), upload timeout fix
 // =============================================================================
-console.log("[SGSA] PWA v35 loaded");
+console.log("[SGSA] PWA v36 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
