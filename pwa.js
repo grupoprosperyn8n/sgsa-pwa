@@ -629,9 +629,69 @@ async function sendMessage(){
 document.getElementById("sendBtn").addEventListener("click",sendMessage);
 document.getElementById("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendMessage()}});
 
-// Attach
-document.getElementById("attachBtn").addEventListener("click",()=>document.getElementById("fileInput").click());
-document.getElementById("fileInput").addEventListener("change",async e=>{const file=e.target.files[0];if(!file||!selectedConversation)return;e.target.value="";const fd=new FormData();fd.append("file",file);try{const r=await fetch(API+"/api/chat/upload",{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{},body:fd});const res=await r.json();if(res?.url){await P("/api/chat/messages",{grupo_id:selectedConversation.group_id,sender_id:currentUser?.airtable_id||currentUser?.id,mensaje:file.name,tipo:res.type||"documento",adjunto_url:res.url,adjunto_nombre:file.name});loadMessages(selectedConversation.group_id);refreshConversations()}}catch{}});
+// ─── Attachment menu with per-type file pickers ──────────────────────
+const _attachMenu=document.getElementById("attachMenu");
+document.getElementById("attachBtn").addEventListener("click",function(e){
+  e.stopPropagation();
+  _attachMenu.classList.toggle("active");
+});
+// Close menu on outside click
+document.addEventListener("click",function(e){
+  if(!e.target.closest(".attach-wrap"))_attachMenu.classList.remove("active");
+});
+// Map type icons for the uploading message
+const _typeIcons={imagen:"photo_camera",video:"videocam",audio:"mic",documento:"description"};
+const _fileInputs={imagen:"fileInputImg",video:"fileInputVideo",audio:"fileInputAudio",documento:"fileInputDoc"};
+// Wire each attachment option to its file input
+document.querySelectorAll(".attach-opt").forEach(function(btn){
+  btn.addEventListener("click",function(){
+    const tipo=this.dataset.type;
+    document.getElementById(_fileInputs[tipo]).click();
+    _attachMenu.classList.remove("active");
+  });
+});
+// Unified upload handler for all file inputs
+["imagen","video","audio","documento"].forEach(function(tipo){
+  document.getElementById(_fileInputs[tipo]).addEventListener("change",async function(e){
+    const file=e.target.files[0];
+    if(!file||!selectedConversation){e.target.value="";return}
+    e.target.value="";
+    const c=document.getElementById("messageList");
+    const fakeId="upload_"+Date.now();
+    const icon=_typeIcons[tipo]||"attach_file";
+    const fakeEl=document.createElement("div");
+    fakeEl.className="message system";
+    fakeEl.dataset.fakeId=fakeId;
+    fakeEl.innerHTML='<div class="msg-uploading"><span class="material-symbols-outlined" style="font-size:16px">'+icon+'</span><span class="upload-spinner"></span>Subiendo <strong>'+esc(file.name)+'</strong>…</div>';
+    c.appendChild(fakeEl);c.scrollTop=c.scrollHeight;
+    try{
+      const fd=new FormData();fd.append("file",file);
+      const r=await _ft(API+"/api/chat/upload",{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{},body:fd});
+      const res=await r.json();
+      if(res?.url){
+        await P("/api/chat/messages",{
+          grupo_id:selectedConversation.group_id,
+          sender_id:currentUser?.airtable_id||currentUser?.id,
+          mensaje:file.name,
+          tipo:tipo,
+          adjunto_url:res.url,
+          adjunto_nombre:file.name
+        });
+        // Remove fake message and reload real ones
+        const fl=c.querySelector('[data-fake-id="'+fakeId+'"]');
+        if(fl)fl.remove();
+        await loadMessages(selectedConversation.group_id);
+        refreshConversations();
+      }else{
+        const fl=c.querySelector('[data-fake-id="'+fakeId+'"]');
+        if(fl)fl.querySelector(".msg-uploading").innerHTML='<span class="material-symbols-outlined" style="font-size:16px;color:var(--danger)">error</span> Error al subir — <strong>'+esc(file.name)+'</strong>';
+      }
+    }catch(er){
+      const fl=c.querySelector('[data-fake-id="'+fakeId+'"]');
+      if(fl)fl.querySelector(".msg-uploading").innerHTML='<span class="material-symbols-outlined" style="font-size:16px;color:var(--danger)">error</span> Error al subir — <strong>'+esc(file.name)+'</strong>';
+    }
+  });
+});
 
 // Ping
 function startPing(){stopPing();P("/api/chat/ping",{});_pingTimer=setInterval(()=>P("/api/chat/ping",{}),30000)}
