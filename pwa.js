@@ -315,14 +315,7 @@ function initChat(){if(!authToken)return;
     }
   });
 }
-// Global card click handler (used by onclick in HTML)
-window._cardClick=function(gid,ev){
-  if(ev.target.closest(".pin-btn")||ev.target.closest(".delete-chat-btn"))return;
-  if(_batchMode){_batchToggleCard(gid);return}
-  const cv=conversations.find(x=>x.group_id==gid);
-  if(cv)openConversation(cv);
-};
-// Global batch toggle helper (used by onclick in HTML)
+// Global batch toggle helper (used by onclick on .batch-check)
 window._batchToggleCard=function(gid){
   gid=parseInt(gid);
   const i=_batchSelected.indexOf(gid);
