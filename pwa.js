@@ -617,6 +617,7 @@ async function openConversation(cv){selectedConversation=cv;
   document.getElementById("chatMainEmpty").style.display="none";
   document.getElementById("message-view").style.display="";
   document.getElementById("chatBackBtn").style.display=window.innerWidth<=768?"":"none";
+  document.getElementById("vaultBtn").style.display=""; // Show vault button
   document.getElementById("chatMain").classList.add("open");
   updateChatHeader(cv);
   await loadMessages(cv.group_id);renderConversations()}
