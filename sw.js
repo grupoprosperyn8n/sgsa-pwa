@@ -18,7 +18,7 @@ self.addEventListener("install",e=>{
 self.addEventListener("activate",e=>{
   e.waitUntil(
     caches.keys().then(keys=>Promise.all(
-      keys.filter(k=>k!==CACHE_STATIC&&k!==CACHE_V&&k!=="sgsa-v19"&&k!=="sgsa-v18"&&k!=="sgsa-v17"&&k!=="sgsa-v16"&&k!=="sgsa-v15"&&k!=="sgsa-v14"&&k!=="sgsa-v13"&&k!=="sgsa-v12"&&k!=="sgsa-v11"&&k!=="sgsa-v10"&&k!=="sgsa-v9"&&k!=="sgsa-v8"&&k!=="sgsa-v7"&&k!=="sgsa-v6"&&k!=="sgsa-v5")
+      keys.filter(k=>k!==CACHE_STATIC&&k!==CACHE_V&&k!=="sgsa-v20"&&k!=="sgsa-v19"&&k!=="sgsa-v18"&&k!=="sgsa-v17"&&k!=="sgsa-v16"&&k!=="sgsa-v15"&&k!=="sgsa-v14"&&k!=="sgsa-v13"&&k!=="sgsa-v12"&&k!=="sgsa-v11"&&k!=="sgsa-v10"&&k!=="sgsa-v9"&&k!=="sgsa-v8"&&k!=="sgsa-v7"&&k!=="sgsa-v6"&&k!=="sgsa-v5")
           .map(k=>{console.log("[SW] deleting old cache:",k);return caches.delete(k)})
     )).then(()=>self.clients.claim())
   );
