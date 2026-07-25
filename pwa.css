@@ -266,6 +266,13 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .message.mine .msg-attachment .file-link{background:rgba(255,255,255,.12);color:white}
 
 .chat-input-area{display:flex;gap:8px;padding:10px 12px 12px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;align-items:center}
+.attach-wrap{position:relative}
+.attach-menu{position:absolute;bottom:calc(100% + 6px);right:0;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);display:none;flex-direction:column;min-width:160px;z-index:100;overflow:hidden}
+.attach-menu.active{display:flex}
+.attach-opt{display:flex;align-items:center;gap:10px;padding:10px 14px;border:none;background:transparent;color:var(--fg);font-size:13px;cursor:pointer;transition:background var(--t);text-align:left}
+.attach-opt:hover{background:var(--bg3)}
+.attach-opt .material-symbols-outlined{font-size:18px;color:var(--fg2)}
+.attach-opt:hover .material-symbols-outlined{color:var(--accent)}
 #chatInput{flex:1;padding:10px 18px;border:none;border-radius:22px;background:var(--bg);color:var(--fg);font-size:13px;outline:none;transition:box-shadow .15s}
 #chatInput:focus{box-shadow:0 0 0 2px var(--accent)}
 #chatInput::placeholder{color:var(--fg3)}
