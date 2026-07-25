@@ -471,7 +471,7 @@ document.getElementById("batchToggleBtn")?.addEventListener("click",_toggleBatch
 document.getElementById("batchCancelBtn")?.addEventListener("click",_toggleBatch);
 document.getElementById("batchDeleteBtn")?.addEventListener("click",async function(){
   const ids=_batchSelected.slice();if(!ids.length)return;
-  if(!confirm("¿Eliminar "+ids.length+" grupo(s)? Todos los mensajes se borrarán permanentemente."))return;
+  if(!await _confirm("Se eliminarán "+ids.length+" grupo(s) con todos sus mensajes. Esta acción no se puede deshacer.","Eliminar "+ids.length+" grupo(s)",true))return;
   const btn=document.getElementById("batchDeleteBtn");btn.disabled=true;btn.textContent="Eliminando...";
   let ok=0,err=0;
   for(const gid of ids){
