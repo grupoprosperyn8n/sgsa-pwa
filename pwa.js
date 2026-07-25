@@ -671,7 +671,157 @@ document.getElementById("chatBackBtn").addEventListener("click",()=>{selectedCon
   document.getElementById("message-view").style.display="none";
   document.getElementById("chatHeaderTitle").textContent="Chat";
   document.getElementById("chatMain").classList.remove("open");
+  document.getElementById("vaultBtn").style.display="none";
+  _vaultClose();
   refreshConversations()});
+
+// ─── File Vault — baúl de archivos del chat ────────────────────────────
+let _vaultAttachments=[],_vaultFilter="all",_vaultSearch="";
+function _vaultOpen(){const p=document.getElementById("vaultPanel"),o=document.getElementById("vaultOverlay");
+  p.style.display="flex";o.style.display="block";
+  _vaultFilter="all";_vaultSearch="";
+  document.getElementById("vaultSearch").value="";
+  // Reset tabs
+  document.querySelectorAll("#vaultTabs .vault-tab").forEach(t=>t.classList.toggle("active",t.dataset.filter==="all"));
+  _vaultLoad();
+}
+function _vaultClose(){document.getElementById("vaultPanel").style.display="none";document.getElementById("vaultOverlay").style.display="none"}
+document.getElementById("vaultBtn").addEventListener("click",_vaultOpen);
+document.getElementById("vaultCloseBtn").addEventListener("click",_vaultClose);
+document.getElementById("vaultOverlay").addEventListener("click",_vaultClose);
+// Vault tabs — delegated
+document.getElementById("vaultTabs").addEventListener("click",function(e){
+  const tab=e.target.closest(".vault-tab");if(!tab)return;
+  document.querySelectorAll("#vaultTabs .vault-tab").forEach(t=>t.classList.remove("active"));
+  tab.classList.add("active");
+  _vaultFilter=tab.dataset.filter;
+  _vaultRender();
+});
+// Vault search — debounced
+document.getElementById("vaultSearch").addEventListener("input",function(){
+  _vaultSearch=this.value.trim().toLowerCase();
+  clearTimeout(this._vaultSearchTimer);
+  this._vaultSearchTimer=setTimeout(_vaultRender,200);
+});
+async function _vaultLoad(){
+  if(!selectedConversation)return;
+  const gid=selectedConversation.group_id;
+  const grid=document.getElementById("vaultGrid");
+  const empty=document.getElementById("vaultEmpty");
+  grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><p>Cargando...</p></div>';
+  empty.style.display="none";
+  const d=await G("/api/chat/groups/"+gid+"/attachments");
+  if(!d?.ok){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><span class="material-symbols-outlined empty-icon">cloud_off</span><p>Error al cargar</p></div>';return}
+  _vaultAttachments=d.attachments||[];
+  _vaultRender();
+}
+function _vaultRender(){
+  const grid=document.getElementById("vaultGrid");
+  const empty=document.getElementById("vaultEmpty");
+  const count=document.getElementById("vaultCount");
+  let items=_vaultAttachments;
+  // Filter by type
+  if(_vaultFilter!=="all")items=items.filter(a=>a.tipo===_vaultFilter);
+  // Filter by search
+  if(_vaultSearch)items=items.filter(a=>a.nombre.toLowerCase().includes(_vaultSearch));
+  // Sort by date descending (newest first)
+  items=[...items].sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  count.textContent="("+items.length+")";
+  if(!items.length){grid.style.display="none";empty.style.display="flex";return}
+  grid.style.display="";empty.style.display="none";
+  const images=items.filter(a=>a.tipo==="imagen");
+  const videos=items.filter(a=>a.tipo==="video");
+  const audios=items.filter(a=>a.tipo==="audio");
+  const docs=items.filter(a=>a.tipo==="documento");
+  let html="";
+  // Helper: delete button
+  const delBtn='<button class="vault-item-del" data-id="'+items[0].id+'" title="Eliminar">×</button>';
+  // Image grid
+  if(images.length){
+    html+=`<div class="vault-section-label" style="grid-column:1/-1">Imágenes (${images.length})</div>`;
+    for(const a of images){
+      const d=timeAgo(a.created_at)||"";
+      html+=`<div class="vault-item" data-url="${esc(a.url)}" data-tipo="imagen" data-nombre="${esc(a.nombre)}">
+        <div class="vault-thumb"><img src="${esc(a.url)}" loading="lazy" onerror="this.alt='?'"></div>
+        <div class="vault-item-info"><span class="vault-item-name">${esc(a.nombre)}</span><span class="vault-item-date">${d}</span></div>
+        <button class="vault-item-del" data-id="${a.id}" title="Eliminar">×</button>
+      </div>`;
+    }
+  }
+  // Video grid
+  if(videos.length){
+    html+=`<div class="vault-section-label" style="grid-column:1/-1">Videos (${videos.length})</div>`;
+    for(const a of videos){
+      const d=timeAgo(a.created_at)||"";
+      html+=`<div class="vault-item" data-url="${esc(a.url)}" data-tipo="video" data-nombre="${esc(a.nombre)}">
+        <div class="vault-thumb"><span class="material-symbols-outlined vault-type-icon" style="font-size:36px;color:var(--fg3)">videocam</span></div>
+        <div class="vault-item-info"><span class="vault-item-name">${esc(a.nombre)}</span><span class="vault-item-date">${d}</span></div>
+        <button class="vault-item-del" data-id="${a.id}" title="Eliminar">×</button>
+      </div>`;
+    }
+  }
+  // Audio rows
+  if(audios.length){
+    html+=`</div><div class="vault-list" style="grid-column:1/-1;padding-top:4px"><div class="vault-section-label">Audios (${audios.length})</div>`;
+    for(const a of audios){
+      const d=timeAgo(a.created_at)||"";
+      html+=`<div class="vault-row" data-url="${esc(a.url)}" data-tipo="audio" data-nombre="${esc(a.nombre)}">
+        <div class="vault-row-icon"><span class="material-symbols-outlined">audiotrack</span></div>
+        <div class="vault-row-info"><span class="vault-row-name">${esc(a.nombre||"Audio")}</span><span class="vault-row-meta">${d}</span></div>
+        <button class="vault-row-del" data-id="${a.id}" title="Eliminar"><span class="material-symbols-outlined" style="font-size:18px">delete</span></button>
+      </div>`;
+    }
+    html+=`</div><div class="vault-grid" style="display:contents">`;
+  }
+  // Document rows
+  if(docs.length){
+    html+=`</div><div class="vault-list" style="grid-column:1/-1;padding-top:4px"><div class="vault-section-label">Documentos (${docs.length})</div>`;
+    for(const a of docs){
+      const d=timeAgo(a.created_at)||"";
+      const ext=(a.nombre||"").split(".").pop().toLowerCase();
+      const icon={pdf:"picture_as_pdf",doc:"description",docx:"description",xls:"table_chart",xlsx:"table_chart",csv:"table_chart",txt:"article",ppt:"slideshow",pptx:"slideshow"}[ext]||"attach_file";
+      html+=`<div class="vault-row" data-url="${esc(a.url)}" data-tipo="documento" data-nombre="${esc(a.nombre)}">
+        <div class="vault-row-icon"><span class="material-symbols-outlined">${icon}</span></div>
+        <div class="vault-row-info"><span class="vault-row-name">${esc(a.nombre)}</span><span class="vault-row-meta">${d}</span></div>
+        <button class="vault-row-del" data-id="${a.id}" title="Eliminar"><span class="material-symbols-outlined" style="font-size:18px">delete</span></button>
+      </div>`;
+    }
+    html+=`</div>`;
+  }
+  grid.innerHTML=html;
+}
+// Delegated events on vaultGrid: open fullscreen / play / download, and delete
+document.getElementById("vaultGrid").addEventListener("click",async function(e){
+  // Delete button
+  const delBtn=e.target.closest(".vault-item-del,.vault-row-del");
+  if(delBtn){
+    const msgId=parseInt(delBtn.dataset.id);
+    const ok=await _confirm("¿Eliminar este archivo del chat?","Eliminar archivo","danger");
+    if(!ok)return;
+    const d=await _ft(API+"/api/chat/messages/"+msgId,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+    const r=d.ok?null:await d.json().catch(()=>{});
+    if(r?.ok||d.ok||d.status===200){
+      _vaultAttachments=_vaultAttachments.filter(a=>a.id!==msgId);
+      _vaultRender();
+      // Reload messages to reflect deletion
+      if(selectedConversation)loadMessages(selectedConversation.group_id);
+      toast("Archivo eliminado","success");
+    }else{
+      toast("Error al eliminar el archivo","error");
+    }
+    return;
+  }
+  // Open item (image/video/document)
+  const item=e.target.closest(".vault-item,.vault-row");
+  if(!item)return;
+  const url=item.dataset.url,tipo=item.dataset.tipo,nombre=item.dataset.nombre||"archivo";
+  if(tipo==="imagen"||tipo==="video"){_openViewer(url,tipo,nombre);return}
+  // Document — download
+  _download(url,nombre);
+});
+// Expose vaultClose so chatBackBtn can call it
+document.getElementById("vaultCloseBtn").addEventListener("click",_vaultClose);
+document.getElementById("vaultOverlay").addEventListener("click",_vaultClose);
 
 async function loadMessages(gid){const airId=currentUser?.airtable_id||"";const d=await G("/api/chat/mensajes/"+gid+"?airtable_id="+encodeURIComponent(airId)),c=document.getElementById("messageList"),e=document.getElementById("messageEmpty");
   if(!d?.ok){const cached=S.get("sgsa_msgCache_"+gid);if(cached?.length){renderMsgList(c,e,gid,cached);return}c.innerHTML='<div class="empty-state"><span class="material-symbols-outlined empty-icon">cloud_off</span><p>Sin conexión</p><span class="empty-hint">No se pudieron cargar los mensajes</span></div>';return}
