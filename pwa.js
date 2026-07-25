@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v43 — file vault: fix long filename overflow in grid cards, add min-width:0
+// SGSA PWA v44 — file vault: word-break in grid cards + title tooltip for full name
 // =============================================================================
-console.log("[SGSA] PWA v43 loaded");
+console.log("[SGSA] PWA v44 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
