@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v39 — chat header now shows partner avatar + name + status
+// SGSA PWA v40 — fix edit-group member avatars loading both img+initials
 // =============================================================================
-console.log("[SGSA] PWA v39 loaded");
+console.log("[SGSA] PWA v40 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
