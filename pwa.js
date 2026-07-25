@@ -308,7 +308,7 @@ function initChat(){if(!authToken)return;
     // ── Archive ──
     if(ev.target.closest(".delete-chat-btn")){
       ev.stopPropagation();
-      if(!confirm("¿Archivar este chat? No aparecerá en tu bandeja."))return;
+      if(!await _confirm("El chat se archivará y no aparecerá en tu bandeja de entrada. Podés recuperarlo desde la sección de archivados.","Archivar chat"))return;
       const r=await P("/api/chat/hide",{group_id:gid});
       if(r?.ok&&r.hidden){conversations=conversations.filter(x=>x.group_id!=gid);S.del("sgsa_convCache");renderConversations();toast("Chat archivado","success")}
       else if(r?.ok&&!r.hidden){toast("Chat ya estaba archivado","info")}
