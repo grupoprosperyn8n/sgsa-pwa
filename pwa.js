@@ -735,8 +735,6 @@ function _vaultRender(){
   const audios=items.filter(a=>a.tipo==="audio");
   const docs=items.filter(a=>a.tipo==="documento");
   let html="";
-  // Helper: delete button
-  const delBtn='<button class="vault-item-del" data-id="'+items[0].id+'" title="Eliminar">×</button>';
   // Image grid
   if(images.length){
     html+=`<div class="vault-section-label" style="grid-column:1/-1">Imágenes (${images.length})</div>`;
