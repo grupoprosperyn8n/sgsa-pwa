@@ -18,7 +18,7 @@ self.addEventListener("install",e=>{
 self.addEventListener("activate",e=>{
   e.waitUntil(
     caches.keys().then(keys=>Promise.all(
-      keys.filter(k=>k!==CACHE_STATIC&&k!==CACHE_V&&k!=="sgsa-v8"&&k!=="sgsa-v7"&&k!=="sgsa-v6"&&k!=="sgsa-v5")
+      keys.filter(k=>k!==CACHE_STATIC&&k!==CACHE_V&&k!=="sgsa-v9"&&k!=="sgsa-v8"&&k!=="sgsa-v7"&&k!=="sgsa-v6"&&k!=="sgsa-v5")
           .map(k=>{console.log("[SW] deleting old cache:",k);return caches.delete(k)})
     )).then(()=>self.clients.claim())
   );
