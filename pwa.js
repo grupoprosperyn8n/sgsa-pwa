@@ -25,6 +25,9 @@ const Sound={ctx:null,init(){if(!this.ctx)this.ctx=new(window.AudioContext||wind
 // ─── Toast ────────────────────────────────────────────────────────────────
 function toast(msg,type=""){const t=document.createElement("div");t.className="toast "+type;t.innerHTML=`<span class="material-symbols-outlined" style="font-size:18px">${type==="success"?"check_circle":type==="error"?"error":"info"}</span>${esc(msg)}`;document.body.appendChild(t);setTimeout(()=>{t.style.opacity="0";t.style.transition="opacity .3s";setTimeout(()=>t.remove(),300)},2500)}
 
+// ─── Voice recorder state ──────────────────────────────────────────
+var _recording=false,_recChunks=[],_recTimer=null,_recStart=0;
+
 // ─── Profiles ─────────────────────────────────────────────────────────────
 function getProfiles(){return S.get("sgsa_profiles")||{}}
 function saveProfiles(p){S.set("sgsa_profiles",p)}
