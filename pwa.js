@@ -741,11 +741,11 @@ document.querySelectorAll(".attach-opt").forEach(function(btn){
         refreshConversations();
       }else{
         const fl=c.querySelector('[data-fake-id="'+fakeId+'"]');
-        if(fl)fl.querySelector(".msg-uploading").innerHTML='<span class="material-symbols-outlined" style="font-size:16px;color:var(--danger)">error</span> Error al subir — <strong>'+esc(file.name)+'</strong>';
+        if(fl){fl.classList.add("sys-error");fl.querySelector(".msg-uploading").innerHTML='<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">error</span> Error al subir — <strong>'+esc(file.name)+'</strong>';}
       }
     }catch(er){
       const fl=c.querySelector('[data-fake-id="'+fakeId+'"]');
-      if(fl)fl.querySelector(".msg-uploading").innerHTML='<span class="material-symbols-outlined" style="font-size:16px;color:var(--danger)">error</span> Error al subir — <strong>'+esc(file.name)+'</strong>';
+      if(fl){fl.classList.add("sys-error");fl.querySelector(".msg-uploading").innerHTML='<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">error</span> Error al subir — <strong>'+esc(file.name)+'</strong>';}
     }
   });
 });
