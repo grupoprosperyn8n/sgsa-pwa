@@ -419,7 +419,7 @@ function renderConversations(){
     const subtitle=cv.is_dm?(cv.online?"En línea":"Offline"):(cv.member_count?cv.member_count+" miembros":"");
     const sel=_batchSelected.includes(gid);
     return`<div class="group-card ${cv.pinned?"pinned ":""}${selectedConversation?.group_id===gid?"selected":""}${_batchMode?" batch-mode":""}${_batchMode&&sel?" batch-selected":""}" data-gid="${gid}" onclick="_openCard(${gid})">
-    ${_batchMode?`<span class="batch-check ${sel?"checked":""}" onclick="event.stopPropagation();_batchToggleCard(${gid})">${sel?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">check_circle</span>':'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>'}</span>`:""}
+    ${_batchMode?`<span class="batch-check ${sel?"checked":""}" onclick="event.stopPropagation();_batchToggleCard(this)">${sel?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">check_circle</span>':'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>'}</span>`:""}
     <div class="group-avatar">${avatarContent}${onlineDot}</div>
     <div class="group-info"><div class="group-name">${esc(cv.display_name||"Chat")}</div><div class="group-last-msg">${subtitle?`<span class="conv-subtitle">${esc(subtitle)}</span> · `:""}${cv.unread>0&&!cv.last_message?cv.unread+" mensaje"+(cv.unread>1?"s":"")+" nuevo"+(cv.unread>1?"s":""):esc(cv.last_message||"Sin mensajes")}</div></div>
     <div class="group-meta"><div class="group-time">${cv.last_message_time?timeAgo(cv.last_message_time):""}</div>${cv.unread>0?`<div class="group-unread">${cv.unread>99?"99+":cv.unread}</div>`:""}</div>
