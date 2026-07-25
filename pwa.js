@@ -315,6 +315,12 @@ function initChat(){if(!authToken)return;
     }
   });
 }
+// Global card click — opens conversation (unless batch mode)
+window._openCard=function(gid){
+  if(_batchMode)return;
+  const cv=conversations.find(x=>x.group_id==gid);
+  if(cv)openConversation(cv);
+};
 // Global batch toggle helper (used by onclick on .batch-check)
 window._batchToggleCard=function(gid){
   gid=parseInt(gid);
