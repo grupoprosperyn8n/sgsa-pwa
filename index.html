@@ -118,13 +118,24 @@
           <div class="chat-input-area">
             <button id="emojiBtn" class="icon-btn" title="Emojis"><span class="material-symbols-outlined">emoji_emotions</span></button>
             <input type="text" id="chatInput" placeholder="Mensaje...">
-            <button id="attachBtn" class="icon-btn"><span class="material-symbols-outlined">attach_file</span></button>
+            <div class="attach-wrap">
+              <button id="attachBtn" class="icon-btn"><span class="material-symbols-outlined">attach_file</span></button>
+              <div id="attachMenu" class="attach-menu">
+                <button class="attach-opt" data-type="imagen"><span class="material-symbols-outlined">photo_camera</span>Foto</button>
+                <button class="attach-opt" data-type="video"><span class="material-symbols-outlined">videocam</span>Video</button>
+                <button class="attach-opt" data-type="audio"><span class="material-symbols-outlined">mic</span>Audio</button>
+                <button class="attach-opt" data-type="documento"><span class="material-symbols-outlined">description</span>Documento</button>
+              </div>
+            </div>
             <button id="sendBtn" class="send-btn"><span class="material-symbols-outlined">send</span></button>
           </div>
         </div>
       </div>
     </div>
-    <input type="file" id="fileInput" style="display:none">
+    <input type="file" id="fileInputImg" accept="image/*" style="display:none">
+    <input type="file" id="fileInputVideo" accept="video/*" style="display:none">
+    <input type="file" id="fileInputAudio" accept="audio/*" style="display:none">
+    <input type="file" id="fileInputDoc" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.ppt,.pptx" style="display:none">
   </div>
 </div>
 
