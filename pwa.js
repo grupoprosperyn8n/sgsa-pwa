@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v40 — fix edit-group member avatars loading both img+initials
+// SGSA PWA v41 — file vault: full archive of all chat attachments with search, filter, and delete
 // =============================================================================
-console.log("[SGSA] PWA v40 loaded");
+console.log("[SGSA] PWA v41 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
