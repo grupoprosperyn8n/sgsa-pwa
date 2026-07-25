@@ -1,7 +1,7 @@
 // SGSA PWA v8 — Service Worker with proper caching strategy
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v9";
-const CACHE_STATIC="sgsa-static-v9";
+const CACHE_V="sgsa-v10";
+const CACHE_STATIC="sgsa-static-v10";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
