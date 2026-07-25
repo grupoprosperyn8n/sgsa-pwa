@@ -286,54 +286,28 @@ document.getElementById("ackAllBtn").addEventListener("click",async()=>{const ca
 let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null,_chatStarted=0;
 
 function initChat(){if(!authToken)return;
-  const c=document.getElementById("conversationList");
   const cached=S.get("sgsa_convCache");if(cached?.length){conversations=cached;renderConversations()}
   refreshConversations();if(_ct)clearInterval(_ct);_ct=setInterval(refreshConversations,R);
-  // Delegated click handler — one listener, no re-render on batch toggle
-  c.addEventListener("click",async function(ev){
-    const card=ev.target.closest(".group-card");
-    if(!card)return;
-    const gid=parseInt(card.dataset.gid);
-    const cv=conversations.find(x=>x.group_id==gid);
-    // Pin button
-    if(ev.target.closest(".pin-btn")){
-      ev.stopPropagation();
-      const r=await P("/api/chat/pin",{group_id:gid});
-      if(r?.ok){if(cv)cv.pinned=r.pinned}
-      else{togglePin(gid);if(cv)cv.pinned=getPins().includes(gid)}
-      S.del("sgsa_convCache");renderConversations();
-      return;
-    }
-    // Archive button
-    if(ev.target.closest(".delete-chat-btn")){
-      ev.stopPropagation();
-      if(!confirm("¿Archivar este chat? No aparecerá en tu bandeja."))return;
-      const r=await P("/api/chat/hide",{group_id:gid});
-      if(r?.ok&&r.hidden){conversations=conversations.filter(x=>x.group_id!=gid);S.del("sgsa_convCache");renderConversations();toast("Chat archivado","success")}
-      else if(r?.ok&&!r.hidden){toast("Chat ya estaba archivado","info")}
-      else{toast("Error al archivar","error")}
-      return;
-    }
-    // Batch mode — toggle selection visually without re-render
-    if(_batchMode){
-      const i=_batchSelected.indexOf(gid);
-      if(i>-1)_batchSelected.splice(i,1);else _batchSelected.push(gid);
-      _updateBatchBtn();
-      card.classList.toggle("batch-selected");
-      const check=card.querySelector(".batch-check");
-      if(check){
-        const sel=_batchSelected.includes(gid);
-        check.classList.toggle("checked",sel);
-        check.innerHTML=sel
-          ?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">check_circle</span>'
-          :'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>';
-      }
-      return;
-    }
-    // Normal mode — open conversation
-    if(cv)openConversation(cv);
-  });
+  // Attach per-card listeners AFTER every render
+  // (handled at the end of renderConversations)
 }
+// Global batch toggle helper (used by onclick in HTML)
+window._batchToggleCard=function(gid){
+  gid=parseInt(gid);
+  const i=_batchSelected.indexOf(gid);
+  if(i>-1)_batchSelected.splice(i,1);else _batchSelected.push(gid);
+  _updateBatchBtn();
+  const card=document.querySelector(`.group-card[data-gid="${gid}"]`);
+  if(!card)return;
+  card.classList.toggle("batch-selected");
+  const check=card.querySelector(".batch-check");
+  if(!check)return;
+  const sel=_batchSelected.includes(gid);
+  check.classList.toggle("checked",sel);
+  check.innerHTML=sel
+    ?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">check_circle</span>'
+    :'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>';
+};
 let _refreshing=0;
 async function refreshConversations(){
   if(!authToken||_refreshing)return;
