@@ -198,6 +198,21 @@
   <!-- Confirm delete modal -->
   <div id="confirmDeleteModal" class="modal"><div class="modal-content" style="max-width:340px"><div class="modal-header"><h2>Eliminar grupo</h2><button class="icon-btn close-modal" data-modal="confirmDeleteModal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body"><p style="margin:8px 0 16px;font-size:13px;color:var(--fg2);line-height:1.5">¿Estás seguro de eliminar este grupo? Se borrarán todos los mensajes y miembros. Esta acción no se puede deshacer.</p><div style="display:flex;gap:8px"><button id="cancelDeleteBtn" class="btn-outline" style="flex:1">Cancelar</button><button id="confirmDeleteBtn" class="btn-danger" style="flex:1">Eliminar</button></div></div></div></div>
 
+  <!-- Confirm modal (replaces native confirm()) -->
+  <div id="confirmModal" class="modal" style="z-index:3000">
+    <div class="modal-content" style="max-width:340px;text-align:center">
+      <div class="modal-body" style="padding:24px 20px 16px;align-items:center">
+        <span id="confirmIcon" class="material-symbols-outlined" style="font-size:40px;margin-bottom:8px"></span>
+        <h2 id="confirmTitle" style="font-size:16px;font-weight:700;margin:0 0 8px">Confirmar</h2>
+        <p id="confirmMsg" style="margin:0 0 18px;font-size:13px;color:var(--fg2);line-height:1.5"></p>
+        <div style="display:flex;gap:8px;width:100%">
+          <button id="confirmCancelBtn" class="btn-outline" style="flex:1;padding:10px">Cancelar</button>
+          <button id="confirmOkBtn" class="btn-primary" style="flex:1;padding:10px;margin-top:0">Aceptar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Employee card modal -->
   <div id="employeeCardModal" class="modal"><div class="modal-content" style="max-width:340px"><div class="modal-header"><h2>Empleado</h2><button class="icon-btn close-modal" data-modal="employeeCardModal"><span class="material-symbols-outlined">close</span></button></div><div class="modal-body" id="employeeCardBody" style="overflow-y:auto;text-align:center;padding:24px 16px"></div></div></div>
 
