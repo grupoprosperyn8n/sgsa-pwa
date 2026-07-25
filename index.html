@@ -240,6 +240,35 @@
     </div>
   </div>
 
+  <!-- File Vault — baúl de archivos del chat -->
+  <div id="vaultOverlay" class="overlay" style="display:none"></div>
+  <aside id="vaultPanel" class="vault-panel" style="display:none">
+    <div class="vault-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="material-symbols-outlined" style="font-size:22px;color:var(--accent)">folder</span>
+        <h2>Archivos</h2>
+        <span id="vaultCount" style="font-size:12px;color:var(--fg3)"></span>
+      </div>
+      <button id="vaultCloseBtn" class="icon-btn"><span class="material-symbols-outlined">close</span></button>
+    </div>
+    <div class="vault-search-wrap">
+      <span class="material-symbols-outlined vault-search-icon">search</span>
+      <input type="text" id="vaultSearch" placeholder="Buscar archivos...">
+    </div>
+    <div class="vault-tabs" id="vaultTabs">
+      <span class="vault-tab active" data-filter="all">Todos</span>
+      <span class="vault-tab" data-filter="imagen">Imágenes</span>
+      <span class="vault-tab" data-filter="video">Videos</span>
+      <span class="vault-tab" data-filter="audio">Audios</span>
+      <span class="vault-tab" data-filter="documento">Documentos</span>
+    </div>
+    <div id="vaultGrid" class="vault-grid"></div>
+    <div class="empty-state" id="vaultEmpty" style="display:none">
+      <span class="material-symbols-outlined empty-icon">folder_off</span>
+      <p>Sin archivos</p>
+    </div>
+  </aside>
+
 <script src="pwa.js?v=40"></script>
 </body>
 </html>
