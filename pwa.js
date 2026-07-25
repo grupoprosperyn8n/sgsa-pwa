@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v37 — fullscreen viewer (lightbox for images+video), download buttons
+// SGSA PWA v38 — voice recorder (MediaRecorder), fullscreen viewer, download buttons
 // =============================================================================
-console.log("[SGSA] PWA v37 loaded");
+console.log("[SGSA] PWA v38 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
