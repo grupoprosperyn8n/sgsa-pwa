@@ -1,5 +1,5 @@
 // =============================================================================
-// SGSA PWA v28 — + bicicleta, celular, robo en Seguros
+// SGSA PWA v30 — + menú adjuntos por tipo, spinner subiendo
 // =============================================================================
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
