@@ -434,8 +434,8 @@ function renderConversations(){
     <div class="group-avatar">${avatarContent}${onlineDot}</div>
     <div class="group-info"><div class="group-name">${esc(cv.display_name||"Chat")}</div><div class="group-last-msg">${subtitle?`<span class="conv-subtitle">${esc(subtitle)}</span> · `:""}${cv.unread>0&&!cv.last_message?cv.unread+" mensaje"+(cv.unread>1?"s":"")+" nuevo"+(cv.unread>1?"s":""):esc(cv.last_message||"Sin mensajes")}</div></div>
     <div class="group-meta"><div class="group-time">${cv.last_message_time?timeAgo(cv.last_message_time):""}</div>${cv.unread>0?`<div class="group-unread">${cv.unread>99?"99+":cv.unread}</div>`:""}</div>
-    <button class="pin-btn ${cv.pinned?"pinned":""}" data-gid="${gid}" title="${cv.pinned?"Desfijar":"Fijar"}"><span class="material-symbols-outlined">push_pin</span></button>
-    <button class="delete-chat-btn" data-gid="${gid}" title="Archivar chat"><span class="material-symbols-outlined">archive</span></button>
+    <button class="pin-btn ${cv.pinned?"pinned":""}" data-gid="${gid}" title="${cv.pinned?"Desfijar":"Fijar"}" onclick="event.stopPropagation()"><span class="material-symbols-outlined">push_pin</span></button>
+    <button class="delete-chat-btn" data-gid="${gid}" title="Archivar chat" onclick="event.stopPropagation()"><span class="material-symbols-outlined">archive</span></button>
   </div>`}).join("");
 }
 document.getElementById("conversationSearch")?.addEventListener("input",renderConversations);
