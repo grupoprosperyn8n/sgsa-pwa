@@ -1,7 +1,7 @@
-// SGSA PWA v18 — voice recorder (MediaRecorder), fullscreen viewer, download buttons
+// SGSA PWA v19 — chat header avatar, voice recorder, fullscreen viewer
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v18";
-const CACHE_STATIC="sgsa-static-v18";
+const CACHE_V="sgsa-v19";
+const CACHE_STATIC="sgsa-static-v19";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
