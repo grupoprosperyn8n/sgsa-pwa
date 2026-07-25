@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v38 — voice recorder (MediaRecorder), fullscreen viewer, download buttons
+// SGSA PWA v39 — chat header now shows partner avatar + name + status
 // =============================================================================
-console.log("[SGSA] PWA v38 loaded");
+console.log("[SGSA] PWA v39 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
