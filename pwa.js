@@ -332,6 +332,7 @@ let _chatFilter="all";
 let _batchMode=0,_batchSelected=[];
 function _toggleBatch(){_batchMode=!_batchMode;if(!_batchMode)_batchSelected=[];document.getElementById("batchBar")?.classList.toggle("active",_batchMode>0);renderConversations();_updateBatchBtn()}
 function _updateBatchBtn(){const b=document.getElementById("batchDeleteBtn");if(!b)return;const n=_batchSelected.length;b.textContent=n?"Eliminar ("+n+")":"Eliminar";b.disabled=!n}
+function _toggleGid(gid){const i=_batchSelected.indexOf(gid);if(i>-1)_batchSelected.splice(i,1);else _batchSelected.push(gid);_updateBatchBtn()}
 let _inboxDateRange="";
 let _inboxDateFrom="";
 let _inboxDateTo="";
