@@ -576,7 +576,7 @@ function renderMsgList(c,e,gid,msgs){
   const myId=currentUser?.airtable_id||"";
   const myLoginId=currentUser?.id||"";
   let html="";let lastDate="";
-  const sorted=msgs.slice().reverse();
+  const sorted=msgs;
   for(const m of sorted){
     // Date separator
     const d=m.created_at?new Date(m.created_at):null;
