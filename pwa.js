@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v36 — attachment download buttons (cross-origin blob), upload timeout fix
+// SGSA PWA v37 — fullscreen viewer (lightbox for images+video), download buttons
 // =============================================================================
-console.log("[SGSA] PWA v36 loaded");
+console.log("[SGSA] PWA v37 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
