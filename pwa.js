@@ -336,6 +336,14 @@ function initChat(){if(!authToken)return;
     // ── Open conversation ──
     if(cv)openConversation(cv);
   });
+  // ── Delegated download handler for attachments ──
+  document.getElementById("messageList").addEventListener("click",function(ev){
+    var btn=ev.target.closest(".att-dl");
+    if(btn){
+      ev.preventDefault();ev.stopPropagation();
+      _download(btn.dataset.url,btn.dataset.name);
+    }
+  });
 }
 let _refreshing=0;
 async function refreshConversations(){
