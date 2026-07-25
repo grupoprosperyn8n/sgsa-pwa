@@ -307,6 +307,19 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .send-btn:hover{filter:brightness(1.1);transform:scale(1.05)}
 .send-btn:active{transform:scale(.95)}
 .send-btn:disabled{background:var(--bg4);color:var(--fg3);cursor:default;transform:none}
+.send-btn.voice-btn{background:var(--bg3);color:var(--fg)}
+.send-btn.voice-btn:hover{background:var(--bg4)}
+.send-btn.voice-btn.recording{background:var(--danger);color:#fff;animation:voicePulse 1.2s ease-in-out infinite}
+@keyframes voicePulse{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,.5)}50%{box-shadow:0 0 0 8px rgba(239,68,68,0)}}
+
+/* Voice recording bar */
+.voice-bar{display:none;align-items:center;gap:8px;flex:1;height:40px;padding:0 4px;border-radius:22px;background:var(--bg);animation:fadeIn .15s ease}
+.voice-bar.active{display:flex}
+.voice-timer{font-size:14px;font-weight:600;color:var(--danger);font-variant-numeric:tabular-nums;min-width:36px}
+.voice-timer::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--danger);margin-right:8px;vertical-align:middle;animation:recDot 1s ease-in-out infinite}
+@keyframes recDot{0%,100%{opacity:1}50%{opacity:.3}}
+.voice-stop{background:var(--danger);color:#fff}
+.voice-btn.hidden,#sendBtn.hidden{display:none}
 
 /* Emoji picker */
 .emoji-picker{background:var(--bg2);border-top:1px solid var(--border);padding:8px;max-height:200px;overflow-y:auto;flex-shrink:0}
