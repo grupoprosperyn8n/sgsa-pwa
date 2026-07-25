@@ -410,6 +410,27 @@ document.querySelectorAll(".filter-btn").forEach(b=>b.addEventListener("click",f
   renderConversations();
 }));
 // Inbox date filter toggle
+document.getElementById("batchToggleBtn")?.addEventListener("click",_toggleBatch);
+document.getElementById("batchCancelBtn")?.addEventListener("click",_toggleBatch);
+document.getElementById("batchDeleteBtn")?.addEventListener("click",async function(){
+  const ids=_batchSelected.slice();if(!ids.length)return;
+  if(!confirm("¿Eliminar "+ids.length+" grupo(s)? Todos los mensajes se borrarán permanentemente."))return;
+  const btn=document.getElementById("batchDeleteBtn");btn.disabled=true;btn.textContent="Eliminando...";
+  let ok=0,err=0;
+  for(const gid of ids){
+    try{
+      const r=await _ft(API+"/api/chat/groups/"+gid,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+      const d=await r.json();
+      if(d?.ok){ok++;conversations=conversations.filter(c=>c.group_id!=gid)}
+      else err++;
+    }catch{err++}
+  }
+  S.del("sgsa_convCache");
+  _batchMode=0;_batchSelected=[];
+  document.getElementById("batchBar")?.classList.remove("active");
+  renderConversations();
+  toast(ok+" grupo(s) eliminado(s)"+(err?" ("+err+" error(es))":""),err?"warning":"success");
+});
 document.getElementById("inboxFilterToggle")?.addEventListener("click",function(){
   const body=document.getElementById("inboxDateFilters");
   if(!body)return;
