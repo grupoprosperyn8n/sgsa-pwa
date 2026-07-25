@@ -1,7 +1,7 @@
 // SGSA PWA v12 — batch selection: onclick on .batch-check with this
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v12";
-const CACHE_STATIC="sgsa-static-v12";
+const CACHE_V="sgsa-v13";
+const CACHE_STATIC="sgsa-static-v13";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
@@ -18,7 +18,7 @@ self.addEventListener("install",e=>{
 self.addEventListener("activate",e=>{
   e.waitUntil(
     caches.keys().then(keys=>Promise.all(
-      keys.filter(k=>k!==CACHE_STATIC&&k!==CACHE_V&&k!=="sgsa-v11"&&k!=="sgsa-v10"&&k!=="sgsa-v9"&&k!=="sgsa-v8"&&k!=="sgsa-v7"&&k!=="sgsa-v6"&&k!=="sgsa-v5")
+      keys.filter(k=>k!==CACHE_STATIC&&k!==CACHE_V&&k!=="sgsa-v12"&&k!=="sgsa-v11"&&k!=="sgsa-v10"&&k!=="sgsa-v9"&&k!=="sgsa-v8"&&k!=="sgsa-v7"&&k!=="sgsa-v6"&&k!=="sgsa-v5")
           .map(k=>{console.log("[SW] deleting old cache:",k);return caches.delete(k)})
     )).then(()=>self.clients.claim())
   );
