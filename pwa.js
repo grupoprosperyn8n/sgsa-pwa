@@ -555,12 +555,23 @@ function timeAgo(iso){if(!iso)return"";const d=Date.now()-new Date(iso).getTime(
 
 function updateChatHeader(cv){
   const headerTitle=document.getElementById("chatHeaderTitle");
-  let headerHtml=`<span class="chat-name">${esc(cv.display_name||"Chat")}</span>`;
+  const initials=avatarInitials(cv.display_name);
+  const bgColor=avatarColor(cv.display_name);
+  const avUrl=avatarUrl(cv.avatar_url);
+  let avatarHtml='<div class="ch-avatar" style="width:32px;height:32px;border-radius:50%;background:'+bgColor+';display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">';
+  if(avUrl){
+    avatarHtml+='<img src="'+esc(avUrl)+'" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><span class="avatar-initials" style="display:none;font-size:13px;font-weight:600;color:#fff">'+initials+'</span>';
+  }else{
+    avatarHtml+='<span class="avatar-initials" style="font-size:13px;font-weight:600;color:#fff">'+initials+'</span>';
+  }
+  avatarHtml+='</div>';
+  let headerHtml='<div style="display:flex;align-items:center;gap:10px;overflow:hidden">'+avatarHtml+'<div style="display:flex;flex-direction:column;overflow:hidden;flex:1"><span class="chat-name" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+esc(cv.display_name||"Chat")+'</span>';
   if(cv.is_dm){
     headerHtml+=`<span class="chat-status ${cv.online?"online":"offline"}">${cv.online?"En línea":"Offline"}</span>`;
   }else if(cv.member_count){
     headerHtml+=`<span class="chat-status">${cv.member_count} miembros</span>`;
   }
+  headerHtml+='</div></div>';
   headerTitle.innerHTML=headerHtml;
   headerTitle.style.cursor="pointer";
   headerTitle.onclick=cv.is_dm?()=>showEmployeeCard(cv.group_id):()=>showGroupInfo(cv.group_id,cv.avatar_url);
