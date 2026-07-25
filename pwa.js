@@ -723,7 +723,7 @@ document.querySelectorAll(".attach-opt").forEach(function(btn){
     c.appendChild(fakeEl);c.scrollTop=c.scrollHeight;
     try{
       const fd=new FormData();fd.append("file",file);
-      const r=await _ft(API+"/api/chat/upload",{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{},body:fd});
+      const r=await _upload(API+"/api/chat/upload",{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{},body:fd},120000);
       const res=await r.json();
       if(res?.url){
         await P("/api/chat/messages",{
