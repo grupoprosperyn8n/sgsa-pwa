@@ -287,50 +287,56 @@ document.getElementById("ackAllBtn").addEventListener("click",async()=>{const ca
 let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null,_chatStarted=0;
 
 function initChat(){if(!authToken)return;
+  const c=document.getElementById("conversationList");
   const cached=S.get("sgsa_convCache");if(cached?.length){conversations=cached;renderConversations()}
   refreshConversations();if(_ct)clearInterval(_ct);_ct=setInterval(refreshConversations,R);
-}
-// Global pin handler (used by onclick on .pin-btn)
-window._pinChat=async function(gid,btn){
-  const cv=conversations.find(x=>x.group_id==gid);
-  const r=await P("/api/chat/pin",{group_id:gid});
-  if(r?.ok){if(cv)cv.pinned=r.pinned}
-  else{togglePin(gid);if(cv)cv.pinned=getPins().includes(gid)}
-  S.del("sgsa_convCache");renderConversations();
-};
-// Global archive handler (used by onclick on .delete-chat-btn)
-window._archiveChat=async function(gid){
-  if(!confirm("¿Archivar este chat? No aparecerá en tu bandeja."))return;
-  const r=await P("/api/chat/hide",{group_id:gid});
-  if(r?.ok&&r.hidden){conversations=conversations.filter(x=>x.group_id!=gid);S.del("sgsa_convCache");renderConversations();toast("Chat archivado","success")}
-  else if(r?.ok&&!r.hidden){toast("Chat ya estaba archivado","info")}
-  else{toast("Error al archivar","error")}
-};
-// Global card click — opens conversation (unless batch mode)
-window._openCard=function(gid){
-  if(_batchMode)return;
-  const cv=conversations.find(x=>x.group_id==gid);
-  if(cv)openConversation(cv);
-};
-// Global batch toggle helper (used by onclick on .batch-check)
-// el = the .batch-check element (this from onclick)
-window._batchToggleCard=function(el){
-  try{
-    const card=(el.tagName==="SPAN"&&el.classList.contains("batch-check"))?el.closest(".group-card"):null;
-    if(!card){console.warn("[batch] card not found from",el);return}
+  // ONE delegated listener — handles everything: pin, archive, batch, open
+  c.addEventListener("click",async function(ev){
+    const card=ev.target.closest(".group-card");
+    if(!card)return;
     const gid=parseInt(card.dataset.gid);
-    console.log("[batch] toggle",gid,"batchMode:",_batchMode,"selected:",_batchSelected);
-    const i=_batchSelected.indexOf(gid);
-    if(i>-1)_batchSelected.splice(i,1);else _batchSelected.push(gid);
-    _updateBatchBtn();
-    card.classList.toggle("batch-selected");
-    const sel=_batchSelected.includes(gid);
-    el.classList.toggle("checked",sel);
-    el.innerHTML=sel
-      ?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">check_circle</span>'
-      :'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>';
-  }catch(e){console.error("[batch] error:",e)}
-};
+    const cv=conversations.find(x=>x.group_id==gid);
+    // ── Pin ──
+    if(ev.target.closest(".pin-btn")){
+      ev.stopPropagation();
+      const r=await P("/api/chat/pin",{group_id:gid});
+      if(r?.ok){if(cv)cv.pinned=r.pinned}
+      else{togglePin(gid);if(cv)cv.pinned=getPins().includes(gid)}
+      S.del("sgsa_convCache");renderConversations();
+      return;
+    }
+    // ── Archive ──
+    if(ev.target.closest(".delete-chat-btn")){
+      ev.stopPropagation();
+      if(!confirm("¿Archivar este chat? No aparecerá en tu bandeja."))return;
+      const r=await P("/api/chat/hide",{group_id:gid});
+      if(r?.ok&&r.hidden){conversations=conversations.filter(x=>x.group_id!=gid);S.del("sgsa_convCache");renderConversations();toast("Chat archivado","success")}
+      else if(r?.ok&&!r.hidden){toast("Chat ya estaba archivado","info")}
+      else{toast("Error al archivar","error")}
+      return;
+    }
+    // ── Batch mode toggle ──
+    if(_batchMode){
+      console.log("[batch] toggle gid=",gid,"batchSelected was",[..._batchSelected]);
+      const i=_batchSelected.indexOf(gid);
+      if(i>-1)_batchSelected.splice(i,1);else _batchSelected.push(gid);
+      _updateBatchBtn();
+      card.classList.toggle("batch-selected");
+      const check=card.querySelector(".batch-check");
+      if(check){
+        const sel=_batchSelected.includes(gid);
+        check.classList.toggle("checked",sel);
+        check.innerHTML=sel
+          ?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">check_circle</span>'
+          :'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>';
+      }
+      console.log("[batch] after toggle:",[..._batchSelected]);
+      return;
+    }
+    // ── Open conversation ──
+    if(cv)openConversation(cv);
+  });
+}
 let _refreshing=0;
 async function refreshConversations(){
   if(!authToken||_refreshing)return;
