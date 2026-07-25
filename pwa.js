@@ -286,34 +286,8 @@ document.getElementById("ackAllBtn").addEventListener("click",async()=>{const ca
 let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null,_chatStarted=0;
 
 function initChat(){if(!authToken)return;
-  const c=document.getElementById("conversationList");
   const cached=S.get("sgsa_convCache");if(cached?.length){conversations=cached;renderConversations()}
   refreshConversations();if(_ct)clearInterval(_ct);_ct=setInterval(refreshConversations,R);
-  // Delegated listener for pin/archive buttons only (with stopPropagation)
-  c.addEventListener("click",async function(ev){
-    const pinBtn=ev.target.closest(".pin-btn");
-    if(pinBtn){
-      ev.stopPropagation();
-      const gid=parseInt(pinBtn.dataset.gid);
-      const cv=conversations.find(x=>x.group_id==gid);
-      const r=await P("/api/chat/pin",{group_id:gid});
-      if(r?.ok){if(cv)cv.pinned=r.pinned}
-      else{togglePin(gid);if(cv)cv.pinned=getPins().includes(gid)}
-      S.del("sgsa_convCache");renderConversations();
-      return;
-    }
-    const archBtn=ev.target.closest(".delete-chat-btn");
-    if(archBtn){
-      ev.stopPropagation();
-      const gid=parseInt(archBtn.dataset.gid);
-      if(!confirm("¿Archivar este chat? No aparecerá en tu bandeja."))return;
-      const r=await P("/api/chat/hide",{group_id:gid});
-      if(r?.ok&&r.hidden){conversations=conversations.filter(x=>x.group_id!=gid);S.del("sgsa_convCache");renderConversations();toast("Chat archivado","success")}
-      else if(r?.ok&&!r.hidden){toast("Chat ya estaba archivado","info")}
-      else{toast("Error al archivar","error")}
-      return;
-    }
-  });
 }
 // Global pin handler (used by onclick on .pin-btn)
 window._pinChat=async function(gid,btn){
