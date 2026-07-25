@@ -771,7 +771,7 @@ function _vaultRender(){
       const d=timeAgo(a.created_at)||"";
       html+=`<div class="vault-row" data-url="${esc(a.url)}" data-tipo="audio" data-nombre="${esc(a.nombre)}">
         <div class="vault-row-icon"><span class="material-symbols-outlined">audiotrack</span></div>
-        <div class="vault-row-info"><span class="vault-row-name">${esc(a.nombre||"Audio")}</span><span class="vault-row-meta">${d}</span></div>
+        <div class="vault-row-info"><span class="vault-row-name" title="${esc(a.nombre||"Audio")}">${esc(a.nombre||"Audio")}</span><span class="vault-row-meta">${d}</span></div>
         <button class="vault-row-del" data-id="${a.id}" title="Eliminar"><span class="material-symbols-outlined" style="font-size:18px">delete</span></button>
       </div>`;
     }
