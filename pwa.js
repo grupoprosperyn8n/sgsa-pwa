@@ -314,18 +314,21 @@ window._openCard=function(gid){
 // Global batch toggle helper (used by onclick on .batch-check)
 // el = the .batch-check element (this from onclick)
 window._batchToggleCard=function(el){
-  const card=(el.tagName==="SPAN"&&el.classList.contains("batch-check"))?el.closest(".group-card"):null;
-  if(!card)return;
-  const gid=parseInt(card.dataset.gid);
-  const i=_batchSelected.indexOf(gid);
-  if(i>-1)_batchSelected.splice(i,1);else _batchSelected.push(gid);
-  _updateBatchBtn();
-  card.classList.toggle("batch-selected");
-  const sel=_batchSelected.includes(gid);
-  el.classList.toggle("checked",sel);
-  el.innerHTML=sel
-    ?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">check_circle</span>'
-    :'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>';
+  try{
+    const card=(el.tagName==="SPAN"&&el.classList.contains("batch-check"))?el.closest(".group-card"):null;
+    if(!card){console.warn("[batch] card not found from",el);return}
+    const gid=parseInt(card.dataset.gid);
+    console.log("[batch] toggle",gid,"batchMode:",_batchMode,"selected:",_batchSelected);
+    const i=_batchSelected.indexOf(gid);
+    if(i>-1)_batchSelected.splice(i,1);else _batchSelected.push(gid);
+    _updateBatchBtn();
+    card.classList.toggle("batch-selected");
+    const sel=_batchSelected.includes(gid);
+    el.classList.toggle("checked",sel);
+    el.innerHTML=sel
+      ?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">check_circle</span>'
+      :'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>';
+  }catch(e){console.error("[batch] error:",e)}
 };
 let _refreshing=0;
 async function refreshConversations(){
