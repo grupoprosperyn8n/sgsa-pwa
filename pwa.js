@@ -786,7 +786,7 @@ function _vaultRender(){
       const icon={pdf:"picture_as_pdf",doc:"description",docx:"description",xls:"table_chart",xlsx:"table_chart",csv:"table_chart",txt:"article",ppt:"slideshow",pptx:"slideshow"}[ext]||"attach_file";
       html+=`<div class="vault-row" data-url="${esc(a.url)}" data-tipo="documento" data-nombre="${esc(a.nombre)}">
         <div class="vault-row-icon"><span class="material-symbols-outlined">${icon}</span></div>
-        <div class="vault-row-info"><span class="vault-row-name">${esc(a.nombre)}</span><span class="vault-row-meta">${d}</span></div>
+        <div class="vault-row-info"><span class="vault-row-name" title="${esc(a.nombre)}">${esc(a.nombre)}</span><span class="vault-row-meta">${d}</span></div>
         <button class="vault-row-del" data-id="${a.id}" title="Eliminar"><span class="material-symbols-outlined" style="font-size:18px">delete</span></button>
       </div>`;
     }
