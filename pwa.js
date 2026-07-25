@@ -312,19 +312,18 @@ window._openCard=function(gid){
   if(cv)openConversation(cv);
 };
 // Global batch toggle helper (used by onclick on .batch-check)
-window._batchToggleCard=function(gid){
-  gid=parseInt(gid);
+// el = the .batch-check element (this from onclick)
+window._batchToggleCard=function(el){
+  const card=(el.tagName==="SPAN"&&el.classList.contains("batch-check"))?el.closest(".group-card"):null;
+  if(!card)return;
+  const gid=parseInt(card.dataset.gid);
   const i=_batchSelected.indexOf(gid);
   if(i>-1)_batchSelected.splice(i,1);else _batchSelected.push(gid);
   _updateBatchBtn();
-  const card=document.querySelector(`.group-card[data-gid="${gid}"]`);
-  if(!card)return;
   card.classList.toggle("batch-selected");
-  const check=card.querySelector(".batch-check");
-  if(!check)return;
   const sel=_batchSelected.includes(gid);
-  check.classList.toggle("checked",sel);
-  check.innerHTML=sel
+  el.classList.toggle("checked",sel);
+  el.innerHTML=sel
     ?'<span class="material-symbols-outlined" style="font-size:18px;color:var(--danger)">check_circle</span>'
     :'<span class="material-symbols-outlined" style="font-size:18px">radio_button_unchecked</span>';
 };
