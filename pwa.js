@@ -735,33 +735,38 @@ function _vaultRender(){
   const audios=items.filter(a=>a.tipo==="audio");
   const docs=items.filter(a=>a.tipo==="documento");
   let html="";
-  // Image grid
-  if(images.length){
-    html+=`<div class="vault-section-label" style="grid-column:1/-1">Imágenes (${images.length})</div>`;
-    for(const a of images){
-      const d=timeAgo(a.created_at)||"";
-      html+=`<div class="vault-item" data-url="${esc(a.url)}" data-tipo="imagen" data-nombre="${esc(a.nombre)}">
-        <div class="vault-thumb"><img src="${esc(a.url)}" loading="lazy" onerror="this.alt='?'"></div>
-        <div class="vault-item-info"><span class="vault-item-name">${esc(a.nombre)}</span><span class="vault-item-date">${d}</span></div>
-        <button class="vault-item-del" data-id="${a.id}" title="Eliminar">×</button>
-      </div>`;
+  // Image + video grid section
+  if(images.length||videos.length){
+    if(images.length){
+      html+=`<div class="vault-section-label">Imágenes (${images.length})</div>`;
+      html+=`<div class="vault-grid-inner">`;
+      for(const a of images){
+        const d=timeAgo(a.created_at)||"";
+        html+=`<div class="vault-item" data-url="${esc(a.url)}" data-tipo="imagen" data-nombre="${esc(a.nombre)}">
+          <div class="vault-thumb"><img src="${esc(a.url)}" loading="lazy" onerror="this.alt='?'"></div>
+          <div class="vault-item-info"><span class="vault-item-name">${esc(a.nombre)}</span><span class="vault-item-date">${d}</span></div>
+          <button class="vault-item-del" data-id="${a.id}" title="Eliminar">×</button>
+        </div>`;
+      }
+      html+=`</div>`;
+    }
+    if(videos.length){
+      html+=`<div class="vault-section-label">Videos (${videos.length})</div>`;
+      html+=`<div class="vault-grid-inner">`;
+      for(const a of videos){
+        const d=timeAgo(a.created_at)||"";
+        html+=`<div class="vault-item" data-url="${esc(a.url)}" data-tipo="video" data-nombre="${esc(a.nombre)}">
+          <div class="vault-thumb"><span class="material-symbols-outlined vault-type-icon" style="font-size:36px;color:var(--fg3)">videocam</span></div>
+          <div class="vault-item-info"><span class="vault-item-name">${esc(a.nombre)}</span><span class="vault-item-date">${d}</span></div>
+          <button class="vault-item-del" data-id="${a.id}" title="Eliminar">×</button>
+        </div>`;
+      }
+      html+=`</div>`;
     }
   }
-  // Video grid
-  if(videos.length){
-    html+=`<div class="vault-section-label" style="grid-column:1/-1">Videos (${videos.length})</div>`;
-    for(const a of videos){
-      const d=timeAgo(a.created_at)||"";
-      html+=`<div class="vault-item" data-url="${esc(a.url)}" data-tipo="video" data-nombre="${esc(a.nombre)}">
-        <div class="vault-thumb"><span class="material-symbols-outlined vault-type-icon" style="font-size:36px;color:var(--fg3)">videocam</span></div>
-        <div class="vault-item-info"><span class="vault-item-name">${esc(a.nombre)}</span><span class="vault-item-date">${d}</span></div>
-        <button class="vault-item-del" data-id="${a.id}" title="Eliminar">×</button>
-      </div>`;
-    }
-  }
-  // Audio rows
+  // Audio list
   if(audios.length){
-    html+=`</div><div class="vault-list" style="grid-column:1/-1;padding-top:4px"><div class="vault-section-label">Audios (${audios.length})</div>`;
+    html+=`<div class="vault-section-label">Audios (${audios.length})</div><div class="vault-list">`;
     for(const a of audios){
       const d=timeAgo(a.created_at)||"";
       html+=`<div class="vault-row" data-url="${esc(a.url)}" data-tipo="audio" data-nombre="${esc(a.nombre)}">
@@ -770,11 +775,11 @@ function _vaultRender(){
         <button class="vault-row-del" data-id="${a.id}" title="Eliminar"><span class="material-symbols-outlined" style="font-size:18px">delete</span></button>
       </div>`;
     }
-    html+=`</div><div class="vault-grid" style="display:contents">`;
+    html+=`</div>`;
   }
-  // Document rows
+  // Document list
   if(docs.length){
-    html+=`</div><div class="vault-list" style="grid-column:1/-1;padding-top:4px"><div class="vault-section-label">Documentos (${docs.length})</div>`;
+    html+=`<div class="vault-section-label">Documentos (${docs.length})</div><div class="vault-list">`;
     for(const a of docs){
       const d=timeAgo(a.created_at)||"";
       const ext=(a.nombre||"").split(".").pop().toLowerCase();
