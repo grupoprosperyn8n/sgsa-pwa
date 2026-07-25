@@ -1136,10 +1136,15 @@ function _ft(url,opts){var ac,t;try{ac=new AbortController();t=setTimeout(functi
 function _upload(url,opts,ms){ms=ms||120000;var ac,t;try{ac=new AbortController();t=setTimeout(function(){ac.abort()},ms)}catch(e){}return fetch(url,{...opts,signal:ac?ac.signal:null}).finally(function(){if(t)clearTimeout(t)})}
 // Download file as blob (cross-origin safe)
 function _download(url,name){
-  var a=document.createElement("a");a.style.display="none";
-  a.href=url;a.target="_blank";a.download=name||"";
-  document.body.appendChild(a);a.click();
-  setTimeout(function(){document.body.removeChild(a)},500);
+  var x=new XMLHttpRequest();x.open("GET",url,true);x.responseType="blob";
+  x.onload=function(){
+    var blob=x.response,a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);a.download=name||"download";
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href)},500);
+  };
+  x.onerror=function(){toast("Error al descargar","error")};
+  x.send();
 }
 document.getElementById("saveGroupBtn")?.addEventListener("click",async()=>{
   const gid=_editGroupId;if(!gid){toast("Error: no hay grupo","error");return}
