@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v42 — file vault: fix rendering when no grid items, handle null tipo, check adjunto_url, high limit
+// SGSA PWA v43 — file vault: fix long filename overflow in grid cards, add min-width:0
 // =============================================================================
-console.log("[SGSA] PWA v42 loaded");
+console.log("[SGSA] PWA v43 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
