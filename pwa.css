@@ -562,7 +562,7 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .vault-item-info{
   padding:5px 6px;display:flex;flex-direction:column;gap:1px;min-width:0;
 }
-.vault-item-name{font-size:10px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg)}
+.vault-item-name{font-size:11px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--fg)}
 .vault-item-date{font-size:9px;color:var(--fg3)}
 .vault-item-del{
   position:absolute;top:4px;right:4px;width:22px;height:22px;
