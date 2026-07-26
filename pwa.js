@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v46 — chat messages: word-break:break-all on file-link-text so long filenames wrap inside card
+// SGSA PWA v47 — chat messages: use CSS Grid for file-link (icon + filename), wrap long names
 // =============================================================================
-console.log("[SGSA] PWA v46 loaded");
+console.log("[SGSA] PWA v47 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
