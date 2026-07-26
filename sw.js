@@ -1,7 +1,7 @@
-// SGSA PWA v27 — chat messages: use CSS Grid for file-link, wrap long names
+// SGSA PWA v28 — JS truncate long filenames (chat:80, vault-grid:35, vault-list:60) + CSS
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v27";
-const CACHE_STATIC="sgsa-static-v27";
+const CACHE_V="sgsa-v28";
+const CACHE_STATIC="sgsa-static-v28";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
