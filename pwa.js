@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v61 — calendar day/week/month views, fixed grid sizing
+// SGSA PWA v62 — calendar day/week/month views, fixed grid sizing
 // =============================================================================
-console.log("[SGSA] PWA v61 loaded");
+console.log("[SGSA] PWA v62 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -1773,8 +1773,12 @@ function initAgenda(){
   document.getElementById("agendaSearch").addEventListener("input",()=>{
     agendaSearchTerm=document.getElementById("agendaSearch").value.trim().toLowerCase();
     if(agendaSubView==="tasks-kanban")renderTaskKanban();
+    else if(agendaSubView==="history")renderHistory();
     else renderTasks();
   });
+  // ── Filter toggle ──
+  const ft=document.getElementById("agendaFilterToggle");
+  if(ft)ft.addEventListener("click",()=>{const f=document.getElementById("agendaDateFilters");if(f)f.style.display=f.style.display==="none"?"flex":"none"});
   // ── Filter chips ──
   document.getElementById("agendaFilterChips").addEventListener("click",e=>{
     const chip=e.target.closest(".chip");if(!chip)return;
