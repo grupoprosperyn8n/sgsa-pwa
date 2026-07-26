@@ -594,7 +594,7 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 }
 .vault-row-icon .material-symbols-outlined{font-size:20px;color:var(--fg2)}
 .vault-row-info{flex:1;min-width:0}
-.vault-row-name{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vault-row-name{font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
 .vault-row-meta{font-size:10px;color:var(--fg3)}
 .vault-row-del{
   width:28px;height:28px;border-radius:50%;border:none;
