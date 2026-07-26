@@ -1,7 +1,7 @@
-// SGSA PWA v26 — chat messages: word-break:break-all on file-link-text so long filenames wrap inside card
+// SGSA PWA v27 — chat messages: use CSS Grid for file-link, wrap long names
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v26";
-const CACHE_STATIC="sgsa-static-v26";
+const CACHE_V="sgsa-v27";
+const CACHE_STATIC="sgsa-static-v27";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
