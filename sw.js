@@ -1,7 +1,7 @@
-// SGSA PWA v39 — calendar day/week/month views, fixed grid sizing, event fixes
+// SGSA PWA v40 — calendar day/week/month views, fixed grid sizing, event fixes
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v39";
-const CACHE_STATIC="sgsa-static-v39";
+const CACHE_V="sgsa-v40";
+const CACHE_STATIC="sgsa-static-v40";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
@@ -18,7 +18,7 @@ self.addEventListener("install",e=>{
 self.addEventListener("activate",e=>{
   e.waitUntil(
     caches.keys().then(keys=>Promise.all(
-      keys.filter(k=>k!==CACHE_STATIC&&k!==CACHE_V&&k!=="sgsa-v39"&&k!=="sgsa-v34"&&k!=="sgsa-v33"&&k!=="sgsa-v32"&&k!=="sgsa-v31"&&k!=="sgsa-v30"&&k!=="sgsa-v29"&&k!=="sgsa-v28"&&k!=="sgsa-v27"&&k!=="sgsa-v26"&&k!=="sgsa-v25"&&k!=="sgsa-v24"&&k!=="sgsa-v23"&&k!=="sgsa-v22"&&k!=="sgsa-v21"&&k!=="sgsa-v20"&&k!=="sgsa-v19"&&k!=="sgsa-v18"&&k!=="sgsa-v17"&&k!=="sgsa-v16"&&k!=="sgsa-v15"&&k!=="sgsa-v14"&&k!=="sgsa-v13"&&k!=="sgsa-v12"&&k!=="sgsa-v11"&&k!=="sgsa-v10"&&k!=="sgsa-v9"&&k!=="sgsa-v8"&&k!=="sgsa-v7"&&k!=="sgsa-v6"&&k!=="sgsa-v5")
+      keys.filter(k=>k!==CACHE_STATIC&&k!==CACHE_V&&k!=="sgsa-v40"&&k!=="sgsa-v34"&&k!=="sgsa-v33"&&k!=="sgsa-v32"&&k!=="sgsa-v31"&&k!=="sgsa-v30"&&k!=="sgsa-v29"&&k!=="sgsa-v28"&&k!=="sgsa-v27"&&k!=="sgsa-v26"&&k!=="sgsa-v25"&&k!=="sgsa-v24"&&k!=="sgsa-v23"&&k!=="sgsa-v22"&&k!=="sgsa-v21"&&k!=="sgsa-v20"&&k!=="sgsa-v19"&&k!=="sgsa-v18"&&k!=="sgsa-v17"&&k!=="sgsa-v16"&&k!=="sgsa-v15"&&k!=="sgsa-v14"&&k!=="sgsa-v13"&&k!=="sgsa-v12"&&k!=="sgsa-v11"&&k!=="sgsa-v10"&&k!=="sgsa-v9"&&k!=="sgsa-v8"&&k!=="sgsa-v7"&&k!=="sgsa-v6"&&k!=="sgsa-v5")
           .map(k=>{console.log("[SW] deleting old cache:",k);return caches.delete(k)})
     )).then(()=>self.clients.claim())
   );

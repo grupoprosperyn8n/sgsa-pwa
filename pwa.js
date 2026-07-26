@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v60 — calendar day/week/month views, fixed grid sizing
+// SGSA PWA v61 — calendar day/week/month views, fixed grid sizing
 // =============================================================================
-console.log("[SGSA] PWA v60 loaded");
+console.log("[SGSA] PWA v61 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -2220,8 +2220,32 @@ function renderEventList(){
   container.style.display="flex";
   if(toggle)toggle.style.display="flex";
 
-  // Apply filters
+  // Apply filters — contextual by calendar view mode
   let f=[...agendaEvents];
+  const now=new Date();
+  const todayStr=new Date().toISOString().slice(0,10);
+
+  // If no manual filters set, auto-filter by current view
+  if(!eventListDateFrom&&!eventListDateTo){
+    if(agendaCalView==="day"&&agendaSelectedDate){
+      const ds=agendaSelectedDate;
+      f=f.filter(e=>{const es=e.fecha_inicio?.slice(0,10);const ee=(e.fecha_fin||e.fecha_inicio)?.slice(0,10);return es&&ee&&ds>=es&&ds<=ee});
+    }else if(agendaCalView==="week"){
+      const start=new Date(agendaSelectedDate+"T12:00:00");
+      const dow=start.getDay();
+      const mon=new Date(start);mon.setDate(start.getDate()-((dow+6)%7));
+      const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+      const ms=mon.toISOString().slice(0,10);const ss=sun.toISOString().slice(0,10);
+      f=f.filter(e=>{const es=e.fecha_inicio?.slice(0,10);return es&&es>=ms&&es<=ss});
+    }else if(agendaCalView==="month"){
+      const year=agendaCurrentMonth.getFullYear();
+      const month=agendaCurrentMonth.getMonth();
+      const ms=new Date(year,month,1).toISOString().slice(0,10);
+      const me=new Date(year,month+1,0).toISOString().slice(0,10);
+      f=f.filter(e=>{const es=e.fecha_inicio?.slice(0,10);return es&&es>=ms&&es<=me});
+    }
+  }
+
   if(eventListTipo)f=f.filter(e=>(e.tipo_evento||"")===eventListTipo);
   if(eventListDateFrom){const fd=new Date(eventListDateFrom+"T00:00:00");f=f.filter(e=>{const es=e.fecha_inicio?new Date(e.fecha_inicio+"T12:00:00"):null;return es&&es>=fd})}
   if(eventListDateTo){const td=new Date(eventListDateTo+"T23:59:59");f=f.filter(e=>{const es=e.fecha_inicio?new Date(e.fecha_inicio+"T12:00:00"):null;return es&&es<=td})}
