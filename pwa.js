@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v49 — vault-row-name: add display:block so ellipsis works on inline span
+// SGSA PWA v50 — all messages left-aligned with gray background (theirs style)
 // =============================================================================
-console.log("[SGSA] PWA v49 loaded");
+console.log("[SGSA] PWA v50 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -856,7 +856,7 @@ function renderMsgList(c,e,gid,msgs){
     // In DMs, don't show sender name at all (it's implied). In groups, show for others.
     const isDM=selectedConversation?.is_dm;
     const senderHtml=!isMine&&!isDM?`<div class="sender-name">${esc(m.sender_nombre||m.remitente_nombre||"")}</div>`:"";
-    html+=`<div class="message ${isMine?"mine":"theirs"}">${senderHtml}${body}<div class="msg-time">${timeAgo(m.created_at)}${isMine?` <span class="msg-checks ${m.visto?"seen":"sent"}" title="${m.visto?"Visto":"Enviado"}">${m.visto?"✓✓":"✓"}</span>`:""}</div></div>`;
+    html+=`<div class="message theirs">${senderHtml}${body}<div class="msg-time">${timeAgo(m.created_at)}<span class="msg-checks sent">✓</span></div></div>`;
   }
   c.innerHTML=html;c.scrollTop=c.scrollHeight;
 }
