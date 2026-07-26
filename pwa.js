@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v44 — file vault: word-break in grid cards + title tooltip for full name
+// SGSA PWA v45 — chat messages: wrap document filename in span.file-link-text to prevent overflow
 // =============================================================================
-console.log("[SGSA] PWA v44 loaded");
+console.log("[SGSA] PWA v45 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
