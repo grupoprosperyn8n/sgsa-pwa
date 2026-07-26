@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v53 — calendar month/year dropdown selects (1950-2050)
+// SGSA PWA v54 — agenda date filters: hoy, semana, mes, año, desde-hasta, días atrás
 // =============================================================================
-console.log("[SGSA] PWA v53 loaded");
+console.log("[SGSA] PWA v54 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -1625,6 +1625,10 @@ let agendaCurrentMonth=new Date();
 let agendaSelectedDate=null;
 let agendaFilterEstado="";
 let agendaSearchTerm="";
+let agendaDateRange="";
+let agendaDateFrom="";
+let agendaDateTo="";
+let agendaDaysAgo="";
 let agendaEditingId=null;
 let agendaEditingType="";
 let agendaLinkedAlertId=null;
@@ -1681,15 +1685,32 @@ function initAgenda(){
     const tf=document.getElementById("eventTimeFields");
     if(tf)tf.style.display=this.checked?"none":"flex";
   });
-  // ── Click outside modals to close + reset ──
-  document.getElementById("task-modal")?.addEventListener("click",function(e){if(e.target===this){closeModal("task-modal");resetTaskForm()}});
-  document.getElementById("event-modal")?.addEventListener("click",function(e){if(e.target===this){closeModal("event-modal");resetEventForm()}});
-  // ── Auto-refresh ──
-  if(_agendaTimer)clearInterval(_agendaTimer);
-  _agendaTimer=setInterval(refreshAgenda,30000);
-  // ── Load data ──
-  refreshAgenda();
-}
+   // ── Click outside modals to close + reset ──
+   document.getElementById("task-modal")?.addEventListener("click",function(e){if(e.target===this){closeModal("task-modal");resetTaskForm()}});
+   document.getElementById("event-modal")?.addEventListener("click",function(e){if(e.target===this){closeModal("event-modal");resetEventForm()}});
+   // ── Date filter buttons ──
+   document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(b=>b.addEventListener("click",function(){
+     if(this.id==="agendaClearDateFilter"){
+       agendaDateRange="";agendaDateFrom="";agendaDateTo="";agendaDaysAgo="";
+       document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));
+       document.getElementById("agendaDateFrom").value="";document.getElementById("agendaDateTo").value="";
+       document.getElementById("agendaDaysAgo").value="";renderTasks();return;
+     }
+     agendaDateRange=this.dataset.range;
+     document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.toggle("active",x===this));
+     agendaDateFrom="";agendaDateTo="";agendaDaysAgo="";
+     document.getElementById("agendaDateFrom").value="";document.getElementById("agendaDateTo").value="";
+     document.getElementById("agendaDaysAgo").value="";renderTasks();
+   }));
+   document.getElementById("agendaDateFrom")?.addEventListener("change",function(){agendaDateFrom=this.value;agendaDateRange="";agendaDaysAgo="";document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("agendaDaysAgo").value="";renderTasks()});
+   document.getElementById("agendaDateTo")?.addEventListener("change",function(){agendaDateTo=this.value;agendaDateRange="";agendaDaysAgo="";document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("agendaDaysAgo").value="";renderTasks()});
+   document.getElementById("agendaDaysAgo")?.addEventListener("input",function(){agendaDaysAgo=this.value;agendaDateRange="";agendaDateFrom="";agendaDateTo="";document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("agendaDateFrom").value="";document.getElementById("agendaDateTo").value="";renderTasks()});
+   // ── Auto-refresh ──
+   if(_agendaTimer)clearInterval(_agendaTimer);
+   _agendaTimer=setInterval(refreshAgenda,30000);
+   // ── Load data ──
+   refreshAgenda();
+ }
 
 function switchAgendaView(view){
   document.querySelectorAll(".agenda-subtab").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
@@ -1814,6 +1835,16 @@ function renderTasks(){
   if(agendaFilterEstado==="pendientes")f=f.filter(t=>t.estado==="pendiente");
   else if(agendaFilterEstado==="realizadas")f=f.filter(t=>t.estado==="realizada"||t.estado==="anulada");
   if(agendaSearchTerm)f=f.filter(t=>(t.titulo||"").toLowerCase().includes(agendaSearchTerm));
+  // Date filters
+  const now=new Date();
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  if(agendaDateRange==="today")f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=today});
+  else if(agendaDateRange==="week"){const ws=new Date(today);ws.setDate(ws.getDate()-ws.getDay());f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=ws})}
+  else if(agendaDateRange==="month"){const ms=new Date(now.getFullYear(),now.getMonth(),1);f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=ms})}
+  else if(agendaDateRange==="year"){const ys=new Date(now.getFullYear(),0,1);f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=ys})}
+  if(agendaDateFrom){const fd=new Date(agendaDateFrom+"T12:00:00");f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=fd})}
+  if(agendaDateTo){const td=new Date(agendaDateTo+"T23:59:59");f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d<=td})}
+  if(agendaDaysAgo){const da=parseInt(agendaDaysAgo);if(da>0){const dd=new Date(today);dd.setDate(dd.getDate()-da);f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=dd})}}
   if(!f.length){list.innerHTML="";if(empty)empty.style.display="flex";return}
   if(empty)empty.style.display="none";
   const pending=f.filter(t=>t.estado==="pendiente");
