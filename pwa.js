@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v59 — calendar day/week/month views, fixed grid sizing
+// SGSA PWA v60 — calendar day/week/month views, fixed grid sizing
 // =============================================================================
-console.log("[SGSA] PWA v59 loaded");
+console.log("[SGSA] PWA v60 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -2086,6 +2086,34 @@ function showEventDetail(e){
   };
 }
 
+function showTaskDetail(t){
+  if(!t)return;
+  const prio={alta:"Alta",media:"Media",baja:"Baja"};
+  const pclass={alta:"priority-high",media:"priority-mid",baja:"priority-low"};
+  openModal("task-detail-modal");
+  document.getElementById("taskDetailTitle").textContent=t.titulo||"Tarea";
+  document.getElementById("taskDetailBody").innerHTML=
+    (t.descripcion?`<div class="detail-field"><span class="detail-label">Descripción</span><span class="detail-value">${esc(t.descripcion)}</span></div>`:"")+
+    (t.fecha_vencimiento?`<div class="detail-field"><span class="detail-label">Vencimiento</span><span class="detail-value">${new Date(t.fecha_vencimiento+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"long",year:"numeric"})}</span></div>`:"")+
+    `<div class="detail-field"><span class="detail-label">Prioridad</span><span class="detail-value"><span class="task-priority ${pclass[t.prioridad]||""}">${prio[t.prioridad]||t.prioridad}</span></span></div>`+
+    `<div class="detail-field"><span class="detail-label">Estado</span><span class="detail-value">${t.estado==="pendiente"?"⏳ Pendiente":t.estado==="realizada"?"✅ Realizada":"❌ Anulada"}</span></div>`;
+  document.getElementById("taskDetailEditBtn").onclick=()=>{closeModal("task-detail-modal");openTaskModal(t)};
+  document.getElementById("taskDetailDeleteBtn").onclick=async()=>{
+    closeModal("task-detail-modal");
+    if(await _confirm("¿Eliminar esta tarea?","Eliminar tarea","danger")){
+      if(await _deleteTask(t.id)){toast("Tarea eliminada","success");await refreshAgenda()}
+      else toast("Error al eliminar","error");
+    }
+  };
+}
+
+async function _deleteTask(id){
+  try{
+    const r=await _ft(API+"/api/chat/tasks/"+id,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+    if(r.ok||r.status===200){agendaTasks=agendaTasks.filter(t=>t.id!==id);return true}
+    return false;
+  }catch{return false}
+}
 async function _deleteEvent(id){
   try{
     const r=await _ft(API+"/api/chat/agenda/"+id,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
@@ -2141,7 +2169,7 @@ function renderTasks(){
     el.addEventListener("click",e=>{
       e.stopPropagation();
       const id=el.closest(".task-card").dataset.id;
-      const t=agendaTasks.find(x=>x.id===id);if(t)openTaskModal(t);
+      const t=agendaTasks.find(x=>String(x.id)===id);if(t)showTaskDetail(t);
     });
   });
   // Delete
@@ -2149,9 +2177,8 @@ function renderTasks(){
     el.addEventListener("click",async e=>{
       e.stopPropagation();
       const id=el.closest(".task-card").dataset.id;
-      if(!await _confirm("¿Eliminar esta tarea?","Eliminar tarea","danger"))return;
-      if(await _deleteTask(id)){toast("Tarea eliminada","success");await refreshAgenda()}
-      else toast("Error al eliminar","error");
+      const t=agendaTasks.find(x=>String(x.id)===id);
+      if(t)showTaskDetail(t);
     });
   });
 }
@@ -2449,14 +2476,6 @@ async function _patchTask(id,updates){
     const r=await _ft(API+"/api/chat/tasks/"+id,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify(updates)});
     return r.ok?{ok:true}:await r.json().catch(()=>{});
   }catch{return null}
-}
-
-async function _deleteTask(id){
-  try{
-    const r=await _ft(API+"/api/chat/tasks/"+id,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
-    const d=r.ok?{ok:true}:await r.json().catch(()=>{});
-    return d?.ok||r.status===200;
-  }catch{return false}
 }
 
 // ====== MODAL OPEN/RESET ======

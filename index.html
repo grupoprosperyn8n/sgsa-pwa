@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
-  <link rel="stylesheet" href="pwa.css?v=59">
+  <link rel="stylesheet" href="pwa.css?v=60">
 </head>
 <body>
 
@@ -504,6 +504,23 @@
     </div>
   </div>
 
+  <!-- ====== TASK DETAIL MODAL ====== -->
+  <div id="task-detail-modal" class="modal">
+    <div class="modal-content" style="max-width:380px">
+      <div class="modal-header">
+        <h2 id="taskDetailTitle">Tarea</h2>
+        <button class="icon-btn close-modal" data-modal="task-detail-modal"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <div id="taskDetailBody" style="display:flex;flex-direction:column;gap:6px;margin-bottom:12px"></div>
+        <div style="display:flex;gap:8px">
+          <button id="taskDetailEditBtn" class="btn-secondary" style="flex:1"><span class="material-symbols-outlined" style="font-size:16px">edit</span> Editar</button>
+          <button id="taskDetailDeleteBtn" class="btn-danger" style="flex:1"><span class="material-symbols-outlined" style="font-size:16px">delete</span> Eliminar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ====== EVENT DETAIL MODAL ====== -->
   <div id="event-detail-modal" class="modal">
     <div class="modal-content" style="max-width:380px">
@@ -549,6 +566,6 @@
   <div id="dpGrid" class="dp-grid"></div>
 </div>
 
-<script src="pwa.js?v=59"></script>
+<script src="pwa.js?v=60"></script>
 </body>
 </html>
