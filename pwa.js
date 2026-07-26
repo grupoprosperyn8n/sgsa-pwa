@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v57 — calendar day/week/month views, fixed grid sizing
+// SGSA PWA v58 — calendar day/week/month views, fixed grid sizing
 // =============================================================================
-console.log("[SGSA] PWA v57 loaded");
+console.log("[SGSA] PWA v58 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -1977,12 +1977,12 @@ function updateAgendaBadge(){
 
 async function loadTasks(){
   const d=await G("/api/chat/tasks");
-  if(d?.ok)agendaTasks=d.tasks||[];
+  if(d?.ok)agendaTasks=d.tareas||d.tasks||[];
 }
 
 async function loadEvents(){
   const d=await G("/api/chat/agenda");
-  if(d?.ok)agendaEvents=d.events||[];
+  if(d?.ok)agendaEvents=d.eventos||d.events||[];
 }
 
 // ====== CALENDAR RENDER ======
@@ -2008,7 +2008,7 @@ function renderCalendar(){
     const daysInPrev=new Date(year,month,0).getDate();
     let html='<div class="cal-day-header">Dom</div><div class="cal-day-header">Lun</div><div class="cal-day-header">Mar</div><div class="cal-day-header">Mié</div><div class="cal-day-header">Jue</div><div class="cal-day-header">Vie</div><div class="cal-day-header">Sáb</div>';
     for(let i=firstDay-1;i>=0;i--){const d=daysInPrev-i;const ds=new Date(year,month-1,d).toISOString().slice(0,10);html+=`<div class="cal-day other-month" data-date="${ds}">${d}</div>`}
-    for(let d=1;d<=daysInMonth;d++){const ds=new Date(year,month,d).toISOString().slice(0,10);const isToday=ds===todayStr;const isSelected=ds===agendaSelectedDate;const hasEvents=agendaEvents.some(e=>{const es=e.fecha_inicio?.slice(0,10);const ee=(e.fecha_fin||e.fecha_inicio)?.slice(0,10);return es&&ee&&ds>=es&&ds<=ee});html+=`<div class="cal-day${isToday?" today":""}${isSelected?" selected":""}" data-date="${ds}">${d}${hasEvents?'<span class="cal-event-dot"></span>':''}</div>`}
+    for(let d=1;d<=daysInMonth;d++){const ds=new Date(year,month,d).toISOString().slice(0,10);const isToday=ds===todayStr;const isSelected=ds===agendaSelectedDate;const dayEvents=agendaEvents.filter(e=>{const es=e.fecha_inicio?.slice(0,10);const ee=(e.fecha_fin||e.fecha_inicio)?.slice(0,10);return es&&ee&&ds>=es&&ds<=ee});html+=`<div class="cal-day${isToday?" today":""}${isSelected?" selected":""}" data-date="${ds}">${d}${dayEvents.length?`<span class="cal-event-count">${dayEvents.length}</span>`:''}${isSelected&&dayEvents.length?`<div class="cal-day-events">${dayEvents.slice(0,2).map(e=>`<span class="cal-day-event-title">${esc(e.titulo||e.title||"")}</span>`).join("")}${dayEvents.length>2?`<span class="cal-day-event-more">+${dayEvents.length-2} más</span>`:""}</div>`:""}</div>`}
     const total=firstDay+daysInMonth;const rem=total%7===0?0:7-(total%7);
     for(let d=1;d<=rem;d++){const ds=new Date(year,month+1,d).toISOString().slice(0,10);html+=`<div class="cal-day other-month" data-date="${ds}">${d}</div>`}
     grid.innerHTML=html;
