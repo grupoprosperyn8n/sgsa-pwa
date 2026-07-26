@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v50 — all messages left-aligned with gray background (theirs style)
+// SGSA PWA v51 — agenda + tasks system with calendar, checklist, and alert linking
 // =============================================================================
-console.log("[SGSA] PWA v50 loaded");
+console.log("[SGSA] PWA v51 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -116,12 +116,13 @@ document.addEventListener("keydown",e=>{
   if(e.target.tagName==="INPUT"||e.target.tagName==="TEXTAREA"){if(e.key==="Escape")e.target.blur();return}
   if(e.ctrlKey&&e.key==="k"){e.preventDefault();switchTab("chat");setTimeout(()=>document.getElementById("conversationSearch")?.focus(),100)}
   if(e.ctrlKey&&e.key==="n"){e.preventDefault();document.getElementById("newGroupBtn")?.click()}
-  if(e.key==="Escape"){closeModal("office-modal");closeModal("peopleModal");closeModal("newGroupModal");closeModal("alert-detail-modal");closeSettings();if(selectedConversation)document.getElementById("chatBackBtn")?.click()}
+  if(e.key==="Escape"){closeModal("office-modal");closeModal("peopleModal");closeModal("newGroupModal");closeModal("alert-detail-modal");closeModal("task-modal");closeModal("event-modal");closeModal("alert-link-modal");closeSettings();if(selectedConversation)document.getElementById("chatBackBtn")?.click()}
   if(e.ctrlKey&&e.shiftKey&&e.key==="A"){e.preventDefault();switchTab("chat");setTimeout(()=>{if(selectedConversation)document.getElementById("chatInput")?.focus()},100)}
+  if(e.ctrlKey&&e.shiftKey&&e.key==="E"){e.preventDefault();switchTab("agenda")}
 });
 
 // ====== TABS ======
-function switchTab(tab){if(tab==="chat"&&!authToken){showLogin();return}document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));document.querySelector(`.tab[data-tab="${tab}"]`)?.classList.add("active");document.getElementById(tab+"-tab")?.classList.add("active");if(tab==="chat"&&!_chatStarted){initChat();_chatStarted=1}else if(tab==="chat")refreshConversations()}
+function switchTab(tab){if(tab==="chat"&&!authToken){showLogin();return}document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));document.querySelectorAll(".tab-content").forEach(c=>c.classList.remove("active"));document.querySelector(`.tab[data-tab="${tab}"]`)?.classList.add("active");document.getElementById(tab+"-tab")?.classList.add("active");if(tab==="chat"&&!_chatStarted){initChat();_chatStarted=1}else if(tab==="chat")refreshConversations();if(tab==="agenda"&&!_agendaStarted){initAgenda();_agendaStarted=1}else if(tab==="agenda")refreshAgenda()}
 document.querySelectorAll(".tab").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
 
 // ====== SETTINGS ======
@@ -138,8 +139,8 @@ function updateSettingsUI(){document.getElementById("settingsName").textContent=
 document.getElementById("settingsChangeOffice").addEventListener("click",()=>{closeSettings();openModal("office-modal");loadOfficeModal()});
 document.getElementById("toggleChatSound").addEventListener("change",function(){chatSound=this.checked;const p=getProfile(currentUser?.email||"");if(p)p.chatSound=chatSound,saveProfile(currentUser.email,p)});
 document.getElementById("toggleAlertsSound").addEventListener("change",function(){alertsSound=this.checked;const p=getProfile(currentUser?.email||"");if(p)p.alertsSound=alertsSound,saveProfile(currentUser.email,p)});
-document.getElementById("settingsSwitchUser").addEventListener("click",()=>{closeSettings();clearCurrent();if(window._ct)clearInterval(window._ct);stopPing();showLogin()});
-document.getElementById("settingsLogout").addEventListener("click",()=>{closeSettings();clearCurrent();if(window._ct)clearInterval(window._ct);stopPing();const e=currentUser?.email;if(e){const p=getProfile(e);if(p)p._f=true,saveProfile(e,p)}showLogin()});
+document.getElementById("settingsSwitchUser").addEventListener("click",()=>{closeSettings();clearCurrent();if(window._ct)clearInterval(window._ct);if(_agendaTimer)clearInterval(_agendaTimer);stopPing();showLogin()});
+document.getElementById("settingsLogout").addEventListener("click",()=>{closeSettings();clearCurrent();if(window._ct)clearInterval(window._ct);if(_agendaTimer)clearInterval(_agendaTimer);stopPing();const e=currentUser?.email;if(e){const p=getProfile(e);if(p)p._f=true,saveProfile(e,p)}showLogin()});
 
 // ====== STATS ======
 let stats={alertsToday:0,alertsDone:0,msgsSent:0,chatActive:0,chatUnread:0,chatArchived:0,chatOnline:0,chatOffline:0};
@@ -288,7 +289,7 @@ document.getElementById("refreshBtn").addEventListener("click",()=>loadAlerts(sh
 document.getElementById("ackAllBtn").addEventListener("click",async()=>{const cards=document.querySelectorAll(".alert-card");cards.forEach(c=>{c.style.opacity="0";c.style.transform="translateX(20px)";c.style.transition="all .2s"});for(const card of cards){const id=card.dataset.id;if(id)await doAck(id)}setTimeout(()=>{showHistory=false;loadAlerts(false)},300)});
 
 // ====== CHAT ======
-let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null,_chatStarted=0;
+let conversations=[],selectedConversation=null,allEmployees=[],_pingTimer=null,_ct=null,_chatStarted=0,_agendaStarted=0;
 
 function initChat(){if(!authToken)return;
   const c=document.getElementById("conversationList");
@@ -1615,6 +1616,419 @@ function renderArchived(){
 function openModal(id){const el=document.getElementById(id);if(el)el.style.display="flex"}
 function closeModal(id){const el=document.getElementById(id);if(el)el.style.display="none"}
 document.querySelectorAll(".close-modal").forEach(b=>b.addEventListener("click",()=>closeModal(b.dataset.modal)));
+
+// ====== AGENDA / TASKS ======
+let _agendaTimer=null;
+let agendaTasks=[], agendaEvents=[];
+let agendaCurrentMonth=new Date();
+let agendaSelectedDate=null;
+let agendaFilterEstado="";
+let agendaSearchTerm="";
+let agendaEditingId=null;
+let agendaEditingType="";
+let agendaLinkedAlertId=null;
+let agendaLinkedAlertTitle="";
+const MONTHS_ES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const DAYS_ES=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const TIPO_EVENTO_LABELS={reunion:"Reunión",llamada:"Llamada",tarea:"Tarea",personal:"Personal",otro:"Otro"};
+
+function initAgenda(){
+  // ── Sub-tab switching ──
+  document.querySelectorAll(".agenda-subtab").forEach(b=>b.addEventListener("click",()=>switchAgendaView(b.dataset.view)));
+  // ── Calendar nav ──
+  document.getElementById("calPrevBtn").addEventListener("click",()=>{agendaCurrentMonth.setMonth(agendaCurrentMonth.getMonth()-1);renderCalendar()});
+  document.getElementById("calNextBtn").addEventListener("click",()=>{agendaCurrentMonth.setMonth(agendaCurrentMonth.getMonth()+1);renderCalendar()});
+  document.getElementById("addEventBtn").addEventListener("click",()=>openEventModal(null,agendaSelectedDate));
+  // ── New task/event ──
+  document.getElementById("newTaskBtn").addEventListener("click",()=>openTaskModal(null));
+  document.getElementById("newEventBtn").addEventListener("click",()=>openEventModal(null,null));
+  // ── Search ──
+  document.getElementById("agendaSearch").addEventListener("input",()=>{agendaSearchTerm=document.getElementById("agendaSearch").value.trim().toLowerCase();renderTasks()});
+  // ── Filter chips ──
+  document.getElementById("agendaFilterChips").addEventListener("click",e=>{
+    const chip=e.target.closest(".chip");if(!chip)return;
+    document.querySelectorAll("#agendaFilterChips .chip").forEach(c=>c.classList.remove("active"));
+    chip.classList.add("active");agendaFilterEstado=chip.dataset.filter;renderTasks();
+  });
+  // ── Refresh ──
+  document.getElementById("agendaRefreshBtn").addEventListener("click",refreshAgenda);
+  // ── Save task ──
+  document.getElementById("saveTaskBtn").addEventListener("click",saveTask);
+  // ── Save event ──
+  document.getElementById("saveEventBtn").addEventListener("click",saveEvent);
+  // ── Alert linking ──
+  document.getElementById("taskLinkAlertBtn").addEventListener("click",()=>openAlertLinkModal("task"));
+  document.getElementById("eventLinkAlertBtn").addEventListener("click",()=>openAlertLinkModal("event"));
+  document.getElementById("taskRemoveAlertBtn").addEventListener("click",()=>{agendaLinkedAlertId=null;agendaLinkedAlertTitle="";document.getElementById("taskLinkedAlertDisplay").style.display="none"});
+  document.getElementById("eventRemoveAlertBtn").addEventListener("click",()=>{agendaLinkedAlertId=null;agendaLinkedAlertTitle="";document.getElementById("eventLinkedAlertDisplay").style.display="none"});
+  // ── Alert link search ──
+  document.getElementById("alertLinkSearch").addEventListener("input",()=>renderAlertLinkList());
+  // ── Todo día toggles time fields ──
+  document.getElementById("eventTodoDia").addEventListener("change",function(){
+    const tf=document.getElementById("eventTimeFields");
+    if(tf)tf.style.display=this.checked?"none":"flex";
+  });
+  // ── Click outside modals to close + reset ──
+  document.getElementById("task-modal")?.addEventListener("click",function(e){if(e.target===this){closeModal("task-modal");resetTaskForm()}});
+  document.getElementById("event-modal")?.addEventListener("click",function(e){if(e.target===this){closeModal("event-modal");resetEventForm()}});
+  // ── Auto-refresh ──
+  if(_agendaTimer)clearInterval(_agendaTimer);
+  _agendaTimer=setInterval(refreshAgenda,30000);
+  // ── Load data ──
+  refreshAgenda();
+}
+
+function switchAgendaView(view){
+  document.querySelectorAll(".agenda-subtab").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
+  document.getElementById("agendaCalendarView").classList.toggle("active",view==="calendar");
+  document.getElementById("agendaTasksView").classList.toggle("active",view==="tasks");
+}
+
+async function refreshAgenda(){
+  await Promise.all([loadTasks(), loadEvents()]);
+  renderCalendar();
+  renderTasks();
+  updateAgendaBadge();
+}
+
+function updateAgendaBadge(){
+  const today=new Date().toISOString().slice(0,10);
+  const pending=agendaTasks.filter(t=>t.estado==="pendiente"&&t.fecha_vencimiento===today).length;
+  document.getElementById("agenda-badge").textContent=pending||"";
+  if(pending)document.getElementById("agenda-badge").style.display="";else document.getElementById("agenda-badge").style.display="none";
+}
+
+async function loadTasks(){
+  const d=await G("/api/chat/tasks");
+  if(d?.ok)agendaTasks=d.tasks||[];
+}
+
+async function loadEvents(){
+  const d=await G("/api/chat/agenda");
+  if(d?.ok)agendaEvents=d.events||[];
+}
+
+// ====== CALENDAR RENDER ======
+function renderCalendar(){
+  const year=agendaCurrentMonth.getFullYear();
+  const month=agendaCurrentMonth.getMonth();
+  document.getElementById("calMonthYear").textContent=MONTHS_ES[month]+" "+year;
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const daysInPrev=new Date(year,month,0).getDate();
+  const todayStr=new Date().toISOString().slice(0,10);
+  // Ensure selected date is set
+  if(!agendaSelectedDate)agendaSelectedDate=todayStr;
+  // Ensure selected date is in current month view
+  const selMonth=parseInt(agendaSelectedDate.slice(5,7))-1;
+  if(selMonth!==month&&agendaSelectedDate===todayStr){
+    // today is not in this month — don't force it
+  }
+  let html='<div class="cal-day-header">Dom</div><div class="cal-day-header">Lun</div><div class="cal-day-header">Mar</div><div class="cal-day-header">Mié</div><div class="cal-day-header">Jue</div><div class="cal-day-header">Vie</div><div class="cal-day-header">Sáb</div>';
+  // Previous month trailing days
+  for(let i=firstDay-1;i>=0;i--){
+    const day=daysInPrev-i;
+    const ds=new Date(year,month-1,day).toISOString().slice(0,10);
+    html+=`<div class="cal-day other-month" data-date="${ds}">${day}</div>`;
+  }
+  // Current month
+  for(let d=1;d<=daysInMonth;d++){
+    const ds=new Date(year,month,d).toISOString().slice(0,10);
+    const isToday=ds===todayStr;
+    const isSelected=ds===agendaSelectedDate;
+    const hasEvents=agendaEvents.some(e=>{
+      const es=e.fecha_inicio?.slice(0,10);const ee=(e.fecha_fin||e.fecha_inicio)?.slice(0,10);
+      return es&&ee&&ds>=es&&ds<=ee;
+    });
+    const cls="cal-day"+(isToday?" today":"")+(isSelected?" selected":"");
+    html+=`<div class="${cls}" data-date="${ds}">${d}${hasEvents?'<span class="cal-event-dot"></span>':''}</div>`;
+  }
+  // Next month leading days
+  const total=firstDay+daysInMonth;
+  const rem=total%7===0?0:7-(total%7);
+  for(let d=1;d<=rem;d++){
+    const ds=new Date(year,month+1,d).toISOString().slice(0,10);
+    html+=`<div class="cal-day other-month" data-date="${ds}">${d}</div>`;
+  }
+  document.getElementById("calendarGrid").innerHTML=html;
+  // Click handlers
+  document.getElementById("calendarGrid").querySelectorAll(".cal-day").forEach(el=>{
+    el.addEventListener("click",function(){
+      const cd=this.dataset.date;
+      const cm=new Date(cd+"T12:00:00").getMonth();
+      if(cm!==agendaCurrentMonth.getMonth()){
+        agendaCurrentMonth=new Date(cd+"T12:00:00");
+        agendaCurrentMonth.setDate(1);
+      }
+      agendaSelectedDate=cd;
+      renderCalendar();
+    });
+  });
+  renderDayEvents();
+}
+
+function renderDayEvents(){
+  if(!agendaSelectedDate){document.getElementById("calSelectedDate").textContent="";document.getElementById("calendarEventsList").innerHTML="";return}
+  const ds=agendaSelectedDate;
+  document.getElementById("calSelectedDate").textContent=new Date(ds+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"});
+  const list=document.getElementById("calendarEventsList");
+  const dayEvents=agendaEvents.filter(e=>{
+    const es=e.fecha_inicio?.slice(0,10);const ee=(e.fecha_fin||e.fecha_inicio)?.slice(0,10);
+    return es&&ee&&ds>=es&&ds<=ee;
+  });
+  if(!dayEvents.length){
+    list.innerHTML='<div style="text-align:center;padding:20px;color:var(--fg3);font-size:12px">Sin eventos para este día</div>';return;
+  }
+  list.innerHTML=dayEvents.map(e=>{
+    const tipo=e.tipo_evento||"otro";const tl=TIPO_EVENTO_LABELS[tipo]||tipo;
+    const tr=e.todo_dia?"Todo el día":(e.hora_inicio?e.hora_inicio+(e.hora_fin?" - "+e.hora_fin:""):"");
+    return`<div class="cal-event-item" data-id="${e.id}" data-type="event"><span class="event-time">${esc(tr)}</span><span class="event-title">${esc(e.titulo)}</span><span class="event-type-badge t-${tipo}">${tl}</span></div>`;
+  }).join("");
+  list.querySelectorAll(".cal-event-item").forEach(el=>{
+    el.addEventListener("click",()=>openEventModal(agendaEvents.find(e=>e.id===el.dataset.id),null));
+  });
+}
+
+// ====== TASKS RENDER ======
+function renderTasks(){
+  const list=document.getElementById("agendaTasksList");
+  const empty=document.getElementById("agendaTasksEmpty");
+  let f=agendaTasks;
+  if(agendaFilterEstado==="pendientes")f=f.filter(t=>t.estado==="pendiente");
+  else if(agendaFilterEstado==="realizadas")f=f.filter(t=>t.estado==="realizada"||t.estado==="anulada");
+  if(agendaSearchTerm)f=f.filter(t=>(t.titulo||"").toLowerCase().includes(agendaSearchTerm));
+  if(!f.length){list.innerHTML="";if(empty)empty.style.display="flex";return}
+  if(empty)empty.style.display="none";
+  const pending=f.filter(t=>t.estado==="pendiente");
+  const done=f.filter(t=>t.estado==="realizada"||t.estado==="anulada");
+  let html="";
+  if(pending.length){html+=`<div class="task-group-label">Pendientes (${pending.length})</div>`;html+=pending.map(t=>_taskCardHtml(t)).join("")}
+  if(done.length){html+=`<div class="task-group-label">Realizadas / Anuladas (${done.length})</div>`;html+=done.map(t=>_taskCardHtml(t)).join("")}
+  list.innerHTML=html;
+  // Checkbox toggle
+  list.querySelectorAll(".task-checkbox").forEach(el=>{
+    el.addEventListener("click",async e=>{
+      e.stopPropagation();const id=el.closest(".task-card").dataset.id;
+      const wasDone=el.classList.contains("done");
+      await _patchTask(id,{estado:wasDone?"pendiente":"realizada"});
+      await refreshAgenda();
+    });
+  });
+  // Card toggle expand
+  list.querySelectorAll(".task-card").forEach(el=>{
+    el.addEventListener("click",e=>{
+      if(e.target.closest(".task-checkbox")||e.target.closest(".t-edit")||e.target.closest(".t-delete"))return;
+      el.classList.toggle("expanded");
+    });
+  });
+  // Edit
+  list.querySelectorAll(".t-edit").forEach(el=>{
+    el.addEventListener("click",e=>{
+      e.stopPropagation();
+      const id=el.closest(".task-card").dataset.id;
+      const t=agendaTasks.find(x=>x.id===id);if(t)openTaskModal(t);
+    });
+  });
+  // Delete
+  list.querySelectorAll(".t-delete").forEach(el=>{
+    el.addEventListener("click",async e=>{
+      e.stopPropagation();
+      const id=el.closest(".task-card").dataset.id;
+      if(!await _confirm("¿Eliminar esta tarea?","Eliminar tarea","danger"))return;
+      try{
+        const r=await fetch(API+"/api/chat/tasks/"+id,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+        const d=r.ok?{ok:true}:await r.json().catch(()=>{});
+        if(d?.ok||r.status===200){toast("Tarea eliminada","success");await refreshAgenda()}
+        else toast("Error al eliminar","error");
+      }catch{toast("Error al eliminar","error")}
+    });
+  });
+}
+
+function _taskCardHtml(t){
+  const est=t.estado||"pendiente";const done=est==="realizada";
+  const pri=t.prioridad||"media";
+  const fec=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"short"}):"";
+  const alertTag=t.alerta_id?"<span class='task-alert-link'><span class='material-symbols-outlined' style='font-size:12px'>notifications</span></span>":"";
+  const priLabel={alta:"Alta",media:"Media",baja:"Baja"}[pri]||pri;
+  return`<div class="task-card ${done?'done':''}" data-id="${t.id}">
+    <div class="task-checkbox ${done?'done':''}">${done?'<span class="material-symbols-outlined">check</span>':''}</div>
+    <div class="task-info">
+      <div class="task-title ${done?'done':''}">${esc(t.titulo)}</div>
+      <div class="task-meta">
+        <span class="task-priority ${pri}">${priLabel}</span>
+        ${fec?`<span class="task-date">${fec}</span>`:""}
+        ${alertTag}
+      </div>
+      <div class="task-detail">
+        ${t.descripcion?`<div class="task-desc">${esc(t.descripcion)}</div>`:""}
+        <div class="task-actions">
+          <button class="t-edit"><span class="material-symbols-outlined" style="font-size:14px">edit</span> Editar</button>
+          <button class="t-delete"><span class="material-symbols-outlined" style="font-size:14px">delete</span> Eliminar</button>
+        </div>
+      </div>
+    </div>
+    <span class="task-expand"><span class="material-symbols-outlined" style="font-size:16px">expand_more</span></span>
+  </div>`;
+}
+
+// ====== CRUD ======
+async function saveTask(){
+  const titulo=document.getElementById("taskTitulo").value.trim();
+  if(!titulo){toast("El título es obligatorio","error");return}
+  const descripcion=document.getElementById("taskDescripcion").value.trim();
+  const fecha_vencimiento=document.getElementById("taskFechaVencimiento").value;
+  const prioridad=document.getElementById("taskPrioridad").value;
+  const body={titulo,descripcion,prioridad};
+  if(fecha_vencimiento)body.fecha_vencimiento=fecha_vencimiento;
+  if(agendaLinkedAlertId)body.alerta_id=agendaLinkedAlertId;
+  let d;
+  if(agendaEditingId){
+    try{
+      const r=await fetch(API+"/api/chat/tasks/"+agendaEditingId,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify(body)});
+      d=r.ok?{ok:true}:await r.json().catch(()=>{});
+    }catch{d=null}
+  }else{
+    d=await P("/api/chat/tasks",body);
+  }
+  if(d?.ok){toast(agendaEditingId?"Tarea actualizada":"Tarea creada","success");closeModal("task-modal");resetTaskForm();await refreshAgenda()}
+  else toast("Error al guardar tarea","error");
+}
+
+async function saveEvent(){
+  const titulo=document.getElementById("eventTitulo").value.trim();
+  if(!titulo){toast("El título es obligatorio","error");return}
+  const descripcion=document.getElementById("eventDescripcion").value.trim();
+  const fecha_inicio=document.getElementById("eventFechaInicio").value;
+  const fecha_fin=document.getElementById("eventFechaFin").value;
+  const hora_inicio=document.getElementById("eventHoraInicio").value;
+  const hora_fin=document.getElementById("eventHoraFin").value;
+  const tipo_evento=document.getElementById("eventTipoEvento").value;
+  const todo_dia=document.getElementById("eventTodoDia").checked;
+  if(!fecha_inicio){toast("La fecha de inicio es obligatoria","error");return}
+  const body={titulo,descripcion,fecha_inicio,tipo_evento,todo_dia};
+  if(fecha_fin)body.fecha_fin=fecha_fin;
+  if(hora_inicio)body.hora_inicio=hora_inicio;
+  if(hora_fin)body.hora_fin=hora_fin;
+  if(agendaLinkedAlertId)body.alerta_id=agendaLinkedAlertId;
+  let d;
+  if(agendaEditingId){
+    try{
+      const r=await fetch(API+"/api/chat/agenda/"+agendaEditingId,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify(body)});
+      d=r.ok?{ok:true}:await r.json().catch(()=>{});
+    }catch{d=null}
+  }else{
+    d=await P("/api/chat/agenda",body);
+  }
+  if(d?.ok){toast(agendaEditingId?"Evento actualizado":"Evento creado","success");closeModal("event-modal");resetEventForm();await refreshAgenda()}
+  else toast("Error al guardar evento","error");
+}
+
+async function _patchTask(id,updates){
+  try{
+    const r=await fetch(API+"/api/chat/tasks/"+id,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify(updates)});
+    return r.ok?{ok:true}:await r.json().catch(()=>{});
+  }catch{return null}
+}
+
+// ====== MODAL OPEN/RESET ======
+function openTaskModal(task){
+  agendaEditingId=task?.id||null;
+  agendaLinkedAlertId=task?.alerta_id||null;agendaLinkedAlertTitle="";
+  if(agendaLinkedAlertId){const a=alerts.find(al=>al.id===agendaLinkedAlertId);if(a)agendaLinkedAlertTitle=a.titulo||"Alerta vinculada"}
+  document.getElementById("taskModalTitle").textContent=task?"Editar tarea":"Nueva tarea";
+  document.getElementById("taskTitulo").value=task?.titulo||"";
+  document.getElementById("taskDescripcion").value=task?.descripcion||"";
+  document.getElementById("taskFechaVencimiento").value=task?.fecha_vencimiento||"";
+  document.getElementById("taskPrioridad").value=task?.prioridad||"media";
+  if(agendaLinkedAlertId&&agendaLinkedAlertTitle){
+    document.getElementById("taskLinkedAlertTitle").textContent=agendaLinkedAlertTitle;
+    document.getElementById("taskLinkedAlertDisplay").style.display="flex";
+  }else{document.getElementById("taskLinkedAlertDisplay").style.display="none"}
+  openModal("task-modal");
+}
+
+function openEventModal(event,date){
+  agendaEditingId=event?.id||null;
+  agendaLinkedAlertId=event?.alerta_id||null;agendaLinkedAlertTitle="";
+  if(agendaLinkedAlertId){const a=alerts.find(al=>al.id===agendaLinkedAlertId);if(a)agendaLinkedAlertTitle=a.titulo||"Alerta vinculada"}
+  document.getElementById("eventModalTitle").textContent=event?"Editar evento":"Nuevo evento";
+  document.getElementById("eventTitulo").value=event?.titulo||"";
+  document.getElementById("eventDescripcion").value=event?.descripcion||"";
+  document.getElementById("eventFechaInicio").value=event?.fecha_inicio||(date||new Date().toISOString().slice(0,10));
+  document.getElementById("eventFechaFin").value=event?.fecha_fin||"";
+  document.getElementById("eventHoraInicio").value=event?.hora_inicio||"";
+  document.getElementById("eventHoraFin").value=event?.hora_fin||"";
+  document.getElementById("eventTipoEvento").value=event?.tipo_evento||"reunion";
+  document.getElementById("eventTodoDia").checked=event?.todo_dia||false;
+  const tf=document.getElementById("eventTimeFields");
+  if(tf)tf.style.display=event?.todo_dia?"none":"flex";
+  if(agendaLinkedAlertId&&agendaLinkedAlertTitle){
+    document.getElementById("eventLinkedAlertTitle").textContent=agendaLinkedAlertTitle;
+    document.getElementById("eventLinkedAlertDisplay").style.display="flex";
+  }else{document.getElementById("eventLinkedAlertDisplay").style.display="none"}
+  openModal("event-modal");
+}
+
+function resetTaskForm(){
+  agendaEditingId=null;agendaLinkedAlertId=null;agendaLinkedAlertTitle="";
+  document.getElementById("taskTitulo").value="";
+  document.getElementById("taskDescripcion").value="";
+  document.getElementById("taskFechaVencimiento").value="";
+  document.getElementById("taskPrioridad").value="media";
+  document.getElementById("taskLinkedAlertDisplay").style.display="none";
+}
+
+function resetEventForm(){
+  agendaEditingId=null;agendaLinkedAlertId=null;agendaLinkedAlertTitle="";
+  document.getElementById("eventTitulo").value="";
+  document.getElementById("eventDescripcion").value="";
+  document.getElementById("eventFechaInicio").value="";
+  document.getElementById("eventFechaFin").value="";
+  document.getElementById("eventHoraInicio").value="";
+  document.getElementById("eventHoraFin").value="";
+  document.getElementById("eventTipoEvento").value="reunion";
+  document.getElementById("eventTodoDia").checked=false;
+  document.getElementById("eventLinkedAlertDisplay").style.display="none";
+  const tf=document.getElementById("eventTimeFields");if(tf)tf.style.display="flex";
+}
+
+// ====== ALERT LINKING ======
+let _alertLinkTarget="";
+function openAlertLinkModal(target){
+  _alertLinkTarget=target;
+  document.getElementById("alertLinkSearch").value="";
+  renderAlertLinkList();
+  openModal("alert-link-modal");
+}
+function renderAlertLinkList(){
+  const q=(document.getElementById("alertLinkSearch")?.value||"").toLowerCase();
+  const c=document.getElementById("alertLinkList");
+  const pendingAlerts=alerts.filter(a=>!a.leida);
+  let f=q?pendingAlerts.filter(a=>(a.titulo||"").toLowerCase().includes(q)):pendingAlerts;
+  const empty=document.getElementById("alertLinkEmpty");
+  if(!f.length){c.innerHTML="";if(empty)empty.style.display="flex";return}
+  if(empty)empty.style.display="none";
+  c.innerHTML=f.map(a=>`<div class="item-row" data-id="${a.id}">
+    <div class="item-avatar"><span class="material-symbols-outlined" style="font-size:18px;color:var(--accent)">notifications</span></div>
+    <div class="item-info"><div class="item-name">${esc(a.titulo||"Alerta")}</div><div class="item-sub">${esc(_trunc(a.cuerpo||"",80))}</div></div>
+    <span class="item-action">Vincular</span>
+  </div>`).join("");
+  c.querySelectorAll(".item-row").forEach(el=>{
+    el.addEventListener("click",()=>{
+      const id=el.dataset.id;const a=alerts.find(al=>al.id===id);
+      agendaLinkedAlertId=id;agendaLinkedAlertTitle=a?.titulo||"Alerta";
+      if(_alertLinkTarget==="task"){
+        document.getElementById("taskLinkedAlertTitle").textContent=agendaLinkedAlertTitle;
+        document.getElementById("taskLinkedAlertDisplay").style.display="flex";
+      }else{
+        document.getElementById("eventLinkedAlertTitle").textContent=agendaLinkedAlertTitle;
+        document.getElementById("eventLinkedAlertDisplay").style.display="flex";
+      }
+      closeModal("alert-link-modal");toast("Alerta vinculada","success");
+    });
+  });
+}
 
 // ====== INIT ======
 if("serviceWorker"in navigator)navigator.serviceWorker.register("sw.js?v=33").catch(()=>{});

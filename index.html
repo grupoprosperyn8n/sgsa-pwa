@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
-  <link rel="stylesheet" href="pwa.css?v=50">
+  <link rel="stylesheet" href="pwa.css?v=51">
 </head>
 <body>
 
@@ -42,6 +42,7 @@
     <div class="tabs">
       <button class="tab active" data-tab="alerts"><span class="material-symbols-outlined">notifications</span>Alertas<span class="badge" id="alerts-badge">0</span></button>
       <button class="tab" data-tab="chat"><span class="material-symbols-outlined">chat</span>Chat<span class="badge" id="chat-badge">0</span></button>
+      <button class="tab" data-tab="agenda"><span class="material-symbols-outlined">calendar_month</span>Agenda<span class="badge" id="agenda-badge">0</span></button>
     </div>
     <button class="icon-btn" id="settingsBtn" title="Configuración"><span class="material-symbols-outlined">settings</span></button>
   </header>
@@ -142,6 +143,59 @@
     <input type="file" id="fileInputVideo" accept="video/*" style="display:none">
     <input type="file" id="fileInputAudio" accept="audio/*" style="display:none">
     <input type="file" id="fileInputDoc" accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.txt,.ppt,.pptx" style="display:none">
+  </div>
+
+  <!-- ====== AGENDA TAB ====== -->
+  <div id="agenda-tab" class="tab-content">
+    <div class="agenda-toolbar">
+      <div class="agenda-subtabs">
+        <button class="agenda-subtab active" data-view="calendar"><span class="material-symbols-outlined">calendar_month</span> Calendario</button>
+        <button class="agenda-subtab" data-view="tasks"><span class="material-symbols-outlined">checklist</span> Tareas</button>
+      </div>
+      <button class="icon-btn" id="agendaRefreshBtn"><span class="material-symbols-outlined">refresh</span></button>
+    </div>
+
+    <!-- ===== CALENDAR VIEW ===== -->
+    <div id="agendaCalendarView" class="agenda-view active">
+      <div class="calendar-nav">
+        <button class="icon-btn" id="calPrevBtn"><span class="material-symbols-outlined">chevron_left</span></button>
+        <span id="calMonthYear" class="cal-month-year"></span>
+        <button class="icon-btn" id="calNextBtn"><span class="material-symbols-outlined">chevron_right</span></button>
+      </div>
+      <div id="calendarGrid" class="calendar-grid"></div>
+      <div class="calendar-events-panel" id="calendarEventsPanel">
+        <div class="calendar-events-header">
+          <span id="calSelectedDate"></span>
+          <button class="btn-secondary" id="addEventBtn" style="padding:4px 10px;font-size:11px"><span class="material-symbols-outlined" style="font-size:14px">add</span> Evento</button>
+        </div>
+        <div id="calendarEventsList" class="calendar-events-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== TASKS VIEW ===== -->
+    <div id="agendaTasksView" class="agenda-view">
+      <div class="agenda-task-toolbar">
+        <div class="search-box" style="flex:1">
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--fg3)">search</span>
+          <input type="text" id="agendaSearch" placeholder="Buscar tareas...">
+        </div>
+      </div>
+      <div class="filter-chips" id="agendaFilterChips" style="padding:4px 10px;flex-shrink:0;display:flex;gap:4px">
+        <button class="chip active" data-filter="">Todas</button>
+        <button class="chip" data-filter="pendientes">Pendientes</button>
+        <button class="chip" data-filter="realizadas">Realizadas</button>
+      </div>
+      <div id="agendaTasksList" class="agenda-tasks-list"></div>
+      <div class="empty-state" id="agendaTasksEmpty" style="display:none">
+        <span class="material-symbols-outlined empty-icon">task_alt</span>
+        <p>Sin tareas</p>
+      </div>
+    </div>
+
+    <footer class="agenda-footer">
+      <button id="newTaskBtn" class="btn-secondary"><span class="material-symbols-outlined" style="font-size:16px">add_task</span> Nueva tarea</button>
+      <button id="newEventBtn" class="btn-secondary"><span class="material-symbols-outlined" style="font-size:16px">event</span> Nuevo evento</button>
+    </footer>
   </div>
 </div>
 
@@ -269,6 +323,115 @@
     </div>
   </aside>
 
-<script src="pwa.js?v=50"></script>
+  <!-- ====== TASK MODAL ====== -->
+  <div id="task-modal" class="modal">
+    <div class="modal-content" style="max-width:460px">
+      <div class="modal-header">
+        <h2 id="taskModalTitle">Nueva tarea</h2>
+        <button class="icon-btn close-modal" data-modal="task-modal"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="taskTitulo" placeholder="Título de la tarea">
+        <textarea id="taskDescripcion" placeholder="Descripción (opcional)"></textarea>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <div style="flex:1">
+            <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Fecha vencimiento</label>
+            <input type="date" id="taskFechaVencimiento">
+          </div>
+          <div style="flex:1">
+            <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Prioridad</label>
+            <select id="taskPrioridad">
+              <option value="baja">Baja</option>
+              <option value="media" selected>Media</option>
+              <option value="alta">Alta</option>
+            </select>
+          </div>
+        </div>
+        <div id="taskLinkedAlertDisplay" style="display:none;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:8px;font-size:12px;align-items:center;gap:6px">
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--accent)">notifications</span>
+          <span id="taskLinkedAlertTitle" style="flex:1"></span>
+          <button id="taskRemoveAlertBtn" class="icon-btn" style="width:24px;height:24px"><span class="material-symbols-outlined" style="font-size:14px">close</span></button>
+        </div>
+        <button id="taskLinkAlertBtn" class="btn-secondary" style="width:100%;margin-bottom:8px"><span class="material-symbols-outlined" style="font-size:16px">link</span> Vincular alerta</button>
+        <button id="saveTaskBtn" class="btn-primary">Guardar tarea</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== EVENT MODAL ====== -->
+  <div id="event-modal" class="modal">
+    <div class="modal-content" style="max-width:460px">
+      <div class="modal-header">
+        <h2 id="eventModalTitle">Nuevo evento</h2>
+        <button class="icon-btn close-modal" data-modal="event-modal"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="eventTitulo" placeholder="Título del evento">
+        <textarea id="eventDescripcion" placeholder="Descripción (opcional)"></textarea>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <div style="flex:1">
+            <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Fecha inicio</label>
+            <input type="date" id="eventFechaInicio">
+          </div>
+          <div style="flex:1">
+            <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Fecha fin</label>
+            <input type="date" id="eventFechaFin">
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+          <div style="flex:1">
+            <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Tipo</label>
+            <select id="eventTipoEvento">
+              <option value="reunion">Reunión</option>
+              <option value="llamada">Llamada</option>
+              <option value="tarea">Tarea</option>
+              <option value="personal">Personal</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          <label style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--fg2);cursor:pointer;padding-top:14px">
+            <input type="checkbox" id="eventTodoDia" style="width:16px;height:16px;accent-color:var(--accent)"> Todo el día
+          </label>
+        </div>
+        <div id="eventTimeFields" style="display:flex;gap:8px;margin-bottom:8px">
+          <div style="flex:1">
+            <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Hora inicio</label>
+            <input type="time" id="eventHoraInicio">
+          </div>
+          <div style="flex:1">
+            <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Hora fin</label>
+            <input type="time" id="eventHoraFin">
+          </div>
+        </div>
+        <div id="eventLinkedAlertDisplay" style="display:none;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:8px;font-size:12px;align-items:center;gap:6px">
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--accent)">notifications</span>
+          <span id="eventLinkedAlertTitle" style="flex:1"></span>
+          <button id="eventRemoveAlertBtn" class="icon-btn" style="width:24px;height:24px"><span class="material-symbols-outlined" style="font-size:14px">close</span></button>
+        </div>
+        <button id="eventLinkAlertBtn" class="btn-secondary" style="width:100%;margin-bottom:8px"><span class="material-symbols-outlined" style="font-size:16px">link</span> Vincular alerta</button>
+        <button id="saveEventBtn" class="btn-primary">Guardar evento</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== ALERT LINK MODAL ====== -->
+  <div id="alert-link-modal" class="modal">
+    <div class="modal-content" style="max-width:400px">
+      <div class="modal-header">
+        <h2>Vincular alerta</h2>
+        <button class="icon-btn close-modal" data-modal="alert-link-modal"><span class="material-symbols-outlined">close</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" id="alertLinkSearch" placeholder="Buscar alerta...">
+        <div id="alertLinkList" class="select-list"></div>
+        <div class="empty-state" id="alertLinkEmpty" style="display:none">
+          <span class="material-symbols-outlined empty-icon">notifications_off</span>
+          <p>Sin alertas disponibles</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="pwa.js?v=51"></script>
 </body>
 </html>
