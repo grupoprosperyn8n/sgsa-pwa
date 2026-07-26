@@ -1,7 +1,7 @@
-// SGSA PWA v24 — file vault: word-break in grid cards + title tooltip for full name
+// SGSA PWA v25 — chat messages: wrap document filename in span.file-link-text to prevent overflow
 // Strategy: network-first for HTML, cache-first for hashed assets, network-only for API
-const CACHE_V="sgsa-v24";
-const CACHE_STATIC="sgsa-static-v24";
+const CACHE_V="sgsa-v25";
+const CACHE_STATIC="sgsa-static-v25";
 const STATIC_ASSETS=["/","/index.html","/pwa.css","/pwa.js","/manifest.webmanifest","/icons/icon128.png","/icons/icon48.png","/icons/icon16.png"];
 const API="https://web-production-2584d.up.railway.app";
 
