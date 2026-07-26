@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v62 — calendar day/week/month views, fixed grid sizing
+// SGSA PWA v63 — calendar day/week/month views, fixed grid sizing
 // =============================================================================
-console.log("[SGSA] PWA v62 loaded");
+console.log("[SGSA] PWA v63 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -2161,11 +2161,12 @@ function renderTasks(){
       await refreshAgenda();
     });
   });
-  // Card toggle expand
+  // Card toggle → open detail
   list.querySelectorAll(".task-card").forEach(el=>{
     el.addEventListener("click",e=>{
       if(e.target.closest(".task-checkbox")||e.target.closest(".t-edit")||e.target.closest(".t-delete"))return;
-      el.classList.toggle("expanded");
+      const id=el.dataset.id;const t=agendaTasks.find(x=>String(x.id)===id);
+      if(t)showTaskDetail(t);
     });
   });
   // Edit
@@ -2185,6 +2186,9 @@ function renderTasks(){
       if(t)showTaskDetail(t);
     });
   });
+}
+
+function _taskCardHtml(t){
 }
 
 function _taskCardHtml(t){
@@ -2347,8 +2351,8 @@ function renderTaskKanban(){
     el.addEventListener("click",e=>{
       if(e.target.closest(".kanban-move-btn"))return;
       const id=el.dataset.id;
-      const t=agendaTasks.find(x=>x.id===id);
-      if(t)openTaskModal(t);
+      const t=agendaTasks.find(x=>String(x.id)===id);
+      if(t)showTaskDetail(t);
     });
   });
 
@@ -2416,7 +2420,8 @@ function renderHistory(){
   list.querySelectorAll(".task-card").forEach(el=>{
     el.addEventListener("click",e=>{
       if(e.target.closest(".task-checkbox")||e.target.closest(".t-edit")||e.target.closest(".t-delete"))return;
-      el.classList.toggle("expanded");
+      const id=el.dataset.id;const t=agendaTasks.find(x=>String(x.id)===id);
+      if(t)showTaskDetail(t);
     });
   });
   list.querySelectorAll(".t-edit").forEach(el=>{
@@ -2429,10 +2434,8 @@ function renderHistory(){
   list.querySelectorAll(".t-delete").forEach(el=>{
     el.addEventListener("click",async e=>{
       e.stopPropagation();
-      const id=el.closest(".task-card").dataset.id;
-      if(!await _confirm("¿Eliminar esta tarea?","Eliminar tarea","danger"))return;
-      if(await _deleteTask(id)){toast("Tarea eliminada","success");await refreshAgenda();renderHistory()}
-      else toast("Error al eliminar","error");
+      const id=el.closest(".task-card").dataset.id;const t=agendaTasks.find(x=>String(x.id)===id);
+      if(t)showTaskDetail(t);
     });
   });
   // Checkbox toggle in history also updates
