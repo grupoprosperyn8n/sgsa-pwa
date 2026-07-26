@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v51 — agenda + tasks system with calendar, checklist, and alert linking
+// SGSA PWA v52 — alert share + alert link now includes full link_registro URL
 // =============================================================================
-console.log("[SGSA] PWA v51 loaded");
+console.log("[SGSA] PWA v52 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -277,9 +277,10 @@ function showAlertDetail(a){
 
 // Share alert via chat — opens people modal, then sends alert as message
 function shareAlert(a){
-  const msg=`📋 *${a.titulo||"Alerta"}*\nTipo: ${a.tipo_alerta||"—"} | Prioridad: ${a.prioridad||"—"} | ${(a.fecha||a.created_at||"").slice(0,10)}\n${a.cuerpo?esc(a.cuerpo)+"\n":""}${a.detalle?a.detalle.split("\n").slice(0,8).map(l=>esc(l)).join("\n"):""}`;
+  const link=a.link_registro?`\n🔗 ${a.link_registro}`:"";
+  const msg=`📋 *${a.titulo||"Alerta"}*\nTipo: ${a.tipo_alerta||"—"} | Prioridad: ${a.prioridad||"—"} | ${(a.fecha||a.created_at||"").slice(0,10)}\n${a.cuerpo?esc(a.cuerpo)+"\n":""}${a.detalle?a.detalle.split("\n").slice(0,8).map(l=>esc(l)).join("\n"):""}${link}`;
   window._shareMsg=msg;
-  switchTab("chat"); // ensure chat tab is active so openConversation works
+  switchTab("chat");
   openModal("peopleModal");loadPeopleList();
   toast("Seleccioná a quién compartir","");
 }
@@ -1628,6 +1629,7 @@ let agendaEditingId=null;
 let agendaEditingType="";
 let agendaLinkedAlertId=null;
 let agendaLinkedAlertTitle="";
+let agendaLinkedAlertLink="";
 const MONTHS_ES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
 const DAYS_ES=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
 const TIPO_EVENTO_LABELS={reunion:"Reunión",llamada:"Llamada",tarea:"Tarea",personal:"Personal",otro:"Otro"};
@@ -1659,8 +1661,8 @@ function initAgenda(){
   // ── Alert linking ──
   document.getElementById("taskLinkAlertBtn").addEventListener("click",()=>openAlertLinkModal("task"));
   document.getElementById("eventLinkAlertBtn").addEventListener("click",()=>openAlertLinkModal("event"));
-  document.getElementById("taskRemoveAlertBtn").addEventListener("click",()=>{agendaLinkedAlertId=null;agendaLinkedAlertTitle="";document.getElementById("taskLinkedAlertDisplay").style.display="none"});
-  document.getElementById("eventRemoveAlertBtn").addEventListener("click",()=>{agendaLinkedAlertId=null;agendaLinkedAlertTitle="";document.getElementById("eventLinkedAlertDisplay").style.display="none"});
+  document.getElementById("taskRemoveAlertBtn").addEventListener("click",()=>{agendaLinkedAlertId=null;agendaLinkedAlertTitle="";agendaLinkedAlertLink="";document.getElementById("taskLinkedAlertDisplay").style.display="none"});
+  document.getElementById("eventRemoveAlertBtn").addEventListener("click",()=>{agendaLinkedAlertId=null;agendaLinkedAlertTitle="";agendaLinkedAlertLink="";document.getElementById("eventLinkedAlertDisplay").style.display="none"});
   // ── Alert link search ──
   document.getElementById("alertLinkSearch").addEventListener("input",()=>renderAlertLinkList());
   // ── Todo día toggles time fields ──
@@ -1934,8 +1936,8 @@ async function _patchTask(id,updates){
 // ====== MODAL OPEN/RESET ======
 function openTaskModal(task){
   agendaEditingId=task?.id||null;
-  agendaLinkedAlertId=task?.alerta_id||null;agendaLinkedAlertTitle="";
-  if(agendaLinkedAlertId){const a=alerts.find(al=>al.id===agendaLinkedAlertId);if(a)agendaLinkedAlertTitle=a.titulo||"Alerta vinculada"}
+  agendaLinkedAlertId=task?.alerta_id||null;agendaLinkedAlertTitle="";agendaLinkedAlertLink="";
+  if(agendaLinkedAlertId){const a=alerts.find(al=>al.id===agendaLinkedAlertId);if(a){agendaLinkedAlertTitle=a.titulo||"Alerta vinculada";agendaLinkedAlertLink=a.link_registro||""}}
   document.getElementById("taskModalTitle").textContent=task?"Editar tarea":"Nueva tarea";
   document.getElementById("taskTitulo").value=task?.titulo||"";
   document.getElementById("taskDescripcion").value=task?.descripcion||"";
@@ -1943,6 +1945,8 @@ function openTaskModal(task){
   document.getElementById("taskPrioridad").value=task?.prioridad||"media";
   if(agendaLinkedAlertId&&agendaLinkedAlertTitle){
     document.getElementById("taskLinkedAlertTitle").textContent=agendaLinkedAlertTitle;
+    document.getElementById("taskLinkedAlertLink").href=agendaLinkedAlertLink||"#";
+    document.getElementById("taskLinkedAlertLink").style.display=agendaLinkedAlertLink?"":"none";
     document.getElementById("taskLinkedAlertDisplay").style.display="flex";
   }else{document.getElementById("taskLinkedAlertDisplay").style.display="none"}
   openModal("task-modal");
@@ -1950,8 +1954,8 @@ function openTaskModal(task){
 
 function openEventModal(event,date){
   agendaEditingId=event?.id||null;
-  agendaLinkedAlertId=event?.alerta_id||null;agendaLinkedAlertTitle="";
-  if(agendaLinkedAlertId){const a=alerts.find(al=>al.id===agendaLinkedAlertId);if(a)agendaLinkedAlertTitle=a.titulo||"Alerta vinculada"}
+  agendaLinkedAlertId=event?.alerta_id||null;agendaLinkedAlertTitle="";agendaLinkedAlertLink="";
+  if(agendaLinkedAlertId){const a=alerts.find(al=>al.id===agendaLinkedAlertId);if(a){agendaLinkedAlertTitle=a.titulo||"Alerta vinculada";agendaLinkedAlertLink=a.link_registro||""}}
   document.getElementById("eventModalTitle").textContent=event?"Editar evento":"Nuevo evento";
   document.getElementById("eventTitulo").value=event?.titulo||"";
   document.getElementById("eventDescripcion").value=event?.descripcion||"";
@@ -1965,13 +1969,15 @@ function openEventModal(event,date){
   if(tf)tf.style.display=event?.todo_dia?"none":"flex";
   if(agendaLinkedAlertId&&agendaLinkedAlertTitle){
     document.getElementById("eventLinkedAlertTitle").textContent=agendaLinkedAlertTitle;
+    document.getElementById("eventLinkedAlertLink").href=agendaLinkedAlertLink||"#";
+    document.getElementById("eventLinkedAlertLink").style.display=agendaLinkedAlertLink?"":"none";
     document.getElementById("eventLinkedAlertDisplay").style.display="flex";
   }else{document.getElementById("eventLinkedAlertDisplay").style.display="none"}
   openModal("event-modal");
 }
 
 function resetTaskForm(){
-  agendaEditingId=null;agendaLinkedAlertId=null;agendaLinkedAlertTitle="";
+  agendaEditingId=null;agendaLinkedAlertId=null;agendaLinkedAlertTitle="";agendaLinkedAlertLink="";
   document.getElementById("taskTitulo").value="";
   document.getElementById("taskDescripcion").value="";
   document.getElementById("taskFechaVencimiento").value="";
@@ -1980,7 +1986,7 @@ function resetTaskForm(){
 }
 
 function resetEventForm(){
-  agendaEditingId=null;agendaLinkedAlertId=null;agendaLinkedAlertTitle="";
+  agendaEditingId=null;agendaLinkedAlertId=null;agendaLinkedAlertTitle="";agendaLinkedAlertLink="";
   document.getElementById("eventTitulo").value="";
   document.getElementById("eventDescripcion").value="";
   document.getElementById("eventFechaInicio").value="";
@@ -2017,12 +2023,16 @@ function renderAlertLinkList(){
   c.querySelectorAll(".item-row").forEach(el=>{
     el.addEventListener("click",()=>{
       const id=el.dataset.id;const a=alerts.find(al=>al.id===id);
-      agendaLinkedAlertId=id;agendaLinkedAlertTitle=a?.titulo||"Alerta";
+      agendaLinkedAlertId=id;agendaLinkedAlertTitle=a?.titulo||"Alerta";agendaLinkedAlertLink=a?.link_registro||"";
       if(_alertLinkTarget==="task"){
         document.getElementById("taskLinkedAlertTitle").textContent=agendaLinkedAlertTitle;
+        document.getElementById("taskLinkedAlertLink").href=agendaLinkedAlertLink||"#";
+        document.getElementById("taskLinkedAlertLink").style.display=agendaLinkedAlertLink?"":"none";
         document.getElementById("taskLinkedAlertDisplay").style.display="flex";
       }else{
         document.getElementById("eventLinkedAlertTitle").textContent=agendaLinkedAlertTitle;
+        document.getElementById("eventLinkedAlertLink").href=agendaLinkedAlertLink||"#";
+        document.getElementById("eventLinkedAlertLink").style.display=agendaLinkedAlertLink?"":"none";
         document.getElementById("eventLinkedAlertDisplay").style.display="flex";
       }
       closeModal("alert-link-modal");toast("Alerta vinculada","success");
