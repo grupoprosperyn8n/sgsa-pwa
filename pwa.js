@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v52 — alert share + alert link now includes full link_registro URL
+// SGSA PWA v53 — calendar month/year dropdown selects (1950-2050)
 // =============================================================================
-console.log("[SGSA] PWA v52 loaded");
+console.log("[SGSA] PWA v53 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -1640,6 +1640,17 @@ function initAgenda(){
   // ── Calendar nav ──
   document.getElementById("calPrevBtn").addEventListener("click",()=>{agendaCurrentMonth.setMonth(agendaCurrentMonth.getMonth()-1);renderCalendar()});
   document.getElementById("calNextBtn").addEventListener("click",()=>{agendaCurrentMonth.setMonth(agendaCurrentMonth.getMonth()+1);renderCalendar()});
+  // Populate month/year selects
+  const monthSel=document.getElementById("calMonthSelect");
+  const yearSel=document.getElementById("calYearSelect");
+  if(monthSel){
+    monthSel.innerHTML=MONTHS_ES.map((m,i)=>`<option value="${i}">${m}</option>`).join("");
+    monthSel.addEventListener("change",function(){agendaCurrentMonth.setMonth(parseInt(this.value));renderCalendar()});
+  }
+  if(yearSel){
+    for(let y=1950;y<=2050;y++)yearSel.innerHTML+=`<option value="${y}">${y}</option>`;
+    yearSel.addEventListener("change",function(){agendaCurrentMonth.setFullYear(parseInt(this.value));renderCalendar()});
+  }
   document.getElementById("addEventBtn").addEventListener("click",()=>openEventModal(null,agendaSelectedDate));
   // ── New task/event ──
   document.getElementById("newTaskBtn").addEventListener("click",()=>openTaskModal(null));
@@ -1714,7 +1725,11 @@ async function loadEvents(){
 function renderCalendar(){
   const year=agendaCurrentMonth.getFullYear();
   const month=agendaCurrentMonth.getMonth();
-  document.getElementById("calMonthYear").textContent=MONTHS_ES[month]+" "+year;
+  // Sync selects with current date
+  const monthSel=document.getElementById("calMonthSelect");
+  const yearSel=document.getElementById("calYearSelect");
+  if(monthSel)monthSel.value=month;
+  if(yearSel)yearSel.value=year;
   const firstDay=new Date(year,month,1).getDay();
   const daysInMonth=new Date(year,month+1,0).getDate();
   const daysInPrev=new Date(year,month,0).getDate();

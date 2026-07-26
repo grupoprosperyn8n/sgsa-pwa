@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
-  <link rel="stylesheet" href="pwa.css?v=52">
+  <link rel="stylesheet" href="pwa.css?v=53">
 </head>
 <body>
 
@@ -159,7 +159,8 @@
     <div id="agendaCalendarView" class="agenda-view active">
       <div class="calendar-nav">
         <button class="icon-btn" id="calPrevBtn"><span class="material-symbols-outlined">chevron_left</span></button>
-        <span id="calMonthYear" class="cal-month-year"></span>
+        <select id="calMonthSelect" class="cal-select"></select>
+        <select id="calYearSelect" class="cal-select"></select>
         <button class="icon-btn" id="calNextBtn"><span class="material-symbols-outlined">chevron_right</span></button>
       </div>
       <div id="calendarGrid" class="calendar-grid"></div>
@@ -434,6 +435,6 @@
     </div>
   </div>
 
-<script src="pwa.js?v=52"></script>
+<script src="pwa.js?v=53"></script>
 </body>
 </html>
