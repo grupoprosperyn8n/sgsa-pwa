@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v47 — chat messages: use CSS Grid for file-link (icon + filename), wrap long names
+// SGSA PWA v48 — JS truncate long filenames (chat:80, vault-grid:35, vault-list:60) + CSS
 // =============================================================================
-console.log("[SGSA] PWA v47 loaded");
+console.log("[SGSA] PWA v48 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
