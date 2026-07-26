@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v56 — kanban board, calendar list view, task history, edit/delete
+// SGSA PWA v57 — calendar day/week/month views, fixed grid sizing
 // =============================================================================
-console.log("[SGSA] PWA v56 loaded");
+console.log("[SGSA] PWA v57 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -1623,6 +1623,7 @@ let _agendaTimer=null;
 let agendaTasks=[], agendaEvents=[];
 let agendaCurrentMonth=new Date();
 let agendaSelectedDate=null;
+let agendaCalView="month";
 let agendaFilterEstado="";
 let agendaSearchTerm="";
 let agendaDateRange="";
@@ -1729,8 +1730,8 @@ function initAgenda(){
   // ── Sub-tab switching ──
   document.querySelectorAll(".agenda-subtab").forEach(b=>b.addEventListener("click",()=>switchAgendaView(b.dataset.view)));
   // ── Calendar nav ──
-  document.getElementById("calPrevBtn").addEventListener("click",()=>{agendaCurrentMonth.setMonth(agendaCurrentMonth.getMonth()-1);renderCalendar()});
-  document.getElementById("calNextBtn").addEventListener("click",()=>{agendaCurrentMonth.setMonth(agendaCurrentMonth.getMonth()+1);renderCalendar()});
+  document.getElementById("calPrevBtn").addEventListener("click",()=>{if(agendaCalView==="day"){agendaSelectedDate=new Date(new Date(agendaSelectedDate+"T12:00:00").getTime()-86400000).toISOString().slice(0,10)}else{agendaCurrentMonth.setMonth(agendaCurrentMonth.getMonth()-1)}renderCalendar()});
+  document.getElementById("calNextBtn").addEventListener("click",()=>{if(agendaCalView==="day"){agendaSelectedDate=new Date(new Date(agendaSelectedDate+"T12:00:00").getTime()+86400000).toISOString().slice(0,10)}else{agendaCurrentMonth.setMonth(agendaCurrentMonth.getMonth()+1)}renderCalendar()});
   // Populate month/year selects
   const monthSel=document.getElementById("calMonthSelect");
   const yearSel=document.getElementById("calYearSelect");
@@ -1742,6 +1743,14 @@ function initAgenda(){
     for(let y=1950;y<=2050;y++)yearSel.innerHTML+=`<option value="${y}">${y}</option>`;
     yearSel.addEventListener("change",function(){agendaCurrentMonth.setFullYear(parseInt(this.value));renderCalendar()});
   }
+  // ── Calendar view toggle (day/week/month) ──
+  document.querySelectorAll(".cal-view-btn").forEach(b=>b.addEventListener("click",function(){
+    document.querySelectorAll(".cal-view-btn").forEach(x=>x.classList.remove("active"));
+    this.classList.add("active");
+    agendaCalView=this.dataset.view;
+    if(agendaCalView==="day"&&!agendaSelectedDate)agendaSelectedDate=new Date().toISOString().slice(0,10);
+    renderCalendar();
+  }));
   document.getElementById("addEventBtn").addEventListener("click",()=>openEventModal(null,agendaSelectedDate));
   // ── Date picker buttons ──
   ["taskFechaBtn","eventFechaInicioBtn","eventFechaFinBtn"].forEach(id=>{
@@ -1980,62 +1989,57 @@ async function loadEvents(){
 function renderCalendar(){
   const year=agendaCurrentMonth.getFullYear();
   const month=agendaCurrentMonth.getMonth();
-  // Sync selects with current date
   const monthSel=document.getElementById("calMonthSelect");
   const yearSel=document.getElementById("calYearSelect");
   if(monthSel)monthSel.value=month;
   if(yearSel)yearSel.value=year;
-  const firstDay=new Date(year,month,1).getDay();
-  const daysInMonth=new Date(year,month+1,0).getDate();
-  const daysInPrev=new Date(year,month,0).getDate();
+  const grid=document.getElementById("calendarGrid");
+  const weekView=document.getElementById("calendarWeekView");
+  const dayView=document.getElementById("calendarDayView");
   const todayStr=new Date().toISOString().slice(0,10);
-  // Ensure selected date is set
   if(!agendaSelectedDate)agendaSelectedDate=todayStr;
-  // Ensure selected date is in current month view
-  const selMonth=parseInt(agendaSelectedDate.slice(5,7))-1;
-  if(selMonth!==month&&agendaSelectedDate===todayStr){
-    // today is not in this month — don't force it
+  // Hide all views first
+  grid.style.display="none";if(weekView)weekView.style.display="none";if(dayView)dayView.style.display="none";
+
+  if(agendaCalView==="month"){
+    grid.style.display="grid";
+    const firstDay=new Date(year,month,1).getDay();
+    const daysInMonth=new Date(year,month+1,0).getDate();
+    const daysInPrev=new Date(year,month,0).getDate();
+    let html='<div class="cal-day-header">Dom</div><div class="cal-day-header">Lun</div><div class="cal-day-header">Mar</div><div class="cal-day-header">Mié</div><div class="cal-day-header">Jue</div><div class="cal-day-header">Vie</div><div class="cal-day-header">Sáb</div>';
+    for(let i=firstDay-1;i>=0;i--){const d=daysInPrev-i;const ds=new Date(year,month-1,d).toISOString().slice(0,10);html+=`<div class="cal-day other-month" data-date="${ds}">${d}</div>`}
+    for(let d=1;d<=daysInMonth;d++){const ds=new Date(year,month,d).toISOString().slice(0,10);const isToday=ds===todayStr;const isSelected=ds===agendaSelectedDate;const hasEvents=agendaEvents.some(e=>{const es=e.fecha_inicio?.slice(0,10);const ee=(e.fecha_fin||e.fecha_inicio)?.slice(0,10);return es&&ee&&ds>=es&&ds<=ee});html+=`<div class="cal-day${isToday?" today":""}${isSelected?" selected":""}" data-date="${ds}">${d}${hasEvents?'<span class="cal-event-dot"></span>':''}</div>`}
+    const total=firstDay+daysInMonth;const rem=total%7===0?0:7-(total%7);
+    for(let d=1;d<=rem;d++){const ds=new Date(year,month+1,d).toISOString().slice(0,10);html+=`<div class="cal-day other-month" data-date="${ds}">${d}</div>`}
+    grid.innerHTML=html;
+    grid.querySelectorAll(".cal-day").forEach(el=>{el.addEventListener("click",function(){const cd=this.dataset.date;const cm=new Date(cd+"T12:00:00").getMonth();if(cm!==agendaCurrentMonth.getMonth()){agendaCurrentMonth=new Date(cd+"T12:00:00");agendaCurrentMonth.setDate(1)}agendaSelectedDate=cd;renderCalendar()})});
   }
-  let html='<div class="cal-day-header">Dom</div><div class="cal-day-header">Lun</div><div class="cal-day-header">Mar</div><div class="cal-day-header">Mié</div><div class="cal-day-header">Jue</div><div class="cal-day-header">Vie</div><div class="cal-day-header">Sáb</div>';
-  // Previous month trailing days
-  for(let i=firstDay-1;i>=0;i--){
-    const day=daysInPrev-i;
-    const ds=new Date(year,month-1,day).toISOString().slice(0,10);
-    html+=`<div class="cal-day other-month" data-date="${ds}">${day}</div>`;
+  else if(agendaCalView==="week"&&weekView){
+    weekView.style.display="block";
+    // Find the Monday of the current week
+    const start=new Date(agendaSelectedDate+"T12:00:00");
+    const dayOfWeek=start.getDay();
+    const monday=new Date(start);monday.setDate(start.getDate()-((dayOfWeek+6)%7));
+    let html='<div class="cal-week-header">'+["Lun","Mar","Mié","Jue","Vie","Sáb","Dom"].map((d,i)=>{const dd=new Date(monday);dd.setDate(monday.getDate()+i);const ds=dd.toISOString().slice(0,10);return`<div class="cal-week-day${ds===todayStr?" today":""}" data-date="${ds}">${d}<br><span class="cal-week-num">${dd.getDate()}</span></div>`}).join("")+'</div>';
+    html+='<div class="cal-week-body">';
+    for(let h=6;h<=23;h++){const hh=String(h).padStart(2,"0");html+=`<div class="cal-week-row" data-hour="${h}"><div class="cal-week-hour">${h>12?h-12:h}:00 ${h<12?"AM":h===12?"PM":h>12?"PM":""}</div>`;for(let d=0;d<7;d++){const dd=new Date(monday);dd.setDate(monday.getDate()+d);const ds=dd.toISOString().slice(0,10);html+=`<div class="cal-week-cell" data-date="${ds}" data-hour="${h}"></div>`}html+=`</div>`}
+    html+='</div>';
+    weekView.innerHTML=html;
+    weekView.querySelectorAll(".cal-week-day").forEach(el=>{el.addEventListener("click",function(){agendaSelectedDate=this.dataset.date;renderCalendar()})});
+    weekView.querySelectorAll(".cal-week-cell").forEach(el=>{el.addEventListener("click",function(){agendaSelectedDate=this.dataset.date;const h=parseInt(this.dataset.hour);const m=h<12?`${h}:00 AM`:h===12?"12:00 PM":`${h-12}:00 PM`;openEventModal(null,agendaSelectedDate)})});
   }
-  // Current month
-  for(let d=1;d<=daysInMonth;d++){
-    const ds=new Date(year,month,d).toISOString().slice(0,10);
-    const isToday=ds===todayStr;
-    const isSelected=ds===agendaSelectedDate;
-    const hasEvents=agendaEvents.some(e=>{
-      const es=e.fecha_inicio?.slice(0,10);const ee=(e.fecha_fin||e.fecha_inicio)?.slice(0,10);
-      return es&&ee&&ds>=es&&ds<=ee;
-    });
-    const cls="cal-day"+(isToday?" today":"")+(isSelected?" selected":"");
-    html+=`<div class="${cls}" data-date="${ds}">${d}${hasEvents?'<span class="cal-event-dot"></span>':''}</div>`;
+  else if(agendaCalView==="day"&&dayView){
+    dayView.style.display="block";
+    const d=new Date(agendaSelectedDate+"T12:00:00");
+    const weekDays=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+    const months=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    let html=`<div class="cal-day-title">${weekDays[d.getDay()]}, ${d.getDate()} de ${months[d.getMonth()]} ${d.getFullYear()}</div>`;
+    html+='<div class="cal-day-body">';
+    for(let h=0;h<24;h++){const hh=String(h).padStart(2,"00");const ampm=h===0?"12 AM":h<12?`${h} AM`:h===12?"12 PM":`${h-12} PM`;html+=`<div class="cal-hour-row" data-hour="${h}"><div class="cal-hour-label">${ampm}</div><div class="cal-hour-content" data-date="${agendaSelectedDate}" data-hour="${h}"></div></div>`}
+    html+='</div>';
+    dayView.innerHTML=html;
+    dayView.querySelectorAll(".cal-hour-content").forEach(el=>{el.addEventListener("click",function(){openEventModal(null,this.dataset.date)})});
   }
-  // Next month leading days
-  const total=firstDay+daysInMonth;
-  const rem=total%7===0?0:7-(total%7);
-  for(let d=1;d<=rem;d++){
-    const ds=new Date(year,month+1,d).toISOString().slice(0,10);
-    html+=`<div class="cal-day other-month" data-date="${ds}">${d}</div>`;
-  }
-  document.getElementById("calendarGrid").innerHTML=html;
-  // Click handlers
-  document.getElementById("calendarGrid").querySelectorAll(".cal-day").forEach(el=>{
-    el.addEventListener("click",function(){
-      const cd=this.dataset.date;
-      const cm=new Date(cd+"T12:00:00").getMonth();
-      if(cm!==agendaCurrentMonth.getMonth()){
-        agendaCurrentMonth=new Date(cd+"T12:00:00");
-        agendaCurrentMonth.setDate(1);
-      }
-      agendaSelectedDate=cd;
-      renderCalendar();
-    });
-  });
   renderDayEvents();
 }
 

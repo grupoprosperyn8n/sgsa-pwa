@@ -168,8 +168,13 @@
         <select id="calMonthSelect" class="cal-select"></select>
         <select id="calYearSelect" class="cal-select"></select>
         <button class="icon-btn" id="calNextBtn"><span class="material-symbols-outlined">chevron_right</span></button>
+        <div class="cal-view-toggle"><button class="cal-view-btn" data-view="day">Día</button><button class="cal-view-btn" data-view="week">Sem</button><button class="cal-view-btn active" data-view="month">Mes</button></div>
       </div>
-      <div id="calendarGrid" class="calendar-grid"></div>
+      <div class="calendar-scroll">
+        <div id="calendarGrid" class="calendar-grid"></div>
+        <div id="calendarWeekView" class="calendar-week-view" style="display:none"></div>
+        <div id="calendarDayView" class="calendar-day-view" style="display:none"></div>
+      </div>
       <div class="calendar-events-panel" id="calendarEventsPanel">
         <div class="calendar-events-header">
           <span id="calSelectedDate"></span>
