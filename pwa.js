@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v55 — visual date picker popup + time select dropdowns (modal)
+// SGSA PWA v56 — kanban board, calendar list view, task history, edit/delete
 // =============================================================================
-console.log("[SGSA] PWA v55 loaded");
+console.log("[SGSA] PWA v56 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -1629,6 +1629,8 @@ let agendaDateRange="";
 let agendaDateFrom="";
 let agendaDateTo="";
 let agendaDaysAgo="";
+let agendaSubView="calendar-grid"; // "calendar-grid" | "calendar-list" | "tasks-list" | "tasks-kanban"
+let eventListDateFrom="",eventListDateTo="",eventListTipo="";
 let agendaEditingId=null;
 let agendaEditingType="";
 let agendaLinkedAlertId=null;
@@ -1759,12 +1761,18 @@ function initAgenda(){
   document.getElementById("newTaskBtn").addEventListener("click",()=>openTaskModal(null));
   document.getElementById("newEventBtn").addEventListener("click",()=>openEventModal(null,null));
   // ── Search ──
-  document.getElementById("agendaSearch").addEventListener("input",()=>{agendaSearchTerm=document.getElementById("agendaSearch").value.trim().toLowerCase();renderTasks()});
+  document.getElementById("agendaSearch").addEventListener("input",()=>{
+    agendaSearchTerm=document.getElementById("agendaSearch").value.trim().toLowerCase();
+    if(agendaSubView==="tasks-kanban")renderTaskKanban();
+    else renderTasks();
+  });
   // ── Filter chips ──
   document.getElementById("agendaFilterChips").addEventListener("click",e=>{
     const chip=e.target.closest(".chip");if(!chip)return;
     document.querySelectorAll("#agendaFilterChips .chip").forEach(c=>c.classList.remove("active"));
-    chip.classList.add("active");agendaFilterEstado=chip.dataset.filter;renderTasks();
+    chip.classList.add("active");agendaFilterEstado=chip.dataset.filter;
+    if(agendaSubView==="tasks-kanban")renderTaskKanban();
+    else renderTasks();
   });
   // ── Refresh ──
   document.getElementById("agendaRefreshBtn").addEventListener("click",refreshAgenda);
@@ -1784,26 +1792,70 @@ function initAgenda(){
     const tf=document.getElementById("eventTimeFields");
     if(tf)tf.style.display=this.checked?"none":"flex";
   });
+   // ── Calendar sub-view toggle ──
+   document.getElementById("calendarSubToggle")?.addEventListener("click",e=>{
+     const btn=e.target.closest(".arch-filter-btn");
+     if(!btn)return;
+     switchAgendaSubView(btn.dataset.subview);
+   });
+   // ── Tasks sub-view toggle ──
+   document.getElementById("tasksSubToggle")?.addEventListener("click",e=>{
+     const btn=e.target.closest(".arch-filter-btn");
+     if(!btn)return;
+     switchAgendaSubView(btn.dataset.subview);
+   });
+   // ── History search ──
+   document.getElementById("historySearch")?.addEventListener("input",()=>{
+     historySearchTerm=document.getElementById("historySearch").value.trim().toLowerCase();
+     renderHistory();
+   });
+   // ── History filter chips ──
+   document.getElementById("historyFilterChips")?.addEventListener("click",e=>{
+     const chip=e.target.closest(".chip");if(!chip)return;
+     document.querySelectorAll("#historyFilterChips .chip").forEach(c=>c.classList.remove("active"));
+     chip.classList.add("active");historyFilterEstado=chip.dataset.filter;renderHistory();
+   });
+   // ── History date filters ──
+   document.querySelectorAll("#historyDateFilters .arch-filter-btn").forEach(b=>b.addEventListener("click",function(){
+     if(this.id==="historyClearDateFilter"){
+       historyDateRange="";historyDateFrom="";historyDateTo="";historyDaysAgo="";
+       document.querySelectorAll("#historyDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));
+       document.getElementById("historyDateFrom").value="";document.getElementById("historyDateTo").value="";
+       document.getElementById("historyDaysAgo").value="";renderHistory();return;
+     }
+     historyDateRange=this.dataset.range;
+     document.querySelectorAll("#historyDateFilters .arch-filter-btn").forEach(x=>x.classList.toggle("active",x===this));
+     historyDateFrom="";historyDateTo="";historyDaysAgo="";
+     document.getElementById("historyDateFrom").value="";document.getElementById("historyDateTo").value="";
+     document.getElementById("historyDaysAgo").value="";renderHistory();
+   }));
+   document.getElementById("historyDateFrom")?.addEventListener("change",function(){historyDateFrom=this.value;historyDateRange="";historyDaysAgo="";document.querySelectorAll("#historyDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("historyDaysAgo").value="";renderHistory()});
+   document.getElementById("historyDateTo")?.addEventListener("change",function(){historyDateTo=this.value;historyDateRange="";historyDaysAgo="";document.querySelectorAll("#historyDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("historyDaysAgo").value="";renderHistory()});
+   document.getElementById("historyDaysAgo")?.addEventListener("input",function(){historyDaysAgo=this.value;historyDateRange="";historyDateFrom="";historyDateTo="";document.querySelectorAll("#historyDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("historyDateFrom").value="";document.getElementById("historyDateTo").value="";renderHistory()});
    // ── Click outside modals to close + reset ──
    document.getElementById("task-modal")?.addEventListener("click",function(e){if(e.target===this){closeModal("task-modal");resetTaskForm()}});
    document.getElementById("event-modal")?.addEventListener("click",function(e){if(e.target===this){closeModal("event-modal");resetEventForm()}});
-   // ── Date filter buttons ──
-   document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(b=>b.addEventListener("click",function(){
-     if(this.id==="agendaClearDateFilter"){
-       agendaDateRange="";agendaDateFrom="";agendaDateTo="";agendaDaysAgo="";
-       document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));
-       document.getElementById("agendaDateFrom").value="";document.getElementById("agendaDateTo").value="";
-       document.getElementById("agendaDaysAgo").value="";renderTasks();return;
-     }
-     agendaDateRange=this.dataset.range;
-     document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.toggle("active",x===this));
-     agendaDateFrom="";agendaDateTo="";agendaDaysAgo="";
-     document.getElementById("agendaDateFrom").value="";document.getElementById("agendaDateTo").value="";
-     document.getElementById("agendaDaysAgo").value="";renderTasks();
-   }));
-   document.getElementById("agendaDateFrom")?.addEventListener("change",function(){agendaDateFrom=this.value;agendaDateRange="";agendaDaysAgo="";document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("agendaDaysAgo").value="";renderTasks()});
-   document.getElementById("agendaDateTo")?.addEventListener("change",function(){agendaDateTo=this.value;agendaDateRange="";agendaDaysAgo="";document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("agendaDaysAgo").value="";renderTasks()});
-   document.getElementById("agendaDaysAgo")?.addEventListener("input",function(){agendaDaysAgo=this.value;agendaDateRange="";agendaDateFrom="";agendaDateTo="";document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("agendaDateFrom").value="";document.getElementById("agendaDateTo").value="";renderTasks()});
+    // ── Date filter buttons ──
+    const _renderTasksOrKanban=()=>{
+      if(agendaSubView==="tasks-kanban")renderTaskKanban();
+      else renderTasks();
+    };
+    document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(b=>b.addEventListener("click",function(){
+      if(this.id==="agendaClearDateFilter"){
+        agendaDateRange="";agendaDateFrom="";agendaDateTo="";agendaDaysAgo="";
+        document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));
+        document.getElementById("agendaDateFrom").value="";document.getElementById("agendaDateTo").value="";
+        document.getElementById("agendaDaysAgo").value="";_renderTasksOrKanban();return;
+      }
+      agendaDateRange=this.dataset.range;
+      document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.toggle("active",x===this));
+      agendaDateFrom="";agendaDateTo="";agendaDaysAgo="";
+      document.getElementById("agendaDateFrom").value="";document.getElementById("agendaDateTo").value="";
+      document.getElementById("agendaDaysAgo").value="";_renderTasksOrKanban();
+    }));
+    document.getElementById("agendaDateFrom")?.addEventListener("change",function(){agendaDateFrom=this.value;agendaDateRange="";agendaDaysAgo="";document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("agendaDaysAgo").value="";_renderTasksOrKanban()});
+    document.getElementById("agendaDateTo")?.addEventListener("change",function(){agendaDateTo=this.value;agendaDateRange="";agendaDaysAgo="";document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("agendaDaysAgo").value="";_renderTasksOrKanban()});
+    document.getElementById("agendaDaysAgo")?.addEventListener("input",function(){agendaDaysAgo=this.value;agendaDateRange="";agendaDateFrom="";agendaDateTo="";document.querySelectorAll("#agendaDateFilters .arch-filter-btn").forEach(x=>x.classList.remove("active"));document.getElementById("agendaDateFrom").value="";document.getElementById("agendaDateTo").value="";_renderTasksOrKanban()});
    // ── Auto-refresh ──
    if(_agendaTimer)clearInterval(_agendaTimer);
    _agendaTimer=setInterval(refreshAgenda,30000);
@@ -1813,14 +1865,97 @@ function initAgenda(){
 
 function switchAgendaView(view){
   document.querySelectorAll(".agenda-subtab").forEach(b=>b.classList.toggle("active",b.dataset.view===view));
-  document.getElementById("agendaCalendarView").classList.toggle("active",view==="calendar");
-  document.getElementById("agendaTasksView").classList.toggle("active",view==="tasks");
+  const calView=document.getElementById("agendaCalendarView");
+  const tasksView=document.getElementById("agendaTasksView");
+  const histView=document.getElementById("agendaHistoryView");
+  if(!calView||!tasksView||!histView)return;
+  calView.classList.toggle("active",view==="calendar");
+  tasksView.classList.toggle("active",view==="tasks");
+  histView.classList.toggle("active",view==="history");
+  if(view==="calendar"){
+    if(agendaSubView==="calendar-list"){
+      renderEventList();
+    }else{
+      const gridWrap=document.getElementById("calendarGridView");
+      const listView=document.getElementById("calendarEventListView");
+      if(gridWrap)gridWrap.style.display="";
+      if(listView)listView.style.display="none";
+      renderCalendar();
+    }
+    _updateCalendarSubToggle();
+  }else if(view==="tasks"){
+    if(agendaSubView==="tasks-kanban")renderTaskKanban();
+    else renderTasks();
+    _updateTasksSubToggle();
+  }else if(view==="history"){
+    renderHistory();
+  }
+}
+
+function switchAgendaSubView(subview){
+  agendaSubView=subview;
+  const curView=document.querySelector("#agenda-tab .agenda-view.active");
+  if(!curView)return;
+  if(curView.id==="agendaCalendarView"){
+    if(subview==="calendar-list"){
+      renderEventList();
+    }else{
+      const gridWrap=document.getElementById("calendarGridView");
+      const listView=document.getElementById("calendarEventListView");
+      if(gridWrap)gridWrap.style.display="";
+      if(listView)listView.style.display="none";
+      renderCalendar();
+    }
+    document.querySelectorAll("#calendarSubToggle .arch-filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.subview===subview));
+  }else if(curView.id==="agendaTasksView"){
+    if(subview==="tasks-kanban")renderTaskKanban();
+    else renderTasks();
+    document.querySelectorAll("#tasksSubToggle .arch-filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.subview===subview));
+  }
+}
+
+function _updateCalendarSubToggle(){
+  const toggle=document.getElementById("calendarSubToggle");
+  if(toggle){
+    toggle.style.display="flex";
+    document.querySelectorAll("#calendarSubToggle .arch-filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.subview===agendaSubView));
+  }
+}
+function _updateTasksSubToggle(){
+  document.querySelectorAll("#tasksSubToggle .arch-filter-btn").forEach(b=>b.classList.toggle("active",b.dataset.subview===agendaSubView));
+}
+
+function _applyDateFilterToTasks(f, dateRange, dateFrom, dateTo, daysAgo){
+  const now=new Date();
+  const today=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  if(dateRange==="today")f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=today});
+  else if(dateRange==="week"){const ws=new Date(today);ws.setDate(ws.getDate()-ws.getDay());f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=ws})}
+  else if(dateRange==="month"){const ms=new Date(now.getFullYear(),now.getMonth(),1);f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=ms})}
+  else if(dateRange==="year"){const ys=new Date(now.getFullYear(),0,1);f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=ys})}
+  if(dateFrom){const fd=new Date(dateFrom+"T12:00:00");f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=fd})}
+  if(dateTo){const td=new Date(dateTo+"T23:59:59");f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d<=td})}
+  if(daysAgo){const da=parseInt(daysAgo);if(da>0){const dd=new Date(today);dd.setDate(dd.getDate()-da);f=f.filter(t=>{const d=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00"):null;return d&&d>=dd})}}
+  return f;
 }
 
 async function refreshAgenda(){
   await Promise.all([loadTasks(), loadEvents()]);
-  renderCalendar();
-  renderTasks();
+  const activeView=document.querySelector("#agenda-tab .agenda-view.active");
+  if(activeView){
+    if(activeView.id==="agendaCalendarView"){
+      if(agendaSubView==="calendar-list")renderEventList();
+      else renderCalendar();
+    }else if(activeView.id==="agendaTasksView"){
+      if(agendaSubView==="tasks-kanban")renderTaskKanban();
+      else renderTasks();
+    }else if(activeView.id==="agendaHistoryView"){
+      renderHistory();
+    }
+  }else{
+    // Fallback if no active view (shouldn't happen)
+    renderCalendar();
+    renderTasks();
+  }
   updateAgendaBadge();
 }
 
@@ -1982,12 +2117,8 @@ function renderTasks(){
       e.stopPropagation();
       const id=el.closest(".task-card").dataset.id;
       if(!await _confirm("¿Eliminar esta tarea?","Eliminar tarea","danger"))return;
-      try{
-        const r=await fetch(API+"/api/chat/tasks/"+id,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
-        const d=r.ok?{ok:true}:await r.json().catch(()=>{});
-        if(d?.ok||r.status===200){toast("Tarea eliminada","success");await refreshAgenda()}
-        else toast("Error al eliminar","error");
-      }catch{toast("Error al eliminar","error")}
+      if(await _deleteTask(id)){toast("Tarea eliminada","success");await refreshAgenda()}
+      else toast("Error al eliminar","error");
     });
   });
 }
@@ -2017,6 +2148,215 @@ function _taskCardHtml(t){
     </div>
     <span class="task-expand"><span class="material-symbols-outlined" style="font-size:16px">expand_more</span></span>
   </div>`;
+}
+
+// ====== CALENDAR LIST VIEW ======
+function renderEventList(){
+  const container=document.getElementById("calendarEventListView");
+  const gridWrap=document.getElementById("calendarGridView");
+  const toggle=document.getElementById("calendarSubToggle");
+  if(!container||!gridWrap)return;
+  gridWrap.style.display="none";
+  container.style.display="flex";
+  if(toggle)toggle.style.display="flex";
+
+  // Apply filters
+  let f=[...agendaEvents];
+  if(eventListTipo)f=f.filter(e=>(e.tipo_evento||"")===eventListTipo);
+  if(eventListDateFrom){const fd=new Date(eventListDateFrom+"T00:00:00");f=f.filter(e=>{const es=e.fecha_inicio?new Date(e.fecha_inicio+"T12:00:00"):null;return es&&es>=fd})}
+  if(eventListDateTo){const td=new Date(eventListDateTo+"T23:59:59");f=f.filter(e=>{const es=e.fecha_inicio?new Date(e.fecha_inicio+"T12:00:00"):null;return es&&es<=td})}
+
+  const sorted=[...f].sort((a,b)=>{
+    const da=a.fecha_inicio?a.fecha_inicio+" "+(a.hora_inicio||"00:00"):"";
+    const db=b.fecha_inicio?b.fecha_inicio+" "+(b.hora_inicio||"00:00"):"";
+    return da.localeCompare(db);
+  });
+
+  let html='<div class="event-list-filters" style="display:flex;gap:6px;padding:0 0 8px;flex-wrap:wrap;flex-shrink:0;align-items:center">';
+  html+='<label style="font-size:10px;color:var(--fg3)">Desde:</label><input type="date" id="evListDateFrom" class="arch-date-input" value="'+esc(eventListDateFrom)+'" style="font-size:10px;max-width:110px">';
+  html+='<label style="font-size:10px;color:var(--fg3)">Hasta:</label><input type="date" id="evListDateTo" class="arch-date-input" value="'+esc(eventListDateTo)+'" style="font-size:10px;max-width:110px">';
+  html+='<select id="evListTipo" style="font-size:10px;padding:2px 6px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--fg);outline:none"><option value="">Todos</option><option value="reunion" '+(eventListTipo==="reunion"?'selected':'')+'>Reunión</option><option value="llamada" '+(eventListTipo==="llamada"?'selected':'')+'>Llamada</option><option value="tarea" '+(eventListTipo==="tarea"?'selected':'')+'>Tarea</option><option value="personal" '+(eventListTipo==="personal"?'selected':'')+'>Personal</option><option value="otro" '+(eventListTipo==="otro"?'selected':'')+'>Otro</option></select>';
+  html+='</div>';
+
+  if(!sorted.length){
+    html+='<div class="empty-state" style="display:flex"><span class="material-symbols-outlined empty-icon">event_busy</span><p>Sin eventos</p></div>';
+    container.innerHTML=html;
+    _wireEventListFilters(container);
+    return;
+  }
+
+  html+=sorted.map(e=>{
+    const tipo=e.tipo_evento||"otro";
+    const tl=TIPO_EVENTO_LABELS[tipo]||tipo;
+    const fi=e.fecha_inicio?new Date(e.fecha_inicio+"T12:00:00").toLocaleDateString("es-AR",{weekday:"short",day:"numeric",month:"short"}):"";
+    const fe=e.fecha_fin?new Date(e.fecha_fin+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"short"}):"";
+    const tr=e.todo_dia?"Todo el día":(e.hora_inicio?e.hora_inicio+(e.hora_fin?" - "+e.hora_fin:""):"");
+    return`<div class="event-list-item" data-id="${e.id}">
+      <div class="event-list-date-badge">${esc(fi)}${fe?" → "+esc(fe):""}</div>
+      <div class="event-list-body">
+        <div class="event-list-header">
+          <span class="event-list-title">${esc(e.titulo)}</span>
+          <span class="event-type-badge t-${tipo}">${tl}</span>
+        </div>
+        ${tr?`<div class="event-list-time">${esc(tr)}</div>`:""}
+        ${e.descripcion?`<div class="event-list-desc">${esc(_trunc(e.descripcion,120))}</div>`:""}
+      </div>
+    </div>`;
+  }).join("");
+
+  container.innerHTML=html;
+  _wireEventListFilters(container);
+  container.querySelectorAll(".event-list-item").forEach(el=>{
+    el.addEventListener("click",()=>openEventModal(agendaEvents.find(ev=>ev.id==el.dataset.id),null));
+  });
+}
+
+function _wireEventListFilters(container){
+  const from=container.querySelector("#evListDateFrom");
+  const to=container.querySelector("#evListDateTo");
+  const tipo=container.querySelector("#evListTipo");
+  if(from)from.addEventListener("change",function(){eventListDateFrom=this.value;renderEventList()});
+  if(to)to.addEventListener("change",function(){eventListDateTo=this.value;renderEventList()});
+  if(tipo)tipo.addEventListener("change",function(){eventListTipo=this.value;renderEventList()});
+}
+
+// ====== TASK KANBAN VIEW ======
+function renderTaskKanban(){
+  const board=document.getElementById("agendaKanbanView");
+  const list=document.getElementById("agendaTasksList");
+  const empty=document.getElementById("agendaTasksEmpty");
+  if(!board)return;
+  board.style.display="flex";
+  if(list)list.style.display="none";
+  if(empty)empty.style.display="none";
+
+  let f=agendaTasks;
+  if(agendaSearchTerm)f=f.filter(t=>(t.titulo||"").toLowerCase().includes(agendaSearchTerm));
+  f=_applyDateFilterToTasks(f,agendaDateRange,agendaDateFrom,agendaDateTo,agendaDaysAgo);
+
+  const pending=f.filter(t=>t.estado==="pendiente");
+  const done=f.filter(t=>t.estado==="realizada");
+  const cancelled=f.filter(t=>t.estado==="anulada");
+
+  const cols=[
+    {title:"Pendientes",icon:"pending",tasks:pending,color:"var(--accent)"},
+    {title:"Realizadas",icon:"check_circle",tasks:done,color:"var(--success)"},
+    {title:"Anuladas",icon:"cancel",tasks:cancelled,color:"var(--danger)"},
+  ];
+
+  board.innerHTML=cols.map(col=>`<div class="kanban-col">
+    <div class="kanban-col-header" style="color:${col.color}">
+      <span class="material-symbols-outlined" style="font-size:16px">${col.icon}</span>
+      ${col.title}
+      <span class="kanban-col-count">${col.tasks.length}</span>
+    </div>
+    <div class="kanban-col-cards">
+      ${col.tasks.length?col.tasks.map(t=>_kanbanCardHtml(t)).join(""):`<div class="kanban-empty">Sin tareas</div>`}
+    </div>
+  </div>`).join("");
+
+  board.querySelectorAll(".kanban-card").forEach(el=>{
+    el.addEventListener("click",e=>{
+      if(e.target.closest(".kanban-move-btn"))return;
+      const id=el.dataset.id;
+      const t=agendaTasks.find(x=>x.id===id);
+      if(t)openTaskModal(t);
+    });
+  });
+
+  board.querySelectorAll(".kanban-move-btn").forEach(el=>{
+    el.addEventListener("click",async e=>{
+      e.stopPropagation();
+      const id=el.closest(".kanban-card").dataset.id;
+      const targetEstado=el.dataset.estado;
+      if(!id||!targetEstado)return;
+      await _patchTask(id,{estado:targetEstado});
+      await refreshAgenda();
+      renderTaskKanban();
+    });
+  });
+}
+
+function _kanbanCardHtml(t){
+  const pri=t.prioridad||"media";
+  const priLabel={alta:"Alta",media:"Media",baja:"Baja"}[pri]||pri;
+  const fec=t.fecha_vencimiento?new Date(t.fecha_vencimiento+"T12:00:00").toLocaleDateString("es-AR",{day:"numeric",month:"short"}):"";
+  const est=t.estado||"pendiente";
+  const showMove=est==="pendiente"?'<button class="kanban-move-btn move-done" data-estado="realizada" title="Marcar realizada"><span class="material-symbols-outlined" style="font-size:14px">check_circle</span></button><button class="kanban-move-btn move-cancel" data-estado="anulada" title="Anular"><span class="material-symbols-outlined" style="font-size:14px">cancel</span></button>':'<button class="kanban-move-btn move-reopen" data-estado="pendiente" title="Reabrir"><span class="material-symbols-outlined" style="font-size:14px">undo</span></button>';
+  return`<div class="kanban-card" data-id="${t.id}">
+    <div class="kanban-card-header">
+      <span class="kanban-card-title">${esc(t.titulo)}</span>
+      <span class="task-priority ${pri}">${priLabel}</span>
+    </div>
+    <div class="kanban-card-meta">
+      ${fec?`<span class="task-date"><span class="material-symbols-outlined" style="font-size:11px">calendar_today</span> ${fec}</span>`:""}
+    </div>
+    ${t.descripcion?`<div class="kanban-card-desc">${esc(_trunc(t.descripcion,80))}</div>`:""}
+    <div class="kanban-card-actions">${showMove}</div>
+  </div>`;
+}
+
+// ====== HISTORY VIEW ======
+let historyFilterEstado="";
+let historySearchTerm="";
+let historyDateRange="";
+let historyDateFrom="";
+let historyDateTo="";
+let historyDaysAgo="";
+
+function renderHistory(){
+  const list=document.getElementById("agendaHistoryList");
+  const empty=document.getElementById("agendaHistoryEmpty");
+  if(!list)return;
+
+  let f=agendaTasks.filter(t=>t.estado==="realizada"||t.estado==="anulada");
+  if(historyFilterEstado==="realizadas")f=f.filter(t=>t.estado==="realizada");
+  else if(historyFilterEstado==="anuladas")f=f.filter(t=>t.estado==="anulada");
+  if(historySearchTerm)f=f.filter(t=>(t.titulo||"").toLowerCase().includes(historySearchTerm));
+  f=_applyDateFilterToTasks(f,historyDateRange,historyDateFrom,historyDateTo,historyDaysAgo);
+
+  if(!f.length){list.innerHTML="";if(empty)empty.style.display="flex";return}
+  if(empty)empty.style.display="none";
+
+  const realizadas=f.filter(t=>t.estado==="realizada");
+  const anuladas=f.filter(t=>t.estado==="anulada");
+  let html="";
+  if(realizadas.length){html+=`<div class="task-group-label" style="color:var(--success)">✓ Realizadas (${realizadas.length})</div>`;html+=realizadas.map(t=>_taskCardHtml(t)).join("")}
+  if(anuladas.length){html+=`<div class="task-group-label" style="color:var(--danger)">✕ Anuladas (${anuladas.length})</div>`;html+=anuladas.map(t=>_taskCardHtml(t)).join("")}
+  list.innerHTML=html;
+
+  list.querySelectorAll(".task-card").forEach(el=>{
+    el.addEventListener("click",e=>{
+      if(e.target.closest(".task-checkbox")||e.target.closest(".t-edit")||e.target.closest(".t-delete"))return;
+      el.classList.toggle("expanded");
+    });
+  });
+  list.querySelectorAll(".t-edit").forEach(el=>{
+    el.addEventListener("click",e=>{
+      e.stopPropagation();
+      const id=el.closest(".task-card").dataset.id;
+      const t=agendaTasks.find(x=>x.id===id);if(t)openTaskModal(t);
+    });
+  });
+  list.querySelectorAll(".t-delete").forEach(el=>{
+    el.addEventListener("click",async e=>{
+      e.stopPropagation();
+      const id=el.closest(".task-card").dataset.id;
+      if(!await _confirm("¿Eliminar esta tarea?","Eliminar tarea","danger"))return;
+      if(await _deleteTask(id)){toast("Tarea eliminada","success");await refreshAgenda();renderHistory()}
+      else toast("Error al eliminar","error");
+    });
+  });
+  // Checkbox toggle in history also updates
+  list.querySelectorAll(".task-checkbox").forEach(el=>{
+    el.addEventListener("click",async e=>{
+      e.stopPropagation();const id=el.closest(".task-card").dataset.id;
+      const wasDone=el.classList.contains("done");
+      await _patchTask(id,{estado:wasDone?"pendiente":"realizada"});
+      await refreshAgenda();
+      renderHistory();
+    });
+  });
 }
 
 // ====== CRUD ======
@@ -2073,9 +2413,17 @@ async function saveEvent(){
 
 async function _patchTask(id,updates){
   try{
-    const r=await fetch(API+"/api/chat/tasks/"+id,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify(updates)});
+    const r=await _ft(API+"/api/chat/tasks/"+id,{method:"PATCH",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify(updates)});
     return r.ok?{ok:true}:await r.json().catch(()=>{});
   }catch{return null}
+}
+
+async function _deleteTask(id){
+  try{
+    const r=await _ft(API+"/api/chat/tasks/"+id,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+    const d=r.ok?{ok:true}:await r.json().catch(()=>{});
+    return d?.ok||r.status===200;
+  }catch{return false}
 }
 
 // ====== MODAL OPEN/RESET ======

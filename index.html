@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
-  <link rel="stylesheet" href="pwa.css?v=55">
+  <link rel="stylesheet" href="pwa.css?v=56">
 </head>
 <body>
 
@@ -151,12 +151,18 @@
       <div class="agenda-subtabs">
         <button class="agenda-subtab active" data-view="calendar"><span class="material-symbols-outlined">calendar_month</span> Calendario</button>
         <button class="agenda-subtab" data-view="tasks"><span class="material-symbols-outlined">checklist</span> Tareas</button>
+        <button class="agenda-subtab" data-view="history"><span class="material-symbols-outlined">history</span> Historial</button>
       </div>
       <button class="icon-btn" id="agendaRefreshBtn"><span class="material-symbols-outlined">refresh</span></button>
     </div>
 
     <!-- ===== CALENDAR VIEW ===== -->
     <div id="agendaCalendarView" class="agenda-view active">
+      <div id="calendarSubToggle" class="cal-sub-toggle" style="display:none;gap:4px;padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
+        <button class="arch-filter-btn active" data-subview="calendar-grid">Calendario</button>
+        <button class="arch-filter-btn" data-subview="calendar-list">Lista</button>
+      </div>
+      <div id="calendarGridView" style="display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden">
       <div class="calendar-nav">
         <button class="icon-btn" id="calPrevBtn"><span class="material-symbols-outlined">chevron_left</span></button>
         <select id="calMonthSelect" class="cal-select"></select>
@@ -171,10 +177,16 @@
         </div>
         <div id="calendarEventsList" class="calendar-events-list"></div>
       </div>
+      </div>
+      <div id="calendarEventListView" class="calendar-event-list-view" style="display:none;flex:1;overflow-y:auto;padding:8px 10px"></div>
     </div>
 
     <!-- ===== TASKS VIEW ===== -->
     <div id="agendaTasksView" class="agenda-view">
+      <div id="tasksSubToggle" class="cal-sub-toggle" style="display:flex;gap:4px;padding:6px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
+        <button class="arch-filter-btn active" data-subview="tasks-list">Lista</button>
+        <button class="arch-filter-btn" data-subview="tasks-kanban">Tablero</button>
+      </div>
       <div class="agenda-task-toolbar">
         <div class="search-box" style="flex:1">
           <span class="material-symbols-outlined" style="font-size:16px;color:var(--fg3)">search</span>
@@ -204,9 +216,47 @@
         <button id="agendaClearDateFilter" class="arch-filter-btn sm" style="color:var(--danger)">Limpiar</button>
       </div>
       <div id="agendaTasksList" class="agenda-tasks-list"></div>
+      <div id="agendaKanbanView" class="kanban-board" style="display:none;flex:1;overflow-y:auto;padding:8px 6px"></div>
       <div class="empty-state" id="agendaTasksEmpty" style="display:none">
         <span class="material-symbols-outlined empty-icon">task_alt</span>
         <p>Sin tareas</p>
+      </div>
+    </div>
+
+    <!-- ===== HISTORY VIEW ===== -->
+    <div id="agendaHistoryView" class="agenda-view">
+      <div class="agenda-task-toolbar">
+        <div class="search-box" style="flex:1">
+          <span class="material-symbols-outlined" style="font-size:16px;color:var(--fg3)">search</span>
+          <input type="text" id="historySearch" placeholder="Buscar en historial...">
+        </div>
+      </div>
+      <div class="filter-chips" id="historyFilterChips" style="padding:4px 10px;flex-shrink:0;display:flex;gap:4px">
+        <button class="chip active" data-filter="">Todas</button>
+        <button class="chip" data-filter="realizadas">Realizadas</button>
+        <button class="chip" data-filter="anuladas">Anuladas</button>
+      </div>
+      <div class="agenda-date-filters" id="historyDateFilters" style="display:flex;flex-wrap:wrap;gap:4px;padding:2px 10px 4px;flex-shrink:0;align-items:center">
+        <button class="arch-filter-btn sm" data-range="today">Hoy</button>
+        <button class="arch-filter-btn sm" data-range="week">Esta semana</button>
+        <button class="arch-filter-btn sm" data-range="month">Este mes</button>
+        <button class="arch-filter-btn sm" data-range="year">Este año</button>
+        <div style="display:flex;align-items:center;gap:3px;flex:1;min-width:0">
+          <label style="font-size:10px;color:var(--fg3)">Desde:</label>
+          <input type="date" id="historyDateFrom" class="arch-date-input" style="flex:1;min-width:0;font-size:10px">
+          <label style="font-size:10px;color:var(--fg3)">Hasta:</label>
+          <input type="date" id="historyDateTo" class="arch-date-input" style="flex:1;min-width:0;font-size:10px">
+        </div>
+        <div style="display:flex;align-items:center;gap:3px">
+          <label style="font-size:10px;color:var(--fg3);white-space:nowrap">Días:</label>
+          <input type="number" id="historyDaysAgo" class="arch-days-input" value="" min="1" placeholder="--" style="width:36px">
+        </div>
+        <button id="historyClearDateFilter" class="arch-filter-btn sm" style="color:var(--danger)">Limpiar</button>
+      </div>
+      <div id="agendaHistoryList" class="agenda-tasks-list"></div>
+      <div class="empty-state" id="agendaHistoryEmpty" style="display:none">
+        <span class="material-symbols-outlined empty-icon">history</span>
+        <p>Sin tareas en el historial</p>
       </div>
     </div>
 
@@ -477,6 +527,6 @@
   <div id="dpGrid" class="dp-grid"></div>
 </div>
 
-<script src="pwa.js?v=55"></script>
+<script src="pwa.js?v=56"></script>
 </body>
 </html>
