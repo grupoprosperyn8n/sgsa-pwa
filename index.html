@@ -13,7 +13,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap">
-  <link rel="stylesheet" href="pwa.css?v=54">
+  <link rel="stylesheet" href="pwa.css?v=55">
 </head>
 <body>
 
@@ -354,7 +354,10 @@
         <div style="display:flex;gap:8px;margin-bottom:8px">
           <div style="flex:1">
             <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Fecha vencimiento</label>
-            <input type="date" id="taskFechaVencimiento">
+            <div class="date-picker-wrap">
+              <input type="date" id="taskFechaVencimiento" style="display:none">
+              <button class="date-picker-btn" id="taskFechaBtn" data-target="taskFechaVencimiento"><span class="material-symbols-outlined" style="font-size:16px">calendar_month</span><span id="taskFechaText" class="date-text">Seleccionar</span></button>
+            </div>
           </div>
           <div style="flex:1">
             <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Prioridad</label>
@@ -390,11 +393,23 @@
         <div style="display:flex;gap:8px;margin-bottom:8px">
           <div style="flex:1">
             <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Fecha inicio</label>
-            <input type="date" id="eventFechaInicio">
+            <div class="date-picker-wrap">
+              <input type="date" id="eventFechaInicio" style="display:none">
+              <button class="date-picker-btn" id="eventFechaInicioBtn" data-target="eventFechaInicio">
+                <span class="material-symbols-outlined" style="font-size:16px">calendar_month</span>
+                <span id="eventFechaInicioText" class="date-text">Seleccionar</span>
+              </button>
+            </div>
           </div>
           <div style="flex:1">
             <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Fecha fin</label>
-            <input type="date" id="eventFechaFin">
+            <div class="date-picker-wrap">
+              <input type="date" id="eventFechaFin" style="display:none">
+              <button class="date-picker-btn" id="eventFechaFinBtn" data-target="eventFechaFin">
+                <span class="material-symbols-outlined" style="font-size:16px">calendar_month</span>
+                <span id="eventFechaFinText" class="date-text">Seleccionar</span>
+              </button>
+            </div>
           </div>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
@@ -415,11 +430,11 @@
         <div id="eventTimeFields" style="display:flex;gap:8px;margin-bottom:8px">
           <div style="flex:1">
             <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Hora inicio</label>
-            <input type="time" id="eventHoraInicio">
+            <select id="eventHoraInicio" class="time-select"></select>
           </div>
           <div style="flex:1">
             <label style="font-size:11px;color:var(--fg3);display:block;margin-bottom:2px">Hora fin</label>
-            <input type="time" id="eventHoraFin">
+            <select id="eventHoraFin" class="time-select"></select>
           </div>
         </div>
         <div id="eventLinkedAlertDisplay" style="display:none;padding:6px 10px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:8px;font-size:12px;align-items:center;gap:6px">
@@ -452,6 +467,16 @@
     </div>
   </div>
 
-<script src="pwa.js?v=54"></script>
+<!-- ====== DATE PICKER POPUP ====== -->
+<div id="datePickerPopup" class="date-picker-popup" style="display:none">
+  <div class="dp-header">
+    <button class="icon-btn" id="dpPrev"><span class="material-symbols-outlined">chevron_left</span></button>
+    <span id="dpMonthYear" class="dp-month-year"></span>
+    <button class="icon-btn" id="dpNext"><span class="material-symbols-outlined">chevron_right</span></button>
+  </div>
+  <div id="dpGrid" class="dp-grid"></div>
+</div>
+
+<script src="pwa.js?v=55"></script>
 </body>
 </html>

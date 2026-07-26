@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v54 — agenda date filters: hoy, semana, mes, año, desde-hasta, días atrás
+// SGSA PWA v55 — visual date picker popup + time select dropdowns (modal)
 // =============================================================================
-console.log("[SGSA] PWA v54 loaded");
+console.log("[SGSA] PWA v55 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -1638,6 +1638,91 @@ const MONTHS_ES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agost
 const DAYS_ES=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
 const TIPO_EVENTO_LABELS={reunion:"Reunión",llamada:"Llamada",tarea:"Tarea",personal:"Personal",otro:"Otro"};
 
+// ─── Time select populator ──────────────────────────────────────────
+function _populateTimeSelects(){
+  const sel1=document.getElementById("eventHoraInicio");
+  const sel2=document.getElementById("eventHoraFin");
+  if(!sel1||sel1.options.length>0)return; // already populated
+  const times=[];
+  for(let h=8;h<=20;h++){
+    for(let m=0;m<60;m+=30){
+      const hh=String(h).padStart(2,'0');
+      const mm=String(m).padStart(2,'0');
+      let label;
+      if(h<12)label=`${h}:${mm} AM`;
+      else if(h===12)label=`12:${mm} PM`;
+      else label=`${h-12}:${mm} PM`;
+      times.push({val:`${hh}:${mm}`,label});
+    }
+  }
+  const opts=times.map(t=>`<option value="${t.val}">${t.label}</option>`).join("");
+  sel1.innerHTML='<option value="">--</option>'+opts;
+  sel2.innerHTML='<option value="">--</option>'+opts;
+}
+
+// ─── Date picker popup ──────────────────────────────────────────────
+let _dpTarget=null;
+let _dpMonth=new Date().getMonth();
+let _dpYear=new Date().getFullYear();
+
+function _openDatePicker(btnId, inputId, textId){
+  const btn=document.getElementById(btnId);
+  const popup=document.getElementById("datePickerPopup");
+  if(!btn||!popup)return;
+  _dpTarget={inputId,textId};
+  // Position popup below button
+  const rect=btn.getBoundingClientRect();
+  popup.style.top=(rect.bottom+4)+"px";
+  popup.style.left=rect.left+"px";
+  popup.style.display="block";
+  // Set popup to current date or the input's value
+  const input=document.getElementById(inputId);
+  let d=input&&input.value?new Date(input.value+"T12:00:00"):new Date();
+  _dpMonth=d.getMonth();
+  _dpYear=d.getFullYear();
+  _renderDatePicker();
+}
+
+function _renderDatePicker(){
+  const popup=document.getElementById("datePickerPopup");
+  const month=_dpMonth, year=_dpYear;
+  document.getElementById("dpMonthYear").textContent=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"][month]+" "+year;
+  const firstDay=new Date(year,month,1).getDay();
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  const daysInPrev=new Date(year,month,0).getDate();
+  const todayStr=new Date().toISOString().slice(0,10);
+  const input=document.getElementById(_dpTarget?.inputId||"");
+  const selDate=input?.value||"";
+  let html="";
+  ["Do","Lu","Ma","Mi","Ju","Vi","Sa"].forEach(d=>{html+=`<div class="cal-day-header">${d}</div>`});
+  for(let i=firstDay-1;i>=0;i--){const day=daysInPrev-i;const ds=new Date(year,month-1,day).toISOString().slice(0,10);html+=`<div class="dp-day other-month ${ds===todayStr?'today':''}" data-date="${ds}">${day}</div>`}
+  for(let d=1;d<=daysInMonth;d++){const ds=new Date(year,month,d).toISOString().slice(0,10);html+=`<div class="dp-day ${ds===todayStr?'today':''} ${ds===selDate?'selected':''}" data-date="${ds}">${d}</div>`}
+  const total=firstDay+daysInMonth;const rem=total%7===0?0:7-(total%7);
+  for(let d=1;d<=rem;d++){const ds=new Date(year,month+1,d).toISOString().slice(0,10);html+=`<div class="dp-day other-month" data-date="${ds}">${d}</div>`}
+  document.getElementById("dpGrid").innerHTML=html;
+  // Click handler on each day cell
+  document.getElementById("dpGrid").querySelectorAll(".dp-day").forEach(el=>{
+    el.addEventListener("click",function(){
+      const date=this.dataset.date;
+      if(_dpTarget){
+        document.getElementById(_dpTarget.inputId).value=date;
+        // Format for display: "DD/MM/YYYY"
+        const parts=date.split("-");
+        document.getElementById(_dpTarget.textId).textContent=parts[2]+"/"+parts[1]+"/"+parts[0];
+      }
+      popup.style.display="none";
+    });
+  });
+}
+
+// Close popup on outside click
+document.addEventListener("click",function(e){
+  const popup=document.getElementById("datePickerPopup");
+  if(popup&&popup.style.display==="block"&&!e.target.closest(".date-picker-wrap")&&!e.target.closest("#datePickerPopup")){
+    popup.style.display="none";
+  }
+});
+
 function initAgenda(){
   // ── Sub-tab switching ──
   document.querySelectorAll(".agenda-subtab").forEach(b=>b.addEventListener("click",()=>switchAgendaView(b.dataset.view)));
@@ -1656,6 +1741,20 @@ function initAgenda(){
     yearSel.addEventListener("change",function(){agendaCurrentMonth.setFullYear(parseInt(this.value));renderCalendar()});
   }
   document.getElementById("addEventBtn").addEventListener("click",()=>openEventModal(null,agendaSelectedDate));
+  // ── Date picker buttons ──
+  ["taskFechaBtn","eventFechaInicioBtn","eventFechaFinBtn"].forEach(id=>{
+    const btn=document.getElementById(id);
+    if(btn)btn.addEventListener("click",function(){
+      const target=this.dataset.target;
+      const textId=this.id.replace("Btn","Text");
+      _openDatePicker(this.id,target,textId);
+    });
+  });
+  // Populate time selects
+  _populateTimeSelects();
+  // ── Popup nav ──
+  document.getElementById("dpPrev").addEventListener("click",function(e){e.stopPropagation();_dpMonth--;if(_dpMonth<0){_dpMonth=11;_dpYear--}_renderDatePicker()});
+  document.getElementById("dpNext").addEventListener("click",function(e){e.stopPropagation();_dpMonth++;if(_dpMonth>11){_dpMonth=0;_dpYear++}_renderDatePicker()});
   // ── New task/event ──
   document.getElementById("newTaskBtn").addEventListener("click",()=>openTaskModal(null));
   document.getElementById("newEventBtn").addEventListener("click",()=>openEventModal(null,null));
@@ -1987,7 +2086,9 @@ function openTaskModal(task){
   document.getElementById("taskModalTitle").textContent=task?"Editar tarea":"Nueva tarea";
   document.getElementById("taskTitulo").value=task?.titulo||"";
   document.getElementById("taskDescripcion").value=task?.descripcion||"";
-  document.getElementById("taskFechaVencimiento").value=task?.fecha_vencimiento||"";
+  const fv=task?.fecha_vencimiento||"";
+  document.getElementById("taskFechaVencimiento").value=fv;
+  document.getElementById("taskFechaText").textContent=fv?fv.split("-").reverse().join("/"):"Seleccionar";
   document.getElementById("taskPrioridad").value=task?.prioridad||"media";
   if(agendaLinkedAlertId&&agendaLinkedAlertTitle){
     document.getElementById("taskLinkedAlertTitle").textContent=agendaLinkedAlertTitle;
@@ -2005,8 +2106,12 @@ function openEventModal(event,date){
   document.getElementById("eventModalTitle").textContent=event?"Editar evento":"Nuevo evento";
   document.getElementById("eventTitulo").value=event?.titulo||"";
   document.getElementById("eventDescripcion").value=event?.descripcion||"";
-  document.getElementById("eventFechaInicio").value=event?.fecha_inicio||(date||new Date().toISOString().slice(0,10));
-  document.getElementById("eventFechaFin").value=event?.fecha_fin||"";
+  const fi=event?.fecha_inicio||(date||new Date().toISOString().slice(0,10));
+  const ff=event?.fecha_fin||"";
+  document.getElementById("eventFechaInicio").value=fi;
+  document.getElementById("eventFechaInicioText").textContent=fi?fi.split("-").reverse().join("/"):"Seleccionar";
+  document.getElementById("eventFechaFin").value=ff;
+  document.getElementById("eventFechaFinText").textContent=ff?ff.split("-").reverse().join("/"):"Seleccionar";
   document.getElementById("eventHoraInicio").value=event?.hora_inicio||"";
   document.getElementById("eventHoraFin").value=event?.hora_fin||"";
   document.getElementById("eventTipoEvento").value=event?.tipo_evento||"reunion";
@@ -2027,6 +2132,7 @@ function resetTaskForm(){
   document.getElementById("taskTitulo").value="";
   document.getElementById("taskDescripcion").value="";
   document.getElementById("taskFechaVencimiento").value="";
+  document.getElementById("taskFechaText").textContent="Seleccionar";
   document.getElementById("taskPrioridad").value="media";
   document.getElementById("taskLinkedAlertDisplay").style.display="none";
 }
@@ -2036,7 +2142,9 @@ function resetEventForm(){
   document.getElementById("eventTitulo").value="";
   document.getElementById("eventDescripcion").value="";
   document.getElementById("eventFechaInicio").value="";
+  document.getElementById("eventFechaInicioText").textContent="Seleccionar";
   document.getElementById("eventFechaFin").value="";
+  document.getElementById("eventFechaFinText").textContent="Seleccionar";
   document.getElementById("eventHoraInicio").value="";
   document.getElementById("eventHoraFin").value="";
   document.getElementById("eventTipoEvento").value="reunion";

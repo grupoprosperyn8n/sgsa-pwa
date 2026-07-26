@@ -683,3 +683,25 @@ select, input, textarea, button{background:var(--bg2);color:var(--fg)}
 .modal-body input[type="date"]:focus,.modal-body input[type="time"]:focus,.modal-body select:focus{border-color:var(--accent)}
 .modal-body textarea:focus{border-color:var(--accent)!important}
 .modal-body select option{background:var(--bg2);color:var(--fg)}
+
+/* Date picker button */
+.date-picker-wrap{position:relative;display:flex}
+.date-picker-btn{display:flex;align-items:center;gap:6px;width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg2);color:var(--fg);cursor:pointer;font-size:13px;transition:border .2s}
+.date-picker-btn:hover{border-color:var(--accent)}
+.date-text{flex:1;text-align:left}
+
+/* Date picker popup */
+.date-picker-popup{position:fixed;z-index:9999;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:8px;box-shadow:0 8px 24px rgba(0,0,0,.3);width:240px}
+.dp-header{display:flex;align-items:center;justify-content:space-between;padding:0 4px 6px}
+.dp-month-year{font-size:13px;font-weight:700}
+.dp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px}
+.dp-grid .cal-day-header{padding:2px 0;font-size:9px}
+.dp-day{padding:4px 0;text-align:center;font-size:12px;cursor:pointer;border-radius:4px;transition:background .15s}
+.dp-day:hover{background:var(--bg3)}
+.dp-day.selected{background:var(--accent);color:#fff}
+.dp-day.today{border:1px solid var(--accent)}
+.dp-day.other-month{color:var(--fg3);opacity:.4}
+
+/* Time select dropdown */
+.time-select{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg2);color:var(--fg);font-size:13px;cursor:pointer}
+.time-select:focus{border-color:var(--accent);outline:none}
