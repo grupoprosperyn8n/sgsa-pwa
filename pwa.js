@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v45 — chat messages: wrap document filename in span.file-link-text to prevent overflow
+// SGSA PWA v46 — chat messages: word-break:break-all on file-link-text so long filenames wrap inside card
 // =============================================================================
-console.log("[SGSA] PWA v45 loaded");
+console.log("[SGSA] PWA v46 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 
 // ─── Storage ──────────────────────────────────────────────────────────────
