@@ -3,6 +3,7 @@
 // =============================================================================
 console.log("[SGSA] PWA v47 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
+function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
 // ─── Storage ──────────────────────────────────────────────────────────────
 const S={get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}},del(k){try{localStorage.removeItem(k)}catch{}}};
