@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v58 — calendar day/week/month views, fixed grid sizing
+// SGSA PWA v59 — calendar day/week/month views, fixed grid sizing
 // =============================================================================
-console.log("[SGSA] PWA v58 loaded");
+console.log("[SGSA] PWA v59 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
@@ -2061,8 +2061,37 @@ function renderDayEvents(){
     return`<div class="cal-event-item" data-id="${e.id}" data-type="event"><span class="event-time">${esc(tr)}</span><span class="event-title">${esc(e.titulo)}</span><span class="event-type-badge t-${tipo}">${tl}</span></div>`;
   }).join("");
   list.querySelectorAll(".cal-event-item").forEach(el=>{
-    el.addEventListener("click",()=>openEventModal(agendaEvents.find(e=>e.id===el.dataset.id),null));
+    el.addEventListener("click",()=>showEventDetail(agendaEvents.find(e=>String(e.id)===el.dataset.id)));
   });
+}
+
+function showEventDetail(e){
+  if(!e)return;
+  const tipo=e.tipo_evento||"otro";const tl=TIPO_EVENTO_LABELS[tipo]||tipo;
+  const fecha=e.fecha_inicio?new Date(e.fecha_inicio+"T12:00:00").toLocaleDateString("es-AR",{weekday:"long",day:"numeric",month:"long"}):"";
+  const tr=e.todo_dia?"Todo el día":(e.hora_inicio?e.hora_inicio+(e.hora_fin?" - "+e.hora_fin:""):"");
+  openModal("event-detail-modal");
+  document.getElementById("eventDetailTitle").textContent=e.titulo||"Evento";
+  document.getElementById("eventDetailBody").innerHTML=
+    `<div class="detail-field"><span class="detail-label">Fecha</span><span class="detail-value">${esc(fecha)}</span></div>`+
+    (tr?`<div class="detail-field"><span class="detail-label">Horario</span><span class="detail-value">${esc(tr)}</span></div>`:"")+
+    (e.descripcion?`<div class="detail-field"><span class="detail-label">Descripción</span><span class="detail-value">${esc(e.descripcion)}</span></div>`:"")+
+    `<div class="detail-field"><span class="detail-label">Tipo</span><span class="detail-value"><span class="event-type-badge t-${tipo}">${esc(tl)}</span></span></div>`;
+  document.getElementById("eventDetailEditBtn").onclick=()=>{closeModal("event-detail-modal");openEventModal(e,null)};
+  document.getElementById("eventDetailDeleteBtn").onclick=async()=>{
+    closeModal("event-detail-modal");
+    if(await _confirm("¿Eliminar este evento?","Eliminar evento","danger")){
+      await _deleteEvent(e.id);
+    }
+  };
+}
+
+async function _deleteEvent(id){
+  try{
+    const r=await _ft(API+"/api/chat/agenda/"+id,{method:"DELETE",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+    if(r.ok||r.status===200){toast("Evento eliminado","success");agendaEvents=agendaEvents.filter(e=>e.id!==id);renderCalendar()}
+    else toast("Error al eliminar","error");
+  }catch{toast("Error de conexión","error")}
 }
 
 // ====== TASKS RENDER ======

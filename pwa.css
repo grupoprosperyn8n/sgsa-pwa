@@ -71,6 +71,8 @@ html,body{width:100vw;height:100vh;min-width:360px;min-height:500px;overflow:hid
 .btn-secondary{padding:8px 14px;border:1px solid var(--border);background:transparent;color:var(--fg2);border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;transition:all var(--t);white-space:nowrap}
 .btn-secondary:hover{background:var(--bg3);color:var(--fg);border-color:var(--fg3)}
 .btn-primary{width:100%;padding:10px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-size:13px;font-weight:700;cursor:pointer;transition:background var(--t);margin-top:8px}
+.btn-danger{padding:8px 14px;border:1px solid var(--danger);background:transparent;color:var(--danger);border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;transition:all var(--t);white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:4px}
+.btn-danger:hover{background:rgba(255,50,50,.1)}
 .tab-content{display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 .tab-content.active{display:flex}
 
