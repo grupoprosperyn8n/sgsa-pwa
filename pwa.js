@@ -104,6 +104,12 @@ function enterApp(){
   selectedOffice=p?.office||"";selectedOfficeId=p?.officeId||"";if(selectedOffice&&p?.officeName){document.getElementById("office-label").innerHTML=`<span class="material-symbols-outlined">apartment</span>${esc(p.officeName)}`;document.getElementById("selectOfficeBtn").classList.add("filled")}
   chatSound=p?.chatSound!==false;alertsSound=p?.alertsSound!==false;document.getElementById("toggleChatSound").checked=chatSound;document.getElementById("toggleAlertsSound").checked=alertsSound;
   updateSettingsUI();
+  // Show/hide admin features
+  const isAdmin=currentUser?.es_admin||false;
+  const newGroupBtn=document.getElementById("newGroupBtn");
+  if(newGroupBtn)newGroupBtn.style.display=isAdmin?"":"none";
+  const batchToggleBtn=document.getElementById("batchToggleBtn");
+  if(batchToggleBtn)batchToggleBtn.style.display=isAdmin?"":"none";
   // Init chat for badge count on startup (conversations load in background)
   initAlerts();flushOfflineQueue();startPing();
   setTimeout(()=>{if(authToken){refreshConversations();G("/api/chat/hidden").then(d=>{if(d?.ok)stats.chatArchived=d.conversations?.length||0;updateStats()}).catch(()=>{})}},100);
