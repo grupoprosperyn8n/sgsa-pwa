@@ -1,7 +1,7 @@
 // =============================================================================
-// SGSA PWA v63 — calendar day/week/month views, fixed grid sizing
+// SGSA PWA v64 — calendar day/week/month views, fixed grid sizing
 // =============================================================================
-console.log("[SGSA] PWA v63 loaded");
+console.log("[SGSA] PWA v64 loaded");
 const API="https://web-production-2584d.up.railway.app",R=30000;
 function _trunc(n,m){if(!n||n.length<=m)return n||"";return n.substring(0,m-1)+"…"}
 
