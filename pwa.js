@@ -184,8 +184,18 @@ async function loadAlerts(hist){
   }catch(e){console.error(e)}
   setLoading(false);updateBadgeFromAlerts();
 }
-async function doAck(id){try{alerts=alerts.filter(a=>a.id!==id);renderAlerts();await fetch(API+"/api/alerts/"+id+"/ack?empleado_que_marco_leido="+encodeURIComponent(currentUser?.airtable_id||"")+"&sucursal_id="+encodeURIComponent(selectedOfficeId||""),{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{}});S.del("sgsa_alertCache");S.del("sgsa_alertCacheHist");stats.alertsDone++}catch{}}
-async function doStatus(id,estado){try{alerts=alerts.filter(a=>a.id!==id);renderAlerts();await fetch(API+"/api/alerts/"+id+"/status",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({estado,empleado_id:currentUser?.airtable_id||"",sucursal_id:selectedOfficeId||""})});S.del("sgsa_alertCache");S.del("sgsa_alertCacheHist");stats.alertsDone++}catch{}}
+async function doAck(id){try{
+  const r=await fetch(API+"/api/alerts/"+id+"/ack?empleado_que_marco_leido="+encodeURIComponent(currentUser?.airtable_id||"")+"&sucursal_id="+encodeURIComponent(selectedOfficeId||""),{method:"POST",headers:authToken?{Authorization:"Bearer "+authToken}:{}});
+  const d=r.ok?null:await r.json().catch(()=>{});
+  if(!r.ok){toast("Error al marcar como leído"+(d?.detail?" → "+d.detail:""),"error");return}
+  alerts=alerts.filter(a=>a.id!==id);renderAlerts();S.del("sgsa_alertCache");S.del("sgsa_alertCacheHist");stats.alertsDone++
+}catch(e){toast("Error de conexión","error")}}
+async function doStatus(id,estado){try{
+  const r=await fetch(API+"/api/alerts/"+id+"/status",{method:"POST",headers:{"Content-Type":"application/json",...(authToken?{Authorization:"Bearer "+authToken}:{})},body:JSON.stringify({estado,empleado_id:currentUser?.airtable_id||"",sucursal_id:selectedOfficeId||""})});
+  const d=r.ok?null:await r.json().catch(()=>{});
+  if(!r.ok){toast("Error al cambiar estado"+(d?.detail?" → "+d.detail:""),"error");return}
+  alerts=alerts.filter(a=>a.id!==id);renderAlerts();S.del("sgsa_alertCache");S.del("sgsa_alertCacheHist");stats.alertsDone++
+}catch(e){toast("Error de conexión","error")}}
 
 function setLoading(v){const sk=document.getElementById("alertsSkeleton");if(sk)sk.style.display=v?"flex":"none"}
 
